@@ -1,0 +1,129 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:RLP.Chart.OpenGL"
+    xmlns:openTkWpfHost="clr-namespace:OpenTkWPFHost;assembly=OpenTkWPFHost"
+    xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
+    xmlns:bitmap="clr-namespace:OpenTkWPFHost.Bitmap;assembly=OpenTkWPFHost"
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost">
+
+    <Style TargetType="{x:Type local:LineChart}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:LineChart}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <local:Coordinate2D XLabelGenerationOption="{TemplateBinding XLabelGenerationOption}"
+                                          YLabelGenerationOption="{TemplateBinding YLabelGenerationOption}"
+                                          CoordinateRegion="{TemplateBinding ActualRegion}"
+                                          VerticalContentAlignment="Stretch"
+                                          HorizontalContentAlignment="Stretch">
+                            <Grid VerticalAlignment="Stretch"
+                                  HorizontalAlignment="Stretch">
+                                <control:ThreadOpenTkControl IsAutoAttach="True"
+                                                             IsRenderContinuously="True"
+                                                             IsShowFps="{TemplateBinding IsShowFps}"
+                                                             GlSettings="{TemplateBinding GlSettings}"
+                                                             x:Name="ThreadOpenTkControl">
+                                    <!--<control:ThreadOpenTkControl.RenderSetting>
+                                    <configuration:RenderSetting RenderTactic="LatencyPriority"
+                                                                 RenderTrigger="Internal"/>
+                                </control:ThreadOpenTkControl.RenderSetting>-->
+                                </control:ThreadOpenTkControl>
+                                <local:MouseSelect VerticalAlignment="Stretch"
+                                                   HorizontalAlignment="Stretch"
+                                                   x:Name="SelectScaleElement" />
+                            </Grid>
+                        </local:Coordinate2D>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background"
+                Value="White" />
+        <Setter Property="ToolTipTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type local:MouseHoverNodeData}">
+                    <TextBlock FontSize="20">
+                        <Run Text="{Binding Title,Mode=OneWay}" />
+                        <LineBreak />
+                        <Run Text="X:" />
+                        <Run Text="{Binding Point.X,Mode=OneWay}" />
+                        <Run Text="Y:" />
+                        <Run Text="{Binding Point.Y,Mode=OneWay}" />
+                    </TextBlock>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--<Style TargetType="{x:Type local:CoordinateChart}"
+           BasedOn="{StaticResource CoordinateChartDefaultStyle}"/>-->
+
+    <Style TargetType="{x:Type local:LineChartBase}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:LineChartBase}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <control:ThreadOpenTkControl x:Name="ThreadOpenTkControl"
+                                                     IsAutoAttach="True"
+                                                     IsShowFps="{TemplateBinding IsShowFps}"
+                                                     GlSettings="{TemplateBinding GlSettings}"
+                                                     IsRenderContinuously="True" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type local:Coordinate2D}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:Coordinate2D}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ContentPresenter Grid.Row="0"
+                                              Grid.Column="1"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                              ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
+                            <local:XAxisElement Grid.Row="1"
+                                                Grid.Column="1"
+                                                x:Name="XAxis"
+                                                
+                                                LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
+                            <local:YAxisElement Grid.Row="0"
+                                                Grid.Column="0"
+                                                x:Name="YAxis"
+                                                Margin="0,0,10,0"
+                                                LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
+                            <local:SeparatorLayer Grid.Row="0"
+                                                  Grid.Column="1"
+                                                  AxisXGenerationOption="{TemplateBinding XLabelGenerationOption}"
+                                                  AxisYGenerationOption="{TemplateBinding YLabelGenerationOption}"
+                                                  CoordinateRegion="{TemplateBinding CoordinateRegion}"
+                                                  x:Name="SeparatorLayer"/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

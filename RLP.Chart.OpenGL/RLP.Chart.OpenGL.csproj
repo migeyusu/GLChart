@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>RLP.Chart.OpenGL</RootNamespace>
+    <AssemblyName>RLP.Chart.OpenGL</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\packages\OpenTK.3.3.1\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Compile Include="AxisElement.cs" />
+    <Compile Include="Collection\AlignedFloatArray.cs" />
+    <Compile Include="Collection\FloatPointCompareExtension.cs" />
+    <Compile Include="Collection\RingBufferCounter.cs" />
+    <Compile Include="Collection\SingleLinkedList.cs" />
+    <Compile Include="Collection\ThreadSafeRingBuffer.cs" />
+    <Compile Include="CollisionDetection.xaml.cs">
+      <DependentUpon>CollisionDetection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CollisionDetection\CellFactory.cs" />
+    <Compile Include="CollisionDetection\CollisionGridLayer.cs" />
+    <Compile Include="CollisionDetection\ICollisionLayer.cs" />
+    <Compile Include="CollisionDetection\LinkedListGridCell.cs" />
+    <Compile Include="CollisionDetection\LinkedListGridCellFactory.cs" />
+    <Compile Include="CollisionDetection\QuadTreeNodeGridCellFactory.cs" />
+    <Compile Include="CollisionEnum.cs" />
+    <Compile Include="Coordinate2D.cs" />
+    <Compile Include="LineChartBase.cs" />
+    <Compile Include="DefaultPoint.cs" />
+    <Compile Include="DrawableElement.cs" />
+    <Compile Include="MouseHoverNodeData.cs" />
+    <Compile Include="MouseSelect.cs" />
+    <Compile Include="MouseWheelScaleExtension.cs" />
+    <Compile Include="Renderer\AdvancedLineRenderer.cs" />
+    <Compile Include="Renderer\AdvancedLineSeriesRenderer.cs" />
+    <Compile Include="Renderer\BaseRenderer.cs" />
+    <Compile Include="Renderer\SeriesShaderRenderer.cs" />
+    <Compile Include="Abstraction\IGeometryRenderer.cs" />
+    <Compile Include="Abstraction\ILineRenderer.cs" />
+    <Compile Include="Abstraction\IRendererItem.cs" />
+    <Compile Include="Abstraction\IShaderRendererItem.cs" />
+    <Compile Include="Renderer\SimpleLineSeriesRenderer.cs" />
+    <Compile Include="SpacialHashSet.cs" />
+    <Compile Include="WindowsToGlRecMapping.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="CollisionDetection\AxisSegment.cs" />
+    <Compile Include="CollisionDetection\AxisSegmentEndPoint.cs" />
+    <Compile Include="CollisionDetection\Boundary2D.cs" />
+    <Compile Include="CollisionDetection\CollisionGrid.cs" />
+    <Compile Include="CollisionDetection\ICell.cs" />
+    <Compile Include="CollisionDetection\Node.cs" />
+    <Compile Include="CollisionDetection\QuadTreeNode.cs" />
+    <Compile Include="CollisionDetection\QuadTreeNodeGridCell.cs" />
+    <Compile Include="Renderer\RenderDirective.cs" />
+    <Compile Include="Renderer\Ellipse.cs" />
+    <Compile Include="Renderer\Geometry2D.cs" />
+    <Compile Include="MatrixExtension.cs" />
+    <Compile Include="Renderer\Point2D.cs" />
+    <Compile Include="Renderer\Round.cs" />
+    <Compile Include="Renderer\SimpleLineRenderer.cs" />
+    <Compile Include="Renderer\Coordinate2DRenderer.cs" />
+    <Compile Include="Renderer\Shader.cs" />
+    <Compile Include="Renderer\GPUBufferRegion.cs" />
+    <Compile Include="SelectionArgs.cs" />
+    <Compile Include="SelectScaleAttach.cs" />
+    <Compile Include="SeparatorLayer.cs" />
+    <Compile Include="LineChart.cs" />
+    <Compile Include="SeparatorOption.cs" />
+    <Compile Include="VisualElement.cs" />
+    <Compile Include="XAxisElement.cs" />
+    <Compile Include="YAxisElement.cs" />
+    <Page Include="CollisionDetection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Shaders\LineShader\shader.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\LineShader\shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\AdvancedLineShader\shader.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\AdvancedLineShader\shader.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\RLP.FluentData\RLP.FluentData.csproj">
+      <Project>{71ab2354-4eac-4aaa-8f76-9bee4c56e529}</Project>
+      <Name>RLP.FluentData</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RLP.Chart.Interface\RLP.Chart.Interface.csproj">
+      <Project>{d496772a-5045-4ce5-96af-81540ebcb461}</Project>
+      <Name>RLP.Chart.Interface</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro">
+      <Version>2.4.5</Version>
+    </PackageReference>
+    <PackageReference Include="OpenTkWPFHost">
+      <Version>3.1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Memory">
+      <Version>4.5.4</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
