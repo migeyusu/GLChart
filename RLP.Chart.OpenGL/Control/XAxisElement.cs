@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 using System.Windows.Media;
 using RLP.Chart.Interface;
 using RLP.Chart.OpenGL.Collection;
-using RLP.Chart.OpenGL.Renderer;
 using Point = System.Windows.Point;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Control
 {
     public class XAxisElement : AxisElement
     {

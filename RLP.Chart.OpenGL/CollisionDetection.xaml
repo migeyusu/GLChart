@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RLP.Chart.OpenGL"
+        xmlns:control="clr-namespace:RLP.Chart.OpenGL.Control"
         mc:Ignorable="d"
         Title="CollisionDetection" 
         Height="800" 
@@ -11,7 +12,7 @@
     <Grid>
         <!--<local:YAxisLayer VerticalAlignment="Stretch"/>
         <local:XAxisLayer HorizontalAlignment="Stretch"/>-->
-        <local:LineChart x:Name="Chart"/>
+        <control:LineChart x:Name="Chart"/>
         <!--<TextBlock VerticalAlignment="Top"
                    HorizontalAlignment="Left"
                    x:Name="TextBlock" />-->

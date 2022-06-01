@@ -2,12 +2,12 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Control
 {
     /// <summary>
-    /// 可绘制的视觉树元素
+    /// 视觉元素
     /// </summary>
-    public class DrawableElement : FrameworkElement
+    public abstract class VisualElement : FrameworkElement
     {
         protected DrawingGroup DrawingGroup = new DrawingGroup();
 

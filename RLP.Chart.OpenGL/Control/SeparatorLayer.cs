@@ -1,15 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using RLP.Chart.Interface;
-using RLP.Chart.OpenGL.Renderer;
+using RLP.Chart.OpenGL.Interaction;
 using Point = System.Windows.Point;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Control
 {
     /// <summary>
     /// 绘制划分的图层

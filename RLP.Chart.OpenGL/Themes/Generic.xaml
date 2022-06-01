@@ -5,16 +5,18 @@
     xmlns:openTkWpfHost="clr-namespace:OpenTkWPFHost;assembly=OpenTkWPFHost"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
     xmlns:bitmap="clr-namespace:OpenTkWPFHost.Bitmap;assembly=OpenTkWPFHost"
-    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost">
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
+    xmlns:local1="clr-namespace:RLP.Chart.OpenGL.Control"
+    xmlns:interaction="clr-namespace:RLP.Chart.OpenGL.Interaction">
 
-    <Style TargetType="{x:Type local:LineChart}">
+    <Style TargetType="{x:Type local1:LineChart}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:LineChart}">
+                <ControlTemplate TargetType="{x:Type local1:LineChart}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <local:Coordinate2D XLabelGenerationOption="{TemplateBinding XLabelGenerationOption}"
+                        <local1:Coordinate2D XLabelGenerationOption="{TemplateBinding XLabelGenerationOption}"
                                           YLabelGenerationOption="{TemplateBinding YLabelGenerationOption}"
                                           CoordinateRegion="{TemplateBinding ActualRegion}"
                                           VerticalContentAlignment="Stretch"
@@ -31,11 +33,11 @@
                                                                  RenderTrigger="Internal"/>
                                 </control:ThreadOpenTkControl.RenderSetting>-->
                                 </control:ThreadOpenTkControl>
-                                <local:MouseSelect VerticalAlignment="Stretch"
+                                <interaction:MouseSelect VerticalAlignment="Stretch"
                                                    HorizontalAlignment="Stretch"
                                                    x:Name="SelectScaleElement" />
                             </Grid>
-                        </local:Coordinate2D>
+                        </local1:Coordinate2D>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -44,7 +46,7 @@
                 Value="White" />
         <Setter Property="ToolTipTemplate">
             <Setter.Value>
-                <DataTemplate DataType="{x:Type local:MouseHoverNodeData}">
+                <DataTemplate DataType="{x:Type interaction:MouseHoverNodeData}">
                     <TextBlock FontSize="20">
                         <Run Text="{Binding Title,Mode=OneWay}" />
                         <LineBreak />
@@ -61,10 +63,10 @@
     <!--<Style TargetType="{x:Type local:CoordinateChart}"
            BasedOn="{StaticResource CoordinateChartDefaultStyle}"/>-->
 
-    <Style TargetType="{x:Type local:LineChartBase}">
+    <Style TargetType="{x:Type local1:LineChartBase}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:LineChartBase}">
+                <ControlTemplate TargetType="{x:Type local1:LineChartBase}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -79,10 +81,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type local:Coordinate2D}">
+    <Style TargetType="{x:Type local1:Coordinate2D}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:Coordinate2D}">
+                <ControlTemplate TargetType="{x:Type local1:Coordinate2D}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -104,17 +106,17 @@
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
-                            <local:XAxisElement Grid.Row="1"
+                            <local1:XAxisElement Grid.Row="1"
                                                 Grid.Column="1"
                                                 x:Name="XAxis"
                                                 
                                                 LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
-                            <local:YAxisElement Grid.Row="0"
+                            <local1:YAxisElement Grid.Row="0"
                                                 Grid.Column="0"
                                                 x:Name="YAxis"
                                                 Margin="0,0,10,0"
                                                 LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
-                            <local:SeparatorLayer Grid.Row="0"
+                            <local1:SeparatorLayer Grid.Row="0"
                                                   Grid.Column="1"
                                                   AxisXGenerationOption="{TemplateBinding XLabelGenerationOption}"
                                                   AxisYGenerationOption="{TemplateBinding YLabelGenerationOption}"

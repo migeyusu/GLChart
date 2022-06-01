@@ -7,7 +7,7 @@ using RLP.Chart.OpenGL.Renderer;
 namespace RLP.Chart.OpenGL
 {
     /// <summary>
-    /// 比例尺
+    /// windows 和 opengl的空间映射
     /// </summary>
     public struct WindowsToGlRecMapping
     {
@@ -69,8 +69,8 @@ namespace RLP.Chart.OpenGL
         public Point2D MapGlPoint(System.Windows.Point winPoint)
         {
             winPoint.Y = _pixelRect.Height - winPoint.Y;
-            return new Point2D((float) (XScaleRatio * winPoint.X + _xScrollRange.Start),
-                (float) (YScaleRatio * winPoint.Y + _yScrollRange.Start));
+            return new Point2D((float)(XScaleRatio * winPoint.X + _xScrollRange.Start),
+                (float)(YScaleRatio * winPoint.Y + _yScrollRange.Start));
         }
     }
 }

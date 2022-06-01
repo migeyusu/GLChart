@@ -10,9 +10,10 @@ using OpenTkWPFHost.Control;
 using RLP.Chart.Interface;
 using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.CollisionDetection;
+using RLP.Chart.OpenGL.Interaction;
 using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Control
 {
     /// <summary>
     /// 基于2d xy坐标系的图

@@ -7,10 +7,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
 using OpenTK.Graphics;
 using OpenTkWPFHost.Configuration;
@@ -20,13 +18,13 @@ using RLP.Chart.Interface;
 using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Control
 {
     /// <summary>
     /// 只具有显示能力的图形
     /// </summary>
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(ThreadOpenTkControl))]
-    public class LineChartBase : Control, ILineChart
+    public class LineChartBase : System.Windows.Controls.Control, ILineChart
     {
         public static Dispatcher AppDispatcher => DispatcherLazy.Value;
 

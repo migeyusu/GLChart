@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using RLP.Chart.Interface;
+﻿using RLP.Chart.Interface;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Interaction
 {
     public static class MouseWheelScaleExtension
     {

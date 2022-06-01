@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.OpenGL
+﻿namespace RLP.Chart.OpenGL.CollisionDetection
 {
     public enum CollisionEnum
     {

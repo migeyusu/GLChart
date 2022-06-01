@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.Interaction
 {
     public class SeparatorOption
     {

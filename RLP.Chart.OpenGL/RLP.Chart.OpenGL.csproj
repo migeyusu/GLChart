@@ -67,7 +67,7 @@
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <Compile Include="AxisElement.cs" />
+    <Compile Include="Control\AxisElement.cs" />
     <Compile Include="Collection\AlignedFloatArray.cs" />
     <Compile Include="Collection\FloatPointCompareExtension.cs" />
     <Compile Include="Collection\RingBufferCounter.cs" />
@@ -82,14 +82,14 @@
     <Compile Include="CollisionDetection\LinkedListGridCell.cs" />
     <Compile Include="CollisionDetection\LinkedListGridCellFactory.cs" />
     <Compile Include="CollisionDetection\QuadTreeNodeGridCellFactory.cs" />
-    <Compile Include="CollisionEnum.cs" />
-    <Compile Include="Coordinate2D.cs" />
-    <Compile Include="LineChartBase.cs" />
+    <Compile Include="CollisionDetection\CollisionEnum.cs" />
+    <Compile Include="Control\Coordinate2D.cs" />
+    <Compile Include="Control\LineChartBase.cs" />
     <Compile Include="DefaultPoint.cs" />
-    <Compile Include="DrawableElement.cs" />
-    <Compile Include="MouseHoverNodeData.cs" />
-    <Compile Include="MouseSelect.cs" />
-    <Compile Include="MouseWheelScaleExtension.cs" />
+    <Compile Include="Control\DrawableElement.cs" />
+    <Compile Include="Interaction\MouseHoverNodeData.cs" />
+    <Compile Include="Interaction\MouseSelect.cs" />
+    <Compile Include="Interaction\MouseWheelScaleExtension.cs" />
     <Compile Include="Renderer\AdvancedLineRenderer.cs" />
     <Compile Include="Renderer\AdvancedLineSeriesRenderer.cs" />
     <Compile Include="Renderer\BaseRenderer.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Abstraction\IRendererItem.cs" />
     <Compile Include="Abstraction\IShaderRendererItem.cs" />
     <Compile Include="Renderer\SimpleLineSeriesRenderer.cs" />
-    <Compile Include="SpacialHashSet.cs" />
+    <Compile Include="CollisionDetection\SpacialHashSet.cs" />
     <Compile Include="WindowsToGlRecMapping.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="CollisionDetection\AxisSegment.cs" />
@@ -120,14 +120,14 @@
     <Compile Include="Renderer\Coordinate2DRenderer.cs" />
     <Compile Include="Renderer\Shader.cs" />
     <Compile Include="Renderer\GPUBufferRegion.cs" />
-    <Compile Include="SelectionArgs.cs" />
-    <Compile Include="SelectScaleAttach.cs" />
-    <Compile Include="SeparatorLayer.cs" />
-    <Compile Include="LineChart.cs" />
-    <Compile Include="SeparatorOption.cs" />
-    <Compile Include="VisualElement.cs" />
-    <Compile Include="XAxisElement.cs" />
-    <Compile Include="YAxisElement.cs" />
+    <Compile Include="Interaction\SelectionArgs.cs" />
+    <Compile Include="Interaction\SelectScaleAttach.cs" />
+    <Compile Include="Control\SeparatorLayer.cs" />
+    <Compile Include="Control\LineChart.cs" />
+    <Compile Include="Interaction\SeparatorOption.cs" />
+    <Compile Include="Control\VisualElement.cs" />
+    <Compile Include="Control\XAxisElement.cs" />
+    <Compile Include="Control\YAxisElement.cs" />
     <Page Include="CollisionDetection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
