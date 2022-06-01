@@ -73,9 +73,6 @@
     <Compile Include="Collection\RingBufferCounter.cs" />
     <Compile Include="Collection\SingleLinkedList.cs" />
     <Compile Include="Collection\ThreadSafeRingBuffer.cs" />
-    <Compile Include="CollisionDetection.xaml.cs">
-      <DependentUpon>CollisionDetection.xaml</DependentUpon>
-    </Compile>
     <Compile Include="CollisionDetection\CellFactory.cs" />
     <Compile Include="CollisionDetection\CollisionGridLayer.cs" />
     <Compile Include="CollisionDetection\ICollisionLayer.cs" />
@@ -128,10 +125,6 @@
     <Compile Include="Control\VisualElement.cs" />
     <Compile Include="Control\XAxisElement.cs" />
     <Compile Include="Control\YAxisElement.cs" />
-    <Page Include="CollisionDetection.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

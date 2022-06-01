@@ -6,6 +6,9 @@ using RLP.Chart.Interface;
 
 namespace RLP.Chart.OpenGL.Control
 {
+    /// <summary>
+    /// 基于wpf的2d坐标轴和网格绘制
+    /// </summary>
     [TemplatePart(Name = XAxisName, Type = typeof(XAxisElement))]
     [TemplatePart(Name = YAxisName, Type = typeof(YAxisElement))]
     [TemplatePart(Name = SeparatorLayerName, Type = typeof(SeparatorLayer))]
@@ -23,7 +26,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public Region2D CoordinateRegion
         {
-            get { return (Region2D) GetValue(CoordinateRegionProperty); }
+            get { return (Region2D)GetValue(CoordinateRegionProperty); }
             set { SetValue(CoordinateRegionProperty, value); }
         }
 

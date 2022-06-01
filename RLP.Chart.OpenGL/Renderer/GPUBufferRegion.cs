@@ -1,7 +1,7 @@
 ﻿namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// GPU缓冲区域
+    /// 表示一段GPU缓冲区域
     /// </summary>
     public struct GPUBufferRegion
     {

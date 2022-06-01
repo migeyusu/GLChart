@@ -2,7 +2,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:RLP.Chart.OpenGL"
-    xmlns:openTkWpfHost="clr-namespace:OpenTkWPFHost;assembly=OpenTkWPFHost"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
     xmlns:bitmap="clr-namespace:OpenTkWPFHost.Bitmap;assembly=OpenTkWPFHost"
     xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
@@ -17,10 +16,10 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <local1:Coordinate2D XLabelGenerationOption="{TemplateBinding XLabelGenerationOption}"
-                                          YLabelGenerationOption="{TemplateBinding YLabelGenerationOption}"
-                                          CoordinateRegion="{TemplateBinding ActualRegion}"
-                                          VerticalContentAlignment="Stretch"
-                                          HorizontalContentAlignment="Stretch">
+                                             YLabelGenerationOption="{TemplateBinding YLabelGenerationOption}"
+                                             CoordinateRegion="{TemplateBinding ActualRegion}"
+                                             VerticalContentAlignment="Stretch"
+                                             HorizontalContentAlignment="Stretch">
                             <Grid VerticalAlignment="Stretch"
                                   HorizontalAlignment="Stretch">
                                 <control:ThreadOpenTkControl IsAutoAttach="True"
@@ -34,8 +33,8 @@
                                 </control:ThreadOpenTkControl.RenderSetting>-->
                                 </control:ThreadOpenTkControl>
                                 <interaction:MouseSelect VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Stretch"
-                                                   x:Name="SelectScaleElement" />
+                                                         HorizontalAlignment="Stretch"
+                                                         x:Name="SelectScaleElement" />
                             </Grid>
                         </local1:Coordinate2D>
                     </Border>
@@ -107,21 +106,21 @@
                                               ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
                             <local1:XAxisElement Grid.Row="1"
-                                                Grid.Column="1"
-                                                x:Name="XAxis"
-                                                
-                                                LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
+                                                 Grid.Column="1"
+                                                 x:Name="XAxis"
+
+                                                 LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
                             <local1:YAxisElement Grid.Row="0"
-                                                Grid.Column="0"
-                                                x:Name="YAxis"
-                                                Margin="0,0,10,0"
-                                                LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
+                                                 Grid.Column="0"
+                                                 x:Name="YAxis"
+                                                 Margin="0,0,10,0"
+                                                 LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
                             <local1:SeparatorLayer Grid.Row="0"
-                                                  Grid.Column="1"
-                                                  AxisXGenerationOption="{TemplateBinding XLabelGenerationOption}"
-                                                  AxisYGenerationOption="{TemplateBinding YLabelGenerationOption}"
-                                                  CoordinateRegion="{TemplateBinding CoordinateRegion}"
-                                                  x:Name="SeparatorLayer"/>
+                                                   Grid.Column="1"
+                                                   AxisXGenerationOption="{TemplateBinding XLabelGenerationOption}"
+                                                   AxisYGenerationOption="{TemplateBinding YLabelGenerationOption}"
+                                                   CoordinateRegion="{TemplateBinding CoordinateRegion}"
+                                                   x:Name="SeparatorLayer" />
                         </Grid>
                     </Border>
                 </ControlTemplate>
