@@ -7,7 +7,9 @@ namespace RLP.Chart.OpenGL.Renderer
     /// </summary>
     public class RenderDirective
     {
-        public readonly Matrix4 Transform;
+        
+
+        public  Matrix4 Transform { get; }
 
         public RenderDirective(Matrix4 transform)
         {

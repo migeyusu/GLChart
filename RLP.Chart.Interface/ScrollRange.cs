@@ -6,14 +6,13 @@ namespace RLP.Chart.Interface
     /// <summary>
     /// 滚动范围
     /// </summary>
-    [DefaultValue(typeof(ScrollRange), "0,100")]
     public readonly struct ScrollRange
     {
+        [DefaultValue(0)] public double Start { get; }
+
+        [DefaultValue(100)] public double End { get; }
+
         public double Range { get; }
-
-        public double Start { get; }
-
-        public double End { get; }
 
         public ScrollRange(double start, double end)
         {

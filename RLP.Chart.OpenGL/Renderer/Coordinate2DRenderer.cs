@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
-using OpenTkWPFHost;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
@@ -19,7 +16,8 @@ namespace RLP.Chart.OpenGL.Renderer
      已知问题：不能设置零一下的Y轴起点*/
 
     /// <summary>
-    /// 基于2d 坐标轴的渲染器
+    /// 基于2d 坐标轴的渲染器；
+    /// 能够自适应内容高度
     /// </summary>
     public class Coordinate2DRenderer : IRenderer
     {
@@ -45,7 +43,6 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
         /// </summary>
         public ScrollRange DefaultAxisYRange { get; set; } = new ScrollRange(0, 100);
-
 
         /// <summary>
         /// 是否启用抗锯齿
@@ -247,6 +244,7 @@ namespace RLP.Chart.OpenGL.Renderer
         private Matrix4 _tempTransform = Matrix4.Identity;
 
         private Region2D _lastTargetRegion;
+
         private Region2D _renderingRegion = default;
 
         /// <summary>
@@ -258,7 +256,7 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             GL.ClearColor(BackgroundColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            if (_rendererSeriesSnapList.All((series => !series.AnyReadyRenders())))
+            if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
                 _autoAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
                 return;

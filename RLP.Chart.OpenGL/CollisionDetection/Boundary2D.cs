@@ -2,6 +2,7 @@
 
 namespace RLP.Chart.OpenGL.CollisionDetection
 {
+    
     /// <summary>
     /// 二维的<see cref="AxisSegment"/> 默认下边界封闭，上边界开放
     /// </summary>

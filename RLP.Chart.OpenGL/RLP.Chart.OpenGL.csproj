@@ -90,6 +90,9 @@
     <Compile Include="Renderer\AdvancedLineRenderer.cs" />
     <Compile Include="Renderer\AdvancedLineSeriesRenderer.cs" />
     <Compile Include="Renderer\BaseRenderer.cs" />
+    <Compile Include="Renderer\Coordinate3DRenderer.cs" />
+    <Compile Include="Renderer\Point3D.cs" />
+    <Compile Include="Renderer\Region3D.cs" />
     <Compile Include="Renderer\SeriesShaderRenderer.cs" />
     <Compile Include="Abstraction\IGeometryRenderer.cs" />
     <Compile Include="Abstraction\ILineRenderer.cs" />

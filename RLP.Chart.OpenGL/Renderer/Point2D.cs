@@ -81,7 +81,7 @@ namespace RLP.Chart.OpenGL.Renderer
             var nextDouble = Random.NextDouble();
             var x = nextDouble * boundary.XSpan + boundary.XLow;
             var y = Random.NextDouble() * boundary.YSpan + boundary.YLow;
-            return new Point2D((float) x, (float) y);
+            return new Point2D((float)x, (float)y);
         }
 
         public override string ToString()
