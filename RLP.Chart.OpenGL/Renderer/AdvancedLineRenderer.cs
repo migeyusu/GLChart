@@ -222,7 +222,7 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 var bufferLength = pendingPointsCount * 2;
                 var dirtRegions = Counter.AddDifference((uint)bufferLength).ToArray(); //防止重复添加
-                DrawRegions = Counter.CombinedContiguousRegions.ToArray();
+                DrawRegions = Counter.ContiguousRegions.ToArray();
                 this.PointCount = Counter.Length / 2;
                 var firstDirtRegion = dirtRegions[0];
                 var firstDirtRegionLength = firstDirtRegion.Length;

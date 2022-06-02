@@ -222,11 +222,11 @@ namespace RLP.Chart.OpenGL.Renderer
                         PointCount = 0; //重设计数器，但是不需要清空缓存
                         DrawRegions = default;
                         Counter.Reset();
-                        if (result.NewItems!=null)
+                        if (result.NewItems != null)
                         {
-                            WritePoints(result.NewItems);                            
+                            WritePoints(result.NewItems);
                         }
-                        
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -248,7 +248,7 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 var bufferLength = pendingPointsCount * 2;
                 var dirtRegions = Counter.AddDifference((uint)bufferLength).ToArray(); //防止重复添加
-                DrawRegions = Counter.CombinedContiguousRegions.ToArray();
+                DrawRegions = Counter.ContiguousRegions.ToArray();
                 this.PointCount = Counter.Length / 2;
                 var firstDirtRegion = dirtRegions[0];
                 var firstDirtRegionLength = firstDirtRegion.Length;
@@ -375,7 +375,7 @@ namespace RLP.Chart.OpenGL.Renderer
         public void AddGeometries(IList<IPoint2D> points)
         {
             _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>
-                .AppendRangeArgs(points.Select((point => new Point2D(point.X, point.Y))).ToArray()));
+                .AppendRangeArgs(points.Select(point => new Point2D(point.X, point.Y)).ToArray()));
         }
 
         public void ResetWith(IList<IPoint2D> geometries)

@@ -29,7 +29,7 @@ namespace RLP.Chart.OpenGL.Collection
         /// <summary>
         /// 表示缓冲有效区域的的组合，<see cref="Head"/>大于<see cref="Tail"/>
         /// </summary>
-        public IEnumerable<Region> CombinedContiguousRegions
+        public IEnumerable<Region> ContiguousRegions
         {
             get
             {
@@ -169,7 +169,7 @@ namespace RLP.Chart.OpenGL.Collection
             if (length >= Capacity)
             {
                 //完全更新
-                foreach (var contiguousRegion in CombinedContiguousRegions)
+                foreach (var contiguousRegion in ContiguousRegions)
                 {
                     yield return contiguousRegion;
                 }
