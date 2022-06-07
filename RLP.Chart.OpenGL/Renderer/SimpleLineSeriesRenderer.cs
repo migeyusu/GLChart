@@ -4,15 +4,6 @@ namespace RLP.Chart.OpenGL.Renderer
 {
     public class SimpleLineSeriesRenderer : SeriesShaderRenderer<SimpleLineRenderer>
     {
-        /// <summary>
-        /// 最大线宽
-        /// </summary>
-        public float MinLineThickness { get; private set; } = 1; //无法修改
-
-        /// <summary>
-        /// 最小线宽
-        /// </summary>
-        public float MaxLineThickness { get; private set; } = 1; //无法修改
 
         private float _lineThickness = 1;
 

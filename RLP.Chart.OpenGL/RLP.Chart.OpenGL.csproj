@@ -89,8 +89,14 @@
     <Compile Include="Interaction\MouseWheelScaleExtension.cs" />
     <Compile Include="Renderer\AdvancedLineRenderer.cs" />
     <Compile Include="Renderer\AdvancedLineSeriesRenderer.cs" />
+    <Compile Include="Renderer\AutoHeight2DRenderer.cs" />
     <Compile Include="Renderer\BaseRenderer.cs" />
+    <Compile Include="Renderer\Channel.cs" />
+    <Compile Include="Renderer\ChannelRenderer.cs" />
+    <Compile Include="Renderer\ChannelSeriesRenderer.cs" />
     <Compile Include="Renderer\Coordinate3DRenderer.cs" />
+    <Compile Include="Renderer\IChannel.cs" />
+    <Compile Include="Renderer\ModelRingBuffer.cs" />
     <Compile Include="Renderer\Point3D.cs" />
     <Compile Include="Renderer\Region3D.cs" />
     <Compile Include="Renderer\SeriesShaderRenderer.cs" />

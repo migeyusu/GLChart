@@ -34,19 +34,22 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public Shader Shader { get; protected set; }
 
-        protected IList<T> RenderItemsSnapList = new T[] { };
+        /// <summary>
+        /// 在一个循环中，实际参与渲染的项列表
+        /// </summary>
+        protected IList<T> RenderWorkingList = new T[] { };
 
         /// <summary>
         /// 参与渲染的渲染器快照，目标是实现线程安全，保证一次渲染过程在同一个集合上操作
         /// </summary>
         public IReadOnlyList<T> RenderSnapList =>
-            new ReadOnlyCollection<T>(RenderItemsSnapList);
+            new ReadOnlyCollection<T>(RenderWorkingList);
 
         protected IGraphicsContext Context;
 
         public override bool AnyReadyRenders()
         {
-            return RenderItemsSnapList.Any();
+            return RenderWorkingList.Any();
         }
 
         public override void Initialize(IGraphicsContext context)
@@ -67,7 +70,12 @@ namespace RLP.Chart.OpenGL.Renderer
             this.IsInitialized = true;
         }
 
-
+        /// <summary>
+        /// 检查初始化、反初始化和渲染必要性
+        /// 渲染必要性的检查逻辑见返回值解释
+        /// </summary>
+        /// <returns>true：上次渲染项目和本次渲染项不同，或任一可用渲染项提交了渲染请求(该渲染项的<see cref="PreviewRender"/>也为true；
+        /// <para>false：两次渲染的项目相同</para></returns>
         public override bool PreviewRender()
         {
             var renderEnable = false;
@@ -95,24 +103,24 @@ namespace RLP.Chart.OpenGL.Renderer
             //对比渲染快照
             var participateItems = lineRendererCollection.Where(renderer => renderer.RenderEnable)
                 .ToArray();
-            if (!RenderItemsSnapList.SequenceEqual(participateItems))
+            if (!RenderWorkingList.SequenceEqual(participateItems))
             {
                 renderEnable = true;
             }
 
-            RenderItemsSnapList = participateItems;
+            RenderWorkingList = participateItems;
             return renderEnable;
         }
 
         public override void Render(GlRenderEventArgs args)
         {
-            if (RenderItemsSnapList.Count == 0)
+            if (RenderWorkingList.Count == 0)
             {
                 return;
             }
 
             ApplyShader(args);
-            foreach (var rendererItem in RenderItemsSnapList)
+            foreach (var rendererItem in RenderWorkingList)
             {
                 rendererItem.Render(args);
             }

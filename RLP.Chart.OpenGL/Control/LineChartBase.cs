@@ -134,7 +134,7 @@ namespace RLP.Chart.OpenGL.Control
             new AdvancedLineSeriesRenderer(new Shader("Shaders/AdvancedLineShader/shader.vert",
                 "Shaders/AdvancedLineShader/shader.frag"));
 #endif
-        protected Coordinate2DRenderer CoordinateRenderer;
+        protected AutoHeight2DRenderer CoordinateRenderer;
 
         protected ThreadOpenTkControl OpenTkControl;
 
@@ -146,7 +146,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public LineChartBase()
         {
-            CoordinateRenderer = new Coordinate2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
+            CoordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
             DependencyPropertyDescriptor.FromProperty(SettingRegionProperty, typeof(LineChartBase))
                 .AddValueChanged(this, SettingRegionChangedHandler);
             DependencyPropertyDescriptor.FromProperty(LineThicknessProperty, typeof(LineChartBase))
