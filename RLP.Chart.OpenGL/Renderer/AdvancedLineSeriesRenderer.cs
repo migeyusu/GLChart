@@ -36,9 +36,9 @@ namespace RLP.Chart.OpenGL.Renderer
             base.Render(args);
         }
 
-        protected override void ApplyShader(GlRenderEventArgs args)
+        protected override void ConfigShader(GlRenderEventArgs args)
         {
-            base.ApplyShader(args);
+            base.ConfigShader(args);
             Shader.SetFloat("u_thickness", LineThickness);
             Shader.SetVec2("u_resolution", new Vector2(args.Width, args.Height));
         }

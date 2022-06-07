@@ -16,7 +16,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 模型到比特数组的映射
         /// </summary>
-        private readonly Func<T, K[]> _modelToFloatsMapping;
+        private Func<T, K[]> _modelToFloatsMapping;
 
         /// <summary>
         /// 有效填充区域
@@ -31,7 +31,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 模型大小
         /// </summary>
-        public uint ModelSize { get; }
+        public uint ModelSize { get; private set; }
 
         /// <summary>
         /// 当前模型数量
@@ -43,18 +43,34 @@ namespace RLP.Chart.OpenGL.Renderer
         /// </summary>
         public long DeviceBufferSize { get; set; }
 
-        private readonly RingBufferCounter _ringBufferCounter;
+        private RingBufferCounter _ringBufferCounter;
 
         private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs<T>> _changedEventArgsQueue =
             new ConcurrentQueue<NotifyCollectionChangedEventArgs<T>>();
 
+        public ModelRingBuffer()
+        {
+        }
+
         /// <summary>
-        /// 
+        /// 分配空间
         /// </summary>
         /// <param name="maxCount">最大模型数量</param>
         /// <param name="modelSize">模型导出数组的大小，以<see cref="K"/>为单位</param>
         /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
         public ModelRingBuffer(uint maxCount, uint modelSize, Func<T, K[]> modelToFloatsMapping)
+        {
+            this.Allocate(maxCount, modelSize, modelToFloatsMapping);
+        }
+
+
+        /// <summary>
+        /// 分配空间
+        /// </summary>
+        /// <param name="maxCount">最大模型数量</param>
+        /// <param name="modelSize">模型导出数组的大小，以<see cref="K"/>为单位</param>
+        /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
+        public void Allocate(uint maxCount, uint modelSize, Func<T, K[]> modelToFloatsMapping)
         {
             _modelToFloatsMapping = modelToFloatsMapping;
             this.MaxModelCount = maxCount;

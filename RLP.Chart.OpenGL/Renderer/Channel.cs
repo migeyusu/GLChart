@@ -1,7 +1,9 @@
-﻿namespace RLP.Chart.OpenGL.Renderer
+﻿using RLP.Chart.Interface.Abstraction;
+
+namespace RLP.Chart.OpenGL.Renderer
 {
-    public struct Channel
+    public struct Channel : IChannel
     {
-        public Point3D[] Points { get; set; }
+        public IPoint3D[] Points { get; set; }
     }
 }

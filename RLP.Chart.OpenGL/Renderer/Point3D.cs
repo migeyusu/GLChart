@@ -1,6 +1,8 @@
-﻿namespace RLP.Chart.OpenGL.Renderer
+﻿using RLP.Chart.Interface.Abstraction;
+
+namespace RLP.Chart.OpenGL.Renderer
 {
-    public readonly struct Point3D
+    public readonly struct Point3D : IPoint3D
     {
         public float X { get; }
 

@@ -26,13 +26,27 @@ namespace RLP.Chart.OpenGL.Renderer
         /// </summary>
         public ScrollRange AxisYRange { get; set; } = new ScrollRange(0, 100);
 
+        /// <summary>
+        /// 只显示该范围内的
+        /// </summary>
         public Region3D TargetRegion { get; set; }
+
+        public Matrix4 View { get; set; }
+
+        /// <summary>
+        /// 模型位置
+        /// </summary>
+        public Matrix4 ModelPosition { get; set; }
+
+        /// <summary>
+        /// 投影
+        /// </summary>
+        public Matrix4 Projection { get; set; }
 
         public IReadOnlyCollection<BaseRenderer> Series =>
             new ReadOnlyCollection<BaseRenderer>(_renderSeriesCollection);
 
         private readonly IList<BaseRenderer> _renderSeriesCollection;
-
 
         private IGraphicsContext _context;
 
@@ -55,6 +69,17 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool PreviewRender()
         {
+            //检查未初始化，当预渲染ok且渲染可用时表示渲染可用
+            foreach (var renderSeries in _renderSeriesCollection)
+            {
+                if (!renderSeries.IsInitialized)
+                {
+                    renderSeries.Initialize(this._context);
+                }
+
+                renderSeries.PreviewRender();
+            }
+
             return true;
         }
 
@@ -70,9 +95,13 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             GL.ClearColor(BackgroundColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            var identity = Matrix4.Identity;
+            identity *= Projection;
+            identity *= View;
+            identity *= ModelPosition;
             foreach (var seriesItem in _renderSeriesCollection.Where(renderer => renderer.AnyReadyRenders()))
             {
-                seriesItem.ApplyDirective(new RenderDirective(_transform));
+                seriesItem.ApplyDirective(new RenderDirective(identity));
                 seriesItem.Render(args);
             }
         }

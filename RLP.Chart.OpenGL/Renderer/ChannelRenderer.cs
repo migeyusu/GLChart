@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.Linq;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
+using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Abstraction;
 
 namespace RLP.Chart.OpenGL.Renderer
@@ -15,7 +17,18 @@ namespace RLP.Chart.OpenGL.Renderer
     /// </summary>
     public class ChannelRenderer : IShaderRendererItem, IGeometryRenderer<IChannel>
     {
+        private Color4 _color4 = Color4.Red;
+
+        public Color ChannelColor
+        {
+            get => Color.FromArgb(_color4.ToArgb());
+            set => _color4 = new Color4(value.R, value.G, value.B, value.A);
+        }
+
+
         private const int SizeFloat = sizeof(float);
+
+        private uint _channelWidth;
 
         /// <summary>
         /// 通道宽度，指通道点位数量
@@ -48,17 +61,13 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool RenderEnable { get; private set; } = true;
 
-        private ModelRingBuffer<Channel, float> _channelBuffer;
+        private ModelRingBuffer<IChannel, float> _channelBuffer;
 
         private Shader _shader;
 
-        private uint _channelWidth;
-
-        private uint[] _indexBuffer;
-
-        public ChannelRenderer(uint[] indexBuffer)
+        public ChannelRenderer()
         {
-            _indexBuffer = indexBuffer;
+            _channelBuffer = new ModelRingBuffer<IChannel, float>();
         }
 
         public void Initialize(IGraphicsContext context)
@@ -69,21 +78,20 @@ namespace RLP.Chart.OpenGL.Renderer
             }
 
             var channelBufferLength = ChannelWidth * 3; //真实的浮点缓冲大小
-            _channelBuffer =
-                new ModelRingBuffer<Channel, float>(this.MaxChannelCount, channelBufferLength, channel =>
+            _channelBuffer.Allocate(this.MaxChannelCount, channelBufferLength, channel =>
+            {
+                var buffer = new float[channelBufferLength];
+                var index = 0;
+                foreach (var point in channel.Points)
                 {
-                    var buffer = new float[channelBufferLength];
-                    var index = 0;
-                    foreach (var point in channel.Points)
-                    {
-                        buffer[index] = point.X;
-                        buffer[index + 1] = point.Y;
-                        buffer[index + 2] = point.Z;
-                        index++;
-                    }
+                    buffer[index] = point.X;
+                    buffer[index + 1] = point.Y;
+                    buffer[index + 2] = point.Z;
+                    index++;
+                }
 
-                    return buffer;
-                });
+                return buffer;
+            });
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, IntPtr.Zero,
@@ -95,14 +103,10 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.EnableVertexAttribArray(0);
             ElementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-            if (_indexBuffer == null)
-            {
-                //index缓存从一开始就是确定的
-                //在gpu环形缓冲中存在首尾的副本节点，所以index缓存也必须扩充
-                _indexBuffer = PopulateIndex((int)ChannelWidth, (int)MaxChannelCount + 2);
-            }
-
-            GL.BufferData(BufferTarget.ElementArrayBuffer, _indexBuffer.Length * sizeof(uint), _indexBuffer,
+            //index缓存从一开始就是确定的
+            //在gpu环形缓冲中存在首尾的副本节点，所以index缓存也必须扩充
+            var indexBuffer = PopulateIndex((int)ChannelWidth, (int)MaxChannelCount + 2);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * sizeof(uint), indexBuffer,
                 BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
@@ -175,6 +179,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 return;
             }
 
+            _shader.SetColor("linecolor", _color4);
             GL.BindVertexArray(VertexArrayObject);
             var drawRegions = _channelBuffer.EffectRegions;
             var drawRegion = drawRegions[0];
@@ -217,52 +222,49 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public void AddGeometry(IChannel geometry)
         {
-            var point3Ds = geometry.Points
+            /*var point3Ds = geometry.Points
                 .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                .ToArray();
-            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<Channel>.AppendArgs(new Channel()
-            {
-                Points = point3Ds
-            }));
+                .ToArray();*/
+            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendArgs(geometry));
         }
 
         public void AddGeometries(IList<IChannel> geometries)
         {
-            var channels = geometries.Select((channel =>
+            /*var channels = geometries.Select((channel =>
             {
                 var point3Ds = channel.Points
                     .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
                     .ToArray();
                 return new Channel() { Points = point3Ds };
-            })).ToArray();
-            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<Channel>.AppendRangeArgs(channels));
+            })).ToArray();*/
+            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendRangeArgs(geometries));
         }
 
         public void ResetWith(IList<IChannel> geometries)
         {
-            var channels = geometries.Select((channel =>
+            /*var channels = geometries.Select((channel =>
             {
                 var point3Ds = channel.Points
                     .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
                     .ToArray();
                 return new Channel() { Points = point3Ds };
-            })).ToArray();
+            })).ToArray();*/
             _channelBuffer.SendChange(
-                new NotifyCollectionChangedEventArgs<Channel>(NotifyCollectionChangedAction.Reset, channels));
+                new NotifyCollectionChangedEventArgs<IChannel>(NotifyCollectionChangedAction.Reset, geometries));
         }
 
         public void ResetWith(IChannel geometry)
         {
-            var point3Ds = geometry.Points
+            /*var point3Ds = geometry.Points
                 .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                .ToArray();
-            _channelBuffer.SendChange(new NotifyCollectionChangedEventArgs<Channel>(NotifyCollectionChangedAction.Reset,
-                new Channel() { Points = point3Ds }));
+                .ToArray();*/
+            _channelBuffer.SendChange(
+                new NotifyCollectionChangedEventArgs<IChannel>(NotifyCollectionChangedAction.Reset, geometry));
         }
 
         public void Clear()
         {
-            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<Channel>.ResetArgs);
+            _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.ResetArgs);
         }
     }
 }

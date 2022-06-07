@@ -5,9 +5,4 @@
         float X { get; }
         float Y { get; }
     }
-
-    public interface IPoint3D : IPoint2D
-    {
-        float Z { get; }
-    }
 }

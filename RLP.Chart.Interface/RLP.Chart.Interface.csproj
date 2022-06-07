@@ -48,6 +48,7 @@
     <Compile Include="Abstraction\IGeometryCollection.cs" />
     <Compile Include="Abstraction\ILine.cs" />
     <Compile Include="Abstraction\ILineChart.cs" />
+    <Compile Include="Abstraction\IPoint3D.cs" />
     <Compile Include="Abstraction\ISeries2D.cs" />
     <Compile Include="Abstraction\ISeries3D.cs" />
     <Compile Include="Abstraction\ISeriesChart.cs" />

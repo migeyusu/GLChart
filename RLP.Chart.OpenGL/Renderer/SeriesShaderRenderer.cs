@@ -119,14 +119,18 @@ namespace RLP.Chart.OpenGL.Renderer
                 return;
             }
 
-            ApplyShader(args);
+            ConfigShader(args);
             foreach (var rendererItem in RenderWorkingList)
             {
                 rendererItem.Render(args);
             }
         }
 
-        protected virtual void ApplyShader(GlRenderEventArgs args)
+        /// <summary>
+        /// 在系列实际渲染前，应用shader参数
+        /// </summary>
+        /// <param name="args"></param>
+        protected virtual void ConfigShader(GlRenderEventArgs args)
         {
             this.Shader.Use();
             this.Shader.SetMatrix4("transform", _directive.Transform);
