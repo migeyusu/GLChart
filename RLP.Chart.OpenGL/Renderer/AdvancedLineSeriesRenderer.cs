@@ -42,5 +42,14 @@ namespace RLP.Chart.OpenGL.Renderer
             Shader.SetFloat("u_thickness", LineThickness);
             Shader.SetVec2("u_resolution", new Vector2(args.Width, args.Height));
         }
+
+        public override void ApplyDirective(RenderDirective directive)
+        {
+            base.ApplyDirective(directive);
+            if (directive is RenderDirective2D directive2D)
+            {
+                this.Shader.SetMatrix4("transform", directive2D.Transform);
+            }
+        }
     }
 }

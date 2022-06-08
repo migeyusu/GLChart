@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+	<PropertyGroup>
+		<TargetFrameworks>net472</TargetFrameworks>
+		<UseWPF>true</UseWPF>
+		<OutputType>WinExe</OutputType>
+		<StartupObject>RLP.Chart.Client.Program</StartupObject>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="OpenTK" Version="3.3.1" />
+	  <PackageReference Include="OpenTkWPFHost" Version="3.1.0.1" />
+	  <PackageReference Include="xunit" Version="2.4.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="OpenTkWPFHost">
+	    <HintPath>..\..\..\.nuget\packages\opentkwpfhost\3.1.0.1\lib\net472\OpenTkWPFHost.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="UnitTest\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RLP.Chart.OpenGL\RLP.Chart.OpenGL.csproj" />
+	</ItemGroup>
+
+</Project>

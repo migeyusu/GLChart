@@ -27,16 +27,11 @@ namespace RLP.Chart.OpenGL.Renderer
         public ScrollRange AxisYRange { get; set; } = new ScrollRange(0, 100);
 
         /// <summary>
-        /// 只显示该范围内的
+        /// 设置3d范围
         /// </summary>
         public Region3D TargetRegion { get; set; }
 
         public Matrix4 View { get; set; }
-
-        /// <summary>
-        /// 模型位置
-        /// </summary>
-        public Matrix4 ModelPosition { get; set; }
 
         /// <summary>
         /// 投影
@@ -95,13 +90,14 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             GL.ClearColor(BackgroundColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            var identity = Matrix4.Identity;
-            identity *= Projection;
-            identity *= View;
-            identity *= ModelPosition;
             foreach (var seriesItem in _renderSeriesCollection.Where(renderer => renderer.AnyReadyRenders()))
             {
-                seriesItem.ApplyDirective(new RenderDirective(identity));
+                seriesItem.ApplyDirective(new RenderDirective3D()
+                {
+                    Projection = Projection,
+                    Region3D = this.TargetRegion,
+                    View = View,
+                });
                 seriesItem.Render(args);
             }
         }

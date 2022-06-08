@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+	<PropertyGroup>
+		<TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="OpenTkWPFHost" Version="3.1.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RLPChart\RLP.Chart.OpenGL\RLP.Chart.OpenGL.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="OpenTkWPFHost">
+	    <HintPath>..\..\..\.nuget\packages\opentkwpfhost\3.1.0.1\lib\net472\OpenTkWPFHost.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+</Project>

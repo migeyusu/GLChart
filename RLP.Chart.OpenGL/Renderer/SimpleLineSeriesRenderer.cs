@@ -1,10 +1,10 @@
 ﻿using System;
+using OpenTkWPFHost.Core;
 
 namespace RLP.Chart.OpenGL.Renderer
 {
     public class SimpleLineSeriesRenderer : SeriesShaderRenderer<SimpleLineRenderer>
     {
-
         private float _lineThickness = 1;
 
         public float LineThickness
@@ -20,6 +20,16 @@ namespace RLP.Chart.OpenGL.Renderer
         public override bool PreviewRender()
         {
             return base.PreviewRender();
+        }
+
+
+        public override void ApplyDirective(RenderDirective directive)
+        {
+            base.ApplyDirective(directive);
+            if (directive is RenderDirective2D directive2D)
+            {
+                this.Shader.SetMatrix4("transform", directive2D.Transform);
+            }
         }
     }
 }

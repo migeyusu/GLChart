@@ -25,7 +25,6 @@ namespace RLP.Chart.OpenGL.Renderer
             set => _color4 = new Color4(value.R, value.G, value.B, value.A);
         }
 
-
         private const int SizeFloat = sizeof(float);
 
         private uint _channelWidth;
@@ -44,6 +43,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 }
 
                 _channelWidth = value;
+                this.ChannelBufferWidth = value * 3;
             }
         }
 
@@ -61,7 +61,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool RenderEnable { get; private set; } = true;
 
-        private ModelRingBuffer<IChannel, float> _channelBuffer;
+        private readonly ModelRingBuffer<IChannel, float> _channelBuffer;
 
         private Shader _shader;
 
@@ -70,6 +70,13 @@ namespace RLP.Chart.OpenGL.Renderer
             _channelBuffer = new ModelRingBuffer<IChannel, float>();
         }
 
+        private const int uintsize = sizeof(uint);
+
+        /// <summary>
+        /// 真实的浮点缓冲宽度
+        /// </summary>
+        public uint ChannelBufferWidth { get; set; }
+
         public void Initialize(IGraphicsContext context)
         {
             if (IsInitialized)
@@ -77,7 +84,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 return;
             }
 
-            var channelBufferLength = ChannelWidth * 3; //真实的浮点缓冲大小
+            var channelBufferLength = ChannelBufferWidth;
             _channelBuffer.Allocate(this.MaxChannelCount, channelBufferLength, channel =>
             {
                 var buffer = new float[channelBufferLength];
@@ -87,14 +94,21 @@ namespace RLP.Chart.OpenGL.Renderer
                     buffer[index] = point.X;
                     buffer[index + 1] = point.Y;
                     buffer[index + 2] = point.Z;
-                    index++;
+                    index += 3;
                 }
 
                 return buffer;
             });
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, IntPtr.Zero,
+            var vertexPoints = new float[]
+            {
+                0, 0, 0f,
+                0, 0.9f, 29f,
+                0.8f, 0, 0f,
+                0.6f, 0.9f, 13f,
+            };
+            GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, vertexPoints,
                 BufferUsageHint.DynamicDraw);
             VertexArrayObject = GL.GenBuffer();
             GL.BindVertexArray(VertexArrayObject);
@@ -105,12 +119,27 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
             //index缓存从一开始就是确定的
             //在gpu环形缓冲中存在首尾的副本节点，所以index缓存也必须扩充
-            var indexBuffer = PopulateIndex((int)ChannelWidth, (int)MaxChannelCount + 2);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * sizeof(uint), indexBuffer,
+            // var indexBuffer = PopulateIndex((int)ChannelWidth, (int)MaxChannelCount + 2);
+            var indexBuffer = new uint[7] { 0, 2, 1, 3, 3, 2, 2 };
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * uintsize, indexBuffer,
                 BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
             this.IsInitialized = true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xLength">横向宽度</param>
+        /// <param name="yLength">纵向宽度</param>
+        /// <returns></returns>
+        private static int CalculateIndexLength(int xLength, int yLength)
+        {
+            int numStripsRequired = yLength - 1;
+            int numDegensRequired = 2 * (numStripsRequired - 1);
+            int verticesPerStrip = 2 * xLength;
+            return (verticesPerStrip * numStripsRequired) + numDegensRequired;
         }
 
         /// <summary>
@@ -120,10 +149,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <param name="yLength">纵向宽度</param>
         public static uint[] PopulateIndex(int xLength, int yLength)
         {
-            int numStripsRequired = yLength - 1;
-            int numDegensRequired = 2 * (numStripsRequired - 1);
-            int verticesPerStrip = 2 * xLength;
-            var indexData = new uint[(verticesPerStrip * numStripsRequired) + numDegensRequired];
+            var indexData = new uint[CalculateIndexLength(xLength, yLength)];
             var offset = 0;
             for (int y = 0; y < yLength - 1; y++)
             {
@@ -152,6 +178,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool PreviewRender()
         {
+            return true;
             var gpuBufferRegions = _channelBuffer.Flush().ToArray();
             if (gpuBufferRegions.Length > 0)
             {
@@ -174,19 +201,25 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public void Render(GlRenderEventArgs args)
         {
-            if (_channelBuffer.RecentModelCount < 2)
+            /*if (_channelBuffer.RecentModelCount < 2)
             {
                 return;
-            }
+            }*/
 
-            _shader.SetColor("linecolor", _color4);
             GL.BindVertexArray(VertexArrayObject);
+            GL.DrawElements(BeginMode.TriangleStrip, 4, DrawElementsType.UnsignedInt, 0);
+            return;
             var drawRegions = _channelBuffer.EffectRegions;
             var drawRegion = drawRegions[0];
             if (drawRegions.Count == 1)
             {
-                GL.DrawElements(BeginMode.TriangleStrip, drawRegion.Length / 3, DrawElementsType.UnsignedInt,
-                    drawRegion.Tail / 3 + 1);
+                var calculateIndexLength =
+                    CalculateIndexLength((int)this.ChannelWidth, (int)(drawRegion.Length / ChannelBufferWidth));
+                var offsetLength = this.ChannelWidth * 2 + 2; //第一排channel+两个退化点
+                CalculateIndexLength((int)this.ChannelWidth, 1);
+                GL.DrawElements(BeginMode.TriangleStrip, calculateIndexLength, DrawElementsType.UnsignedInt,
+                    (int)offsetLength *
+                    uintsize); //固定值 (int)((drawRegion.Tail / ChannelBufferWidth + ChannelWidth) * uintsize
             }
             else
             {

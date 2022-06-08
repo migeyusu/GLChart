@@ -180,20 +180,22 @@ namespace RLP.Chart.OpenGL.Renderer
                     long index;
                     T point = default;
                     int loopIndex = 0;
+                    K[] dataBytes = new K[ModelSize];
                     while (loopIndex < firstDirtRegionLength / ModelSize)
                     {
                         point = appendModels[pointIndex];
                         index = loopIndex * ModelSize;
-                        var bytes = _modelToFloatsMapping.Invoke(point);
-                        Array.Copy(bytes, 0, floats, index, ModelSize);
+                        dataBytes = _modelToFloatsMapping.Invoke(point);
+                        Array.Copy(dataBytes, 0, floats, index, ModelSize);
                         /*floats[index] = point.X;
                         floats[index + 1] = point.Y;*/
                         pointIndex++;
                         loopIndex++;
                     }
 
+                    //如果只是刚好到达容量，只会复制指定的模型填充到头尾，但是不会进行多条渲染（此时ringbuffer还没越过结尾）
+                    //复制最后一个模型
                     index = loopIndex * ModelSize;
-                    var dataBytes = _modelToFloatsMapping.Invoke(point);
                     Array.Copy(dataBytes, 0, floats, index, ModelSize);
                     updateRegions.Add(updateRegion);
                     var secondRegion = new GPUBufferRegion<K>() { Low = 0, };
@@ -206,7 +208,7 @@ namespace RLP.Chart.OpenGL.Renderer
                     {
                         var secondDirtRegion = dirtRegions[1];
                         secondRegion.High = secondDirtRegion.Head + ModelSize;
-                        var floats1 = new K[secondDirtRegion.Length + ModelSize];
+                        var floats1 = new K[secondDirtRegion.Length + ModelSize]; //复制首节点
                         Array.Copy(dataBytes, 0, floats1, 0, ModelSize);
                         /*floats1[0] = point.X;
                         floats1[1] = point.Y;*/

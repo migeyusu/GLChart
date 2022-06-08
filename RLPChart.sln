@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLP.Chart.Interface", "RLP.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLP.Chart.OpenGL", "RLP.Chart.OpenGL\RLP.Chart.OpenGL.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLP.Chart.Client", "..\RLP.Chart.Client\RLP.Chart.Client.csproj", "{A329A55B-C454-4196-9B94-7851EA58FCB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RLP.Chart.Client", "RLP.Chart.Client\RLP.Chart.Client.csproj", "{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A329A55B-C454-4196-9B94-7851EA58FCB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A329A55B-C454-4196-9B94-7851EA58FCB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A329A55B-C454-4196-9B94-7851EA58FCB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A329A55B-C454-4196-9B94-7851EA58FCB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

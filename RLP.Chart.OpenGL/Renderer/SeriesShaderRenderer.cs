@@ -133,7 +133,6 @@ namespace RLP.Chart.OpenGL.Renderer
         protected virtual void ConfigShader(GlRenderEventArgs args)
         {
             this.Shader.Use();
-            this.Shader.SetMatrix4("transform", _directive.Transform);
         }
 
         private RenderDirective _directive;

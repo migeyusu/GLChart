@@ -51,16 +51,14 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             return true;
         }
-
-        protected Matrix4 Transform = Matrix4.Identity;
-
+        
         public virtual void Render(GlRenderEventArgs args)
         {
             GL.ClearColor(BackgroundColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var seriesItem in RenderSeriesCollection.Where((renderer => renderer.AnyReadyRenders())))
             {
-                seriesItem.ApplyDirective(new RenderDirective(Transform));
+                seriesItem.ApplyDirective(new RenderDirective());
                 seriesItem.Render(args);
             }
         }

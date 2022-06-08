@@ -250,7 +250,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
             foreach (var seriesItem in _rendererSeriesSnapList)
             {
-                seriesItem.ApplyDirective(new RenderDirective(_tempTransform));
+                seriesItem.ApplyDirective(new RenderDirective2D(){Transform = _tempTransform});
                 seriesItem.Render(args);
             }
 

@@ -1,10 +1,11 @@
 #version 330
-
+in vec3 colordiff;
+uniform vec3 basecolor;
 out vec4 outputColor;
 
-uniform vec4 linecolor;
 
 void main()
 {
-    outputColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    vec3 final= basecolor+colordiff;
+    outputColor = vec4(final,1.0);
 }
