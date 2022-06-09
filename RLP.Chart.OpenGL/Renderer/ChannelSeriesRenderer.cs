@@ -34,7 +34,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// z轴最大值
         /// </summary>
-        public float ZHighest { get; set; } = 30;
+        public float ZHighest { get; set; } = 230;
 
         public ChannelSeriesRenderer(Shader shader) : base(shader)
         {

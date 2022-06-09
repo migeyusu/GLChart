@@ -31,12 +31,12 @@ namespace RLP.Chart.OpenGL.Renderer
         /// </summary>
         public Region3D TargetRegion { get; set; }
 
-        public Matrix4 View { get; set; }
+        public Matrix4 View { get; set; } = Matrix4.Identity;
 
         /// <summary>
         /// 投影
         /// </summary>
-        public Matrix4 Projection { get; set; }
+        public Matrix4 Projection { get; set; } = Matrix4.Identity;
 
         public IReadOnlyCollection<BaseRenderer> Series =>
             new ReadOnlyCollection<BaseRenderer>(_renderSeriesCollection);

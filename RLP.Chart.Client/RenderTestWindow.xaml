@@ -17,15 +17,31 @@
                                      x:Name="ThreadOpenTkControl">
 
         </control:ThreadOpenTkControl>
-        <Slider Width="300" 
-                Minimum="0"
-                Maximum="360"
-                Value="-55"
-                ValueChanged="RangeBase_OnValueChanged"/>
-        <TextBlock x:Name="TextBlock"
-                   VerticalAlignment="Bottom"
-                   HorizontalAlignment="Center"
-                   FontSize="30"
-                   Foreground="Black"/>
+        <StackPanel VerticalAlignment="Bottom"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal">
+            <Slider Width="200"
+                    Minimum="0"
+                    Maximum="360"
+                    Value="270"
+                    x:Name="XRotationSlider"
+                    ValueChanged="XRotationRangeBase_OnValueChanged" />
+            <TextBlock FontSize="30"
+                       Text="{Binding ElementName=XRotationSlider,Path=Value,StringFormat={}{0:N2}° }"
+                       Foreground="Black" />
+            <Button Content="添加通道"
+                    Margin="10,0"
+                    Click="AddChannelsButtonBase_OnClick" />
+            <Slider Width="200"
+                    Minimum="0"
+                    Maximum="360"
+                    Value="270"
+                    x:Name="YRotationSlider"
+                    ValueChanged="YRotationSlider_OnValueChanged" />
+            <TextBlock FontSize="30"
+                       Text="{Binding ElementName=YRotationSlider,Path=Value,StringFormat={}{0:N2}° }"
+                       Foreground="Black" />
+        </StackPanel>
+
     </Grid>
 </Window>

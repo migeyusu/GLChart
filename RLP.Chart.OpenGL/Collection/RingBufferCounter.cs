@@ -10,12 +10,21 @@ namespace RLP.Chart.OpenGL.Collection
     {
         private readonly int _capacity;
 
+        /// <summary>
+        /// 容量，也就是实际ringbuffer占用的长度
+        /// </summary>
         public int Capacity => _capacity;
 
         private int _head = -1, _tail = 0;
 
+        /// <summary>
+        /// 头位置，指示首个数据（最近一个添加）的位置。ringbuffer空时为-1，无意义；
+        /// </summary>
         public int Head => _head;
 
+        /// <summary>
+        /// 尾位置，指示最后一个数据（最迟添加）的位置。ringbuffer为空时为0，无意义；
+        /// </summary>
         public int Tail => _tail;
 
         /// <summary>
@@ -23,11 +32,12 @@ namespace RLP.Chart.OpenGL.Collection
         /// </summary>
         public Region ContentRegion
         {
-            get { return new Region() {Head = _head, Tail = _tail}; }
+            get { return new Region() { Head = _head, Tail = _tail }; }
         }
 
         /// <summary>
-        /// 表示缓冲有效区域的的组合，<see cref="Head"/>大于<see cref="Tail"/>
+        /// 表示缓冲有效连续区域的的组合，<see cref="Head"/>大于<see cref="Tail"/>
+        /// 当实际添加的数据超过capacity后，将会存在两个连续区域
         /// </summary>
         public IEnumerable<Region> ContiguousRegions
         {
@@ -40,12 +50,12 @@ namespace RLP.Chart.OpenGL.Collection
 
                 if (_tail > 0)
                 {
-                    yield return new Region() {Head = Capacity - 1, Tail = _tail};
-                    yield return new Region() {Head = Head, Tail = 0};
+                    yield return new Region() { Head = Capacity - 1, Tail = _tail };
+                    yield return new Region() { Head = Head, Tail = 0 };
                 }
                 else
                 {
-                    yield return new Region() {Head = Head, Tail = _tail};
+                    yield return new Region() { Head = Head, Tail = _tail };
                 }
             }
         }
@@ -122,7 +132,7 @@ namespace RLP.Chart.OpenGL.Collection
             var virtualHead = _head + length;
             if (virtualHead < _capacity)
             {
-                _head = (int) virtualHead;
+                _head = (int)virtualHead;
                 if (_tail > 0)
                 {
                     _tail = _head + 1;
@@ -134,7 +144,7 @@ namespace RLP.Chart.OpenGL.Collection
             }
             else
             {
-                _head = (int) (virtualHead % _capacity);
+                _head = (int)(virtualHead % _capacity);
                 _tail = _head + 1;
                 if (_tail == _capacity)
                 {
@@ -179,14 +189,15 @@ namespace RLP.Chart.OpenGL.Collection
             {
                 if (newHead > oldHead)
                 {
-                    yield return new Region() {Head = newHead, Tail = oldHead + 1};
+                    yield return new Region() { Head = newHead, Tail = oldHead + 1 };
                 }
                 else
                 {
                     if (oldHead < Capacity - 1)
                     {
-                        yield return new Region() {Head = Capacity - 1, Tail = oldHead + 1};
+                        yield return new Region() { Head = Capacity - 1, Tail = oldHead + 1 };
                     }
+
                     yield return new Region() { Head = newHead, Tail = 0 };
                 }
             }

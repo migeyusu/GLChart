@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTkWPFHost.Core;
@@ -70,7 +72,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _channelBuffer = new ModelRingBuffer<IChannel, float>();
         }
 
-        private const int uintsize = sizeof(uint);
+        private const int SizeOfUint = sizeof(uint);
 
         /// <summary>
         /// 真实的浮点缓冲宽度
@@ -101,14 +103,7 @@ namespace RLP.Chart.OpenGL.Renderer
             });
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            var vertexPoints = new float[]
-            {
-                0, 0, 0f,
-                0, 0.9f, 29f,
-                0.8f, 0, 0f,
-                0.6f, 0.9f, 13f,
-            };
-            GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, vertexPoints,
+            GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, IntPtr.Zero,
                 BufferUsageHint.DynamicDraw);
             VertexArrayObject = GL.GenBuffer();
             GL.BindVertexArray(VertexArrayObject);
@@ -117,11 +112,19 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.EnableVertexAttribArray(0);
             ElementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-            //index缓存从一开始就是确定的
-            //在gpu环形缓冲中存在首尾的副本节点，所以index缓存也必须扩充
-            // var indexBuffer = PopulateIndex((int)ChannelWidth, (int)MaxChannelCount + 2);
-            var indexBuffer = new uint[7] { 0, 2, 1, 3, 3, 2, 2 };
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * uintsize, indexBuffer,
+            //index缓存从一开始就是确定的，所以提前分配
+            //在gpu环形缓冲中存在首副本节点，所以index缓存也必须扩充 //留有两个model的裕度
+            var indexBuffer = PopulateIndex((int)ChannelWidth, (int)_channelBuffer.SuggestMaxModelCount + 2);
+            var stringBuilder = new StringBuilder();
+            foreach (var u in indexBuffer)
+            {
+                stringBuilder.Append(u);
+                stringBuilder.Append(',');
+            }
+
+            Debug.WriteLine(stringBuilder.ToString());
+            // var indexBuffer = new uint[] { 0, 2, 1, 3, 3, 2, 2, 4, 3, 5, 5, 4, 4 };
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * SizeOfUint, indexBuffer,
                 BufferUsageHint.StaticDraw);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.BindVertexArray(0);
@@ -136,6 +139,11 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <returns></returns>
         private static int CalculateIndexLength(int xLength, int yLength)
         {
+            if (yLength < 2)
+            {
+                return 0;
+            }
+
             int numStripsRequired = yLength - 1;
             int numDegensRequired = 2 * (numStripsRequired - 1);
             int verticesPerStrip = 2 * xLength;
@@ -178,9 +186,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool PreviewRender()
         {
-            return true;
-            var gpuBufferRegions = _channelBuffer.Flush().ToArray();
-            if (gpuBufferRegions.Length > 0)
+            if (_channelBuffer.TryFlush(out var gpuBufferRegions))
             {
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
                 foreach (var updateRegion in gpuBufferRegions)
@@ -201,33 +207,45 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public void Render(GlRenderEventArgs args)
         {
-            /*if (_channelBuffer.RecentModelCount < 2)
+            if (_channelBuffer.RecentModelCount < 2)
             {
                 return;
-            }*/
+            }
 
-            GL.BindVertexArray(VertexArrayObject);
-            GL.DrawElements(BeginMode.TriangleStrip, 4, DrawElementsType.UnsignedInt, 0);
-            return;
             var drawRegions = _channelBuffer.EffectRegions;
-            var drawRegion = drawRegions[0];
+            var firstDrawRegion = drawRegions[0];
+            var firstDrawRegionChannelCount = firstDrawRegion.Length / ChannelBufferWidth;
             if (drawRegions.Count == 1)
             {
                 var calculateIndexLength =
-                    CalculateIndexLength((int)this.ChannelWidth, (int)(drawRegion.Length / ChannelBufferWidth));
-                var offsetLength = this.ChannelWidth * 2 + 2; //第一排channel+两个退化点
-                CalculateIndexLength((int)this.ChannelWidth, 1);
+                    CalculateIndexLength((int)this.ChannelWidth, (int)firstDrawRegionChannelCount);
+                var offsetLength = this.ChannelWidth * 2 + 2; //第一排channel+两个退化点，固定值//固定值 
                 GL.DrawElements(BeginMode.TriangleStrip, calculateIndexLength, DrawElementsType.UnsignedInt,
-                    (int)offsetLength *
-                    uintsize); //固定值 (int)((drawRegion.Tail / ChannelBufferWidth + ChannelWidth) * uintsize
+                    (int)offsetLength * SizeOfUint);
+                //固定值 (int)((drawRegion.Tail / ChannelBufferWidth + ChannelWidth) * uintsize
             }
             else
             {
-                GL.DrawElements(BeginMode.TriangleStrip, drawRegion.Length / 3 + 1, DrawElementsType.UnsignedInt,
-                    drawRegion.Tail / 3 + 1);
-                var secondRegion = drawRegions[1];
-                GL.DrawElements(BeginMode.TriangleStrip, secondRegion.Length / 3 + 1, DrawElementsType.UnsignedInt,
-                    secondRegion.Tail / 3);
+                if (firstDrawRegionChannelCount >= 2) //小于两个通道不能形成多面体
+                {
+                    var calculateIndexLength =
+                        CalculateIndexLength((int)this.ChannelWidth, (int)firstDrawRegionChannelCount);
+                    //ringbuffer对应的抽象indexbuffer里越过的channel数量
+                    var channelVirtualOffset = (firstDrawRegion.Tail + 1) / ChannelBufferWidth;
+                    //真实indexbuffer越过的channel数量，需要+1算上拷贝的channel
+                    var channelOffset = channelVirtualOffset + 1;
+                    //由于总是存在退化点，可以认为点位数量=行数*行宽*2+行数*2（退化点）
+                    var offset = channelOffset * this.ChannelWidth * 2 + 2 * channelOffset;
+                    GL.DrawElements(BeginMode.TriangleStrip, calculateIndexLength,
+                        DrawElementsType.UnsignedInt, (int)offset * SizeOfUint);
+                }
+
+                var secondRegion = drawRegions[1]; //第二个绘制区域
+                //索引从零开始
+                var secondRegionChannelCount = secondRegion.Length / ChannelBufferWidth + 1;
+                var indexLength = CalculateIndexLength((int)this.ChannelWidth, (int)secondRegionChannelCount);
+                GL.DrawElements(BeginMode.TriangleStrip, indexLength, DrawElementsType.UnsignedInt,
+                    0);
             }
         }
 

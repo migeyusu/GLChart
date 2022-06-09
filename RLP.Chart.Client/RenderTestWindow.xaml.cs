@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using OpenTK;
 using OpenTK.Graphics;
@@ -18,6 +20,7 @@ namespace RLP.Chart.Client
     {
         public RenderTestWindow()
         {
+            InitializeChannel();
             InitializeComponent();
             ThreadOpenTkControl.GlSettings = new GLSettings()
             {
@@ -26,11 +29,54 @@ namespace RLP.Chart.Client
             };
             ThreadOpenTkControl.OpenGlErrorReceived += ThreadOpenTkControl_OpenGlErrorReceived;
             ThreadOpenTkControl.RenderErrorReceived += ThreadOpenTkControl_RenderErrorReceived;
+            ThreadOpenTkControl.Renderer = _coordinate3DRenderer;
+        }
+
+        private ChannelSeriesRenderer channelSeriesRenderer;
+        private ChannelRenderer _channelRenderer;
+        private int _totalChannelCount = 0;
+        private const int ChannelWidth = 30;
+        private const float XInterval = 100;
+        private const float YInterval = 100;
+        private const float ZStart = 500;
+        private float _currentZ = ZStart;
+        private float _zMax = ZStart;
+        private const int MaxChannelCount = 50;
+        private Matrix4 rotationY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(270.0f));
+        private Matrix4 rotationX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(270.0f));
+
+        private void InitializeChannel()
+        {
+            var firstChannelPoints = new IPoint3D[ChannelWidth];
+            for (int i = 0; i < ChannelWidth; i++)
+            {
+                firstChannelPoints[i] = new Point3D(0, i * YInterval, 0);
+            }
+
+            _totalChannelCount++;
+            _channelRenderer = new ChannelRenderer()
+            {
+                ChannelColor = Color.Red,
+                ChannelWidth = ChannelWidth,
+                MaxChannelCount = MaxChannelCount,
+            };
+            _channelRenderer.AddGeometry(new Channel(firstChannelPoints));
+            channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("Shaders/ChannelShader/shader.vert",
+                "Shaders/ChannelShader/shader.frag"))
+            {
+            };
+            channelSeriesRenderer.Add(_channelRenderer);
+            _coordinate3DRenderer = new Coordinate3DRenderer(new List<BaseRenderer>() { channelSeriesRenderer })
+            {
+                BackgroundColor = Color4.DodgerBlue,
+                View = rotationY * rotationX,
+            };
+            AddChannels(5);
         }
 
         private void ThreadOpenTkControl_RenderErrorReceived(object sender, OpenTkWPFHost.Core.RenderErrorArgs e)
         {
-            Debug.WriteLine($"{e.Phase}:{e.Exception.ToString()}");
+            Debug.WriteLine($"{e.Phase}:{e.Exception}");
         }
 
         private void ThreadOpenTkControl_OpenGlErrorReceived(object sender, OpenTkWPFHost.Core.OpenGlErrorArgs e)
@@ -38,64 +84,70 @@ namespace RLP.Chart.Client
             Debug.WriteLine(e.ErrorMessage);
         }
 
+
         private Coordinate3DRenderer _coordinate3DRenderer;
 
         private void RenderTestWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            const int channelCount = 2;
-            const int channelWidth = 2;
-            const float xInterval = 100;
-            const float yInterval = 100;
-            float zStart = 100;
-            float zMax = zStart;
-            var random = new Random();
-            var channels = new IChannel[channelCount];
-            for (int i = 0; i < channelCount; i++)
-            {
-                zStart += random.Next(0, 10);
-                var lineZ = zStart;
-                var points = new IPoint3D[channelWidth];
-                var interval = i * yInterval;
-                for (int j = 0; j < channelWidth; j++)
-                {
-                    points[j] = new Point3D(interval, j * xInterval, lineZ);
-                    lineZ += random.Next(0, 10);
-                    if (zMax < lineZ)
-                    {
-                        zMax = lineZ;
-                    }
-                }
-
-                channels[i] = new Channel() { Points = points };
-            }
-
-            var channelRenderer = new ChannelRenderer()
-            {
-                ChannelColor = Color.Red,
-                ChannelWidth = channelWidth,
-                MaxChannelCount = 1000,
-            };
-            channelRenderer.AddGeometries(channels);
-            var channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("Shaders/ChannelShader/shader.vert",
-                "Shaders/ChannelShader/shader.frag")) { channelRenderer };
-            var position = Matrix4.Identity; //CreateRotationX(MathHelper.DegreesToRadians(-55.0f));
-            /*Matrix4 view = Matrix4.CreateTranslation(0.0f, 0.0f, -200.0f);
-            Matrix4 projection = Matrix4.CreateOrthographicOffCenter(-50f, 150f, -50f, 150f, 0f, 200f);*/
-            //Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f),(float)(800f / 450f), 1f, (float)300f);
-            _coordinate3DRenderer = new Coordinate3DRenderer(new List<BaseRenderer>() { channelSeriesRenderer })
-            {
-                BackgroundColor = Color4.DodgerBlue,
-                View = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-55.0f)),
-                Projection = Matrix4.CreateOrthographicOffCenter(-1, 1, -1, 1, -100, 100),
-            };
-            ThreadOpenTkControl.Renderer = _coordinate3DRenderer;
         }
 
-        private void RangeBase_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void XRotationRangeBase_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var eNewValue = (float)e.NewValue;
-            _coordinate3DRenderer.View = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eNewValue));
-            TextBlock.Text = $"{eNewValue}°";
+            rotationX = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(eNewValue));
+            _coordinate3DRenderer.View = rotationX * rotationY;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+        }
+
+        private void AddChannelsButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            AddChannels(5);
+        }
+
+        private void AddChannels(int appendChannelCount)
+        {
+            var random = new Random();
+            var channels = new IChannel[appendChannelCount];
+            for (int i = 0; i < appendChannelCount; i++)
+            {
+                _currentZ += random.Next(-20, 20);
+                var lineZ = _currentZ;
+                var points = new IPoint3D[ChannelWidth];
+                var channelStart = (_totalChannelCount + i) * YInterval;
+                for (int j = 0; j < ChannelWidth; j++)
+                {
+                    if (_zMax < lineZ)
+                    {
+                        _zMax = lineZ;
+                    }
+
+                    points[j] = new Point3D(channelStart, j * XInterval, lineZ);
+                    lineZ += random.Next(-50, 50);
+                }
+
+                channels[i] = new Channel(points);
+            }
+
+            _channelRenderer.AddGeometries(channels);
+            _totalChannelCount += appendChannelCount;
+            channelSeriesRenderer.ZHighest = _zMax;
+            var leftXInterval = _totalChannelCount < MaxChannelCount
+                ? -XInterval
+                : (_totalChannelCount - MaxChannelCount - 1) * XInterval;
+            _coordinate3DRenderer.Projection = Matrix4.CreateOrthographicOffCenter(leftXInterval,
+                _totalChannelCount * XInterval + XInterval,
+                -YInterval, ChannelWidth * YInterval + YInterval, _zMax * 2, -_zMax * 2);
+        }
+
+        private void YRotationSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            var eNewValue = (float)e.NewValue;
+            rotationY = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(eNewValue));
+            _coordinate3DRenderer.View = rotationX * rotationY;
         }
     }
 }
