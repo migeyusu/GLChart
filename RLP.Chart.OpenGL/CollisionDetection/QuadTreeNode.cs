@@ -15,7 +15,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
     public class QuadTreeNode
     {
         public Boundary2D Boundary { get; }
-        public Nullable<Node> Data { get; private set; }
+        public Node? Data { get; private set; }
         public QuadTreeNode NorthWest { get; private set; }
         public QuadTreeNode NorthEast { get; private set; }
         public QuadTreeNode SouthWest { get; private set; }
@@ -134,12 +134,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
                 }
             }
 
-            if (this.Data.HasValue)
-            {
-                return this;
-            }
-
-            return null;
+            return this.Data.HasValue ? this : null;
         }
 
         /// <summary>

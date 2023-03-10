@@ -75,7 +75,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             return singleLinkedNode.Data;
         }
 
-        public void Insert(Geometry2D geometry)
+        public void Insert(ICollisionGeometry2D geometry)
         {
             throw new NotImplementedException();
         }
@@ -92,7 +92,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             }
         }
 
-        public IEnumerable<ICollisionCell> GetCollisionCells(Geometry2D geometry)
+        public IEnumerable<ICollisionCell> GetCollisionCells(ICollisionGeometry2D geometry)
         {
             return GetCollisionCells(geometry.OrthogonalBoundary);
         }
@@ -118,7 +118,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
 
         public Guid Id { get; } = Guid.NewGuid();
 
-        public bool TrySearch(Geometry2D geometry, out Node node)
+        public bool TrySearch(ICollisionGeometry2D geometry, out Node node)
         {
             var collisionCells = this.GetCollisionCells(geometry);
             var nearestNodeData = geometry.NearestNodeData(collisionCells, out _);

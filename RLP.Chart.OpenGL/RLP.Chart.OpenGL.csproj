@@ -96,7 +96,6 @@
     <Compile Include="Renderer\ChannelRenderer.cs" />
     <Compile Include="Renderer\ChannelSeriesRenderer.cs" />
     <Compile Include="Renderer\Coordinate3DRenderer.cs" />
-    <Compile Include="Renderer\IChannel.cs" />
     <Compile Include="Renderer\ModelRingBuffer.cs" />
     <Compile Include="Renderer\Point3D.cs" />
     <Compile Include="Renderer\Region3D.cs" />
@@ -117,11 +116,11 @@
     <Compile Include="CollisionDetection\QuadTreeNode.cs" />
     <Compile Include="CollisionDetection\QuadTreeNodeGridCell.cs" />
     <Compile Include="Renderer\RenderDirective.cs" />
-    <Compile Include="Renderer\Ellipse.cs" />
-    <Compile Include="Renderer\Geometry2D.cs" />
-    <Compile Include="MatrixExtension.cs" />
+    <Compile Include="CollisionDetection\Ellipse.cs" />
+    <Compile Include="CollisionDetection\ICollisionGeometry2D.cs" />
+    <Compile Include="GeometryExtension.cs" />
     <Compile Include="Renderer\Point2D.cs" />
-    <Compile Include="Renderer\Round.cs" />
+    <Compile Include="CollisionDetection\Round.cs" />
     <Compile Include="Renderer\SimpleLineRenderer.cs" />
     <Compile Include="Renderer\Coordinate2DRenderer.cs" />
     <Compile Include="Renderer\Shader.cs" />

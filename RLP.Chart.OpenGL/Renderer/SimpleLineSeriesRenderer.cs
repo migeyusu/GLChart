@@ -14,7 +14,6 @@ namespace RLP.Chart.OpenGL.Renderer
             return base.PreviewRender();
         }
 
-
         public override void ApplyDirective(RenderDirective directive)
         {
             base.ApplyDirective(directive);

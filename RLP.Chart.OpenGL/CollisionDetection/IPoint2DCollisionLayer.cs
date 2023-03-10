@@ -12,6 +12,6 @@ namespace RLP.Chart.OpenGL.CollisionDetection
     {
         Guid Id { get; }
 
-        bool TrySearch(Geometry2D geometry, out Node point);
+        bool TrySearch(ICollisionGeometry2D geometry, out Node point);
     }
 }

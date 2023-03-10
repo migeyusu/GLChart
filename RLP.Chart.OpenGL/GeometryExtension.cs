@@ -37,13 +37,13 @@ namespace RLP.Chart.OpenGL
         /// <param name="geometry"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public static float GetDistanceSquare(this Geometry2D geometry, Point2D point)
+        public static float GetDistanceSquare(this ICollisionGeometry2D geometry, Point2D point)
         {
             var centerPoint = geometry.Center;
             return centerPoint.GetDistanceSquare(point);
         }
 
-        public static Node? NearestNodeData(this Geometry2D geometry, IEnumerable<ICollisionCell> cells,
+        public static Node? NearestNodeData(this ICollisionGeometry2D geometry, IEnumerable<ICollisionCell> cells,
             out float squareDistance)
         {
 #if priority
@@ -61,7 +61,7 @@ namespace RLP.Chart.OpenGL
             return NearestNodeData(geometry, cells.SelectMany((cell => cell.DataCollection)), out squareDistance);
         }
 
-        public static Node? NearestNodeData(this Geometry2D geometry, IEnumerable<Node> nodeDataCollection,
+        public static Node? NearestNodeData(this ICollisionGeometry2D geometry, IEnumerable<Node> nodeDataCollection,
             out float squareDistance)
         {
             Node? node = null;

@@ -270,7 +270,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// 得到几何体内关联的所有cell
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<ICollisionCell> GetGeometryCells(Geometry2D geometry)
+        private IEnumerable<ICollisionCell> GetGeometryCells(ICollisionGeometry2D geometry)
         {
             return GetBoundaryCells(geometry.OrthogonalBoundary);
         }
@@ -392,7 +392,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// <param name="geometry"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public bool TrySearch(Geometry2D geometry, out Node node)
+        public bool TrySearch(ICollisionGeometry2D geometry, out Node node)
         {
             node = default;
             var geometryOrthogonalBoundary = geometry.OrthogonalBoundary;

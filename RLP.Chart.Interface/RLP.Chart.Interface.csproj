@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstraction\IChannel.cs" />
     <Compile Include="Abstraction\IGeometry.cs" />
     <Compile Include="Abstraction\IGeometryCollection.cs" />
     <Compile Include="Abstraction\ILine.cs" />

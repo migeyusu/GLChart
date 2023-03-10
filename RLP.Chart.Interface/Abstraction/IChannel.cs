@@ -1,8 +1,5 @@
-﻿using RLP.Chart.Interface.Abstraction;
-
-namespace RLP.Chart.OpenGL.Renderer
+﻿namespace RLP.Chart.Interface.Abstraction
 {
-    //todo:移除接口
     /// <summary>
     /// 通道
     /// </summary>

@@ -27,7 +27,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             _layers.Clear();
         }
 
-        public bool TrySearch(Geometry2D geometry, out Node node, out IPoint2DCollisionLayer fromLayer)
+        public bool TrySearch(ICollisionGeometry2D geometry, out Node node, out IPoint2DCollisionLayer fromLayer)
         {
             foreach (var layer in _layers)
             {

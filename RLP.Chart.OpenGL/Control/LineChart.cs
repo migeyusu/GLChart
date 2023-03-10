@@ -77,13 +77,19 @@ namespace RLP.Chart.OpenGL.Control
 
 
         /// <summary>
-        /// virtual boundary, to limit scroll range
+        /// x轴缩放边界，超过该边界将重置
         /// </summary>
         public ScrollRange AxisXScrollBoundary { get; set; }
 
-        public float MinXRange { get; set; }
+        /// <summary>
+        /// X轴最小视野宽度
+        /// </summary>
+        public float MinAxisXViewSize { get; set; }
 
-        public float MinYRange { get; set; }
+        /// <summary>
+        /// Y轴最小视野宽度
+        /// </summary>
+        public float MinAxisYViewSize { get; set; }
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
@@ -121,27 +127,27 @@ namespace RLP.Chart.OpenGL.Control
             };
         }
 
-        private System.Windows.Point _startMovePoint;
+        private Point _startMovePoint;
 
-        private bool _mouseLeftButtonPressed;
+        private bool _isMouseLeftButtonPressed;
 
         private Region2D _startMoveRegion;
 
         private void _scaleElement_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            _mouseLeftButtonPressed = false;
+            _isMouseLeftButtonPressed = false;
         }
 
         private void _scaleElement_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _mouseLeftButtonPressed = true;
+            _isMouseLeftButtonPressed = true;
             _startMovePoint = e.GetPosition(OpenTkControl);
             _startMoveRegion = this.DisplayRegion;
         }
 
         private void _scaleElement_MouseLeave(object sender, MouseEventArgs e)
         {
-            _mouseLeftButtonPressed = false;
+            _isMouseLeftButtonPressed = false;
             if (_toolTip.IsOpen)
             {
                 _toolTip.IsOpen = false;
@@ -156,7 +162,7 @@ namespace RLP.Chart.OpenGL.Control
             var yRange = coordinateRegion.YRange;
             var windowsRectToGlMapping =
                 new WindowsToGlRecMapping(xRange, yRange, new Rect(OpenTkControl.RenderSize));
-            if (_mouseLeftButtonPressed)
+            if (_isMouseLeftButtonPressed)
             {
                 var xPixel = _startMovePoint.X - position.X;
                 var xOffset = windowsRectToGlMapping.GetXOffset(xPixel);
@@ -235,12 +241,12 @@ namespace RLP.Chart.OpenGL.Control
                 this.AutoYAxisEnable = false;
             }
 
-            if (newRegion.Height < MinYRange)
+            if (newRegion.Height < MinAxisYViewSize)
             {
                 newRegion.ChangeYRange(oldRegion.YRange);
             }
 
-            if (newRegion.Width < MinXRange)
+            if (newRegion.Width < MinAxisXViewSize)
             {
                 newRegion.ChangeXRange(oldRegion.XRange);
             }
@@ -258,7 +264,7 @@ namespace RLP.Chart.OpenGL.Control
             var originDisplayRegion = this.DisplayRegion;
             var xRange = originDisplayRegion.XRange;
             var newRange = e.Scale(xRange);
-            if (newRange.Range < this.MinXRange)
+            if (newRange.Range < this.MinAxisXViewSize)
             {
                 return;
             }
