@@ -3,7 +3,10 @@ using RLP.Chart.OpenGL.Renderer;
 
 namespace RLP.Chart.OpenGL.CollisionDetection
 {
-    public interface ICell
+    /// <summary>
+    /// 碰撞网格
+    /// </summary>
+    public interface ICollisionCell
     {
         int RowIndex { get; set; }
 
@@ -17,5 +20,4 @@ namespace RLP.Chart.OpenGL.CollisionDetection
 
         void Clear();
     }
-
 }

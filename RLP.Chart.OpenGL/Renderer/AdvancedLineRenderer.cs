@@ -15,7 +15,7 @@ using RLP.Chart.OpenGL.Collection;
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// todo:bug fix
+    /// 高级线条渲染，基于三角形绘制
     /// </summary>
     public class AdvancedLineRenderer : ILineRenderer
     {
@@ -51,6 +51,9 @@ namespace RLP.Chart.OpenGL.Renderer
             set => _color4 = new Color4(value.R, value.G, value.B, value.A);
         }
 
+        /// <summary>
+        /// 线宽
+        /// </summary>
         public float LineWidth { get; set; } = 2;
 
         /// <summary>
@@ -131,7 +134,7 @@ namespace RLP.Chart.OpenGL.Renderer
             //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中增加首尾的副本节点
             this.DeviceBufferSize = (maxPointCount + 2) * 2;
             this.Counter = new RingBufferCounter(virtualBufferSize);
-            AddGeometry(new DefaultPoint(new Point2D(0, 0)));
+            Add(new Point2D(0, 0));
             // WritePoints(new Point[] { new Point(0, 0) });
         }
 
@@ -148,7 +151,7 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.GetBufferSubData(BufferTarget.ArrayBuffer, (IntPtr) 0, GPUBufferSize * SizeFloat, floats);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 #endif
-
+            _shader.SetFloat("u_thickness", LineWidth);
             _shader.SetColor("linecolor", _color4);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
             var drawRegion = DrawRegions[0];
@@ -216,7 +219,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <returns>update source</returns>
         private void WritePoints(IList<Point2D> appendPoints)
         {
-            var updateRegions = new List<GPUBufferRegion>(2);
+            var updateRegions = new List<GPUBufferRegion<float>>(2);
             var pendingPointsCount = appendPoints.Count;
             if (pendingPointsCount > 0)
             {
@@ -231,11 +234,11 @@ namespace RLP.Chart.OpenGL.Renderer
                     /*由于更新的返回脏区域数组是按序的，首个脏区域如果没有达到环形缓冲的长度，
                          说明更新只限于小范围内，可以直接全部拷贝*/
                     var floats = new float[firstDirtRegionLength];
-                    var updateRegion = new GPUBufferRegion
+                    var updateRegion = new GPUBufferRegion<float>()
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 2,
-                        Floats = floats
+                        Data = floats
                     };
                     int index;
                     for (int k = 0; k < pendingPointsCount; k++)
@@ -261,11 +264,11 @@ namespace RLP.Chart.OpenGL.Renderer
 
                     //延长复制，因为合并渲染的需要
                     var floats = new float[firstDirtRegionLength + 2];
-                    var updateRegion = new GPUBufferRegion
+                    var updateRegion = new GPUBufferRegion<float>()
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 4,
-                        Floats = floats
+                        Data = floats
                     };
 
                     int index;
@@ -285,11 +288,11 @@ namespace RLP.Chart.OpenGL.Renderer
                     floats[index] = point.X;
                     floats[index + 1] = point.Y;
                     updateRegions.Add(updateRegion);
-                    var secondRegion = new GPUBufferRegion() { Low = 0, };
+                    var secondRegion = new GPUBufferRegion<float>() { Low = 0, };
                     if (dirtRegions.Length == 1)
                     {
                         secondRegion.High = 1;
-                        secondRegion.Floats = new[] { point.X, point.Y };
+                        secondRegion.Data = new[] { point.X, point.Y };
                     }
                     else
                     {
@@ -309,7 +312,7 @@ namespace RLP.Chart.OpenGL.Renderer
                             s += 2;
                         }
 
-                        secondRegion.Floats = floats1;
+                        secondRegion.Data = floats1;
                     }
 
                     updateRegions.Add(secondRegion);
@@ -322,7 +325,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 foreach (var updateRegion in updateRegions)
                 {
                     GL.BufferSubData(BufferTarget.ShaderStorageBuffer, (IntPtr)(updateRegion.Low * SizeFloat),
-                        (IntPtr)(updateRegion.Length * SizeFloat), updateRegion.Floats);
+                        (IntPtr)(updateRegion.Length * SizeFloat), updateRegion.Data);
                 }
 #if Read
                 var floats = new float[GPUBufferSize];
@@ -341,13 +344,13 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 冲洗之前操作到设备缓冲，在opengl上下文调用
         /// </summary>
         /// <returns>true:更新了设备缓冲；false：未更新</returns>
-        public void AddGeometry(IPoint2D point)
+        public void Add(IPoint2D point)
         {
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendArgs(new Point2D(point.X, point.Y)));
         }
 
-        public void AddGeometries(IList<IPoint2D> points)
+        public void AddRange(IList<IPoint2D> points)
         {
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendRangeArgs(points

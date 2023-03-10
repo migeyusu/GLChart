@@ -7,18 +7,18 @@ using RLP.Chart.OpenGL.Renderer;
 namespace RLP.Chart.OpenGL.CollisionDetection
 {
     /// <summary>
-    /// 用于静态点位碰撞检测,grid的坐标系同opengl相同，既xy指向右和上为正数
+    /// 使用网格实现静态点位碰撞检测,grid的坐标系同opengl相同，既xy指向右和上为正数
     /// </summary>
-    public class CollisionGridLayer : ICollisionLayer
+    public class Point2DCollisionGridLayer : IPoint2DCollisionLayer
     {
         public Guid Id { get; } = Guid.NewGuid();
 
         private readonly CellFactory _cellFactory;
-        
-        public CollisionGridLayer(Boundary2D boundary, float xStep, float yStep, CellFactory cellFactory)
+
+        public Point2DCollisionGridLayer(Boundary2D boundary, float xStep, float yStep, CellFactory cellFactory)
         {
-            var xCount = (int) Math.Round(boundary.XSpan / xStep);
-            var yCount = (int) Math.Round(boundary.YSpan / yStep);
+            var xCount = (int)Math.Round(boundary.XSpan / xStep);
+            var yCount = (int)Math.Round(boundary.YSpan / yStep);
             this.Cells = CreateCells(boundary, xCount, yCount, cellFactory);
             this.Boundary = boundary;
             this.ColumnStep = xStep;
@@ -26,7 +26,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             this._cellFactory = cellFactory;
         }
 
-        public CollisionGridLayer(Boundary2D boundary, CellFactory cellFactory, int split = 10)
+        public Point2DCollisionGridLayer(Boundary2D boundary, CellFactory cellFactory, int split = 10)
         {
             var xStep = (boundary.XSpan) / split;
             var yStep = (boundary.YSpan) / split;
@@ -42,7 +42,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// <summary>
         /// 使用二维数组表示grid 行,列形式
         /// </summary>
-        public ICell[,] Cells { get; private set; }
+        public ICollisionCell[,] Cells { get; private set; }
 
         public float ColumnStep { get; private set; }
 
@@ -71,7 +71,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
 
             var columnsCount = this.ColumnsCount;
             var newXStart = this.Boundary.XLow;
-            var xLowClipCount = (int) Math.Floor((clip.XLow - this.Boundary.XLow) / ColumnStep);
+            var xLowClipCount = (int)Math.Floor((clip.XLow - this.Boundary.XLow) / ColumnStep);
             if (xLowClipCount > 0)
             {
                 columnsCount -= xLowClipCount;
@@ -79,7 +79,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             }
 
             var newXEnd = this.Boundary.XHigh;
-            var xHighClipCount = (int) Math.Floor((this.Boundary.XHigh - clip.XHigh) / ColumnStep);
+            var xHighClipCount = (int)Math.Floor((this.Boundary.XHigh - clip.XHigh) / ColumnStep);
             if (xHighClipCount > 0)
             {
                 columnsCount -= xHighClipCount;
@@ -88,7 +88,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
 
             var newYStart = this.Boundary.YLow;
             var rowsCount = this.RowsCount;
-            var yLowClipCount = (int) Math.Floor((clip.YLow - this.Boundary.YLow) / RowStep);
+            var yLowClipCount = (int)Math.Floor((clip.YLow - this.Boundary.YLow) / RowStep);
             if (yLowClipCount > 0)
             {
                 rowsCount -= yLowClipCount;
@@ -96,7 +96,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             }
 
             var newYEnd = this.Boundary.YHigh;
-            var yHighClipCount = (int) Math.Floor((this.Boundary.YHigh - clip.YHigh) / RowStep);
+            var yHighClipCount = (int)Math.Floor((this.Boundary.YHigh - clip.YHigh) / RowStep);
             if (yHighClipCount > 0)
             {
                 rowsCount -= yHighClipCount;
@@ -135,7 +135,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             var xLowComplement = this.Boundary.XLow - allocation.XLow;
             if (!xLowComplement.Equals(0f))
             {
-                var complementCount = (int) Math.Ceiling(xLowComplement / this.ColumnStep);
+                var complementCount = (int)Math.Ceiling(xLowComplement / this.ColumnStep);
                 xCount += complementCount;
                 xStartIndex = complementCount;
                 newXStart -= complementCount * this.ColumnStep;
@@ -145,7 +145,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             var xHighComplement = allocation.XHigh - this.Boundary.XHigh;
             if (!xHighComplement.Equals(0f))
             {
-                var complementCount = (int) Math.Ceiling(xHighComplement / this.ColumnStep);
+                var complementCount = (int)Math.Ceiling(xHighComplement / this.ColumnStep);
                 xCount += complementCount;
                 newXEnd += complementCount * this.ColumnStep;
             }
@@ -155,7 +155,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             var yLowComplement = this.Boundary.YLow - allocation.YLow;
             if (!yLowComplement.Equals(0f))
             {
-                var complementCount = (int) Math.Ceiling(yLowComplement / this.RowStep);
+                var complementCount = (int)Math.Ceiling(yLowComplement / this.RowStep);
                 yCount += complementCount;
                 newYStart -= complementCount * this.RowStep;
             }
@@ -165,7 +165,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             var yHighComplement = allocation.YHigh - this.Boundary.YHigh;
             if (!yHighComplement.Equals(0f))
             {
-                var complementCount = (int) Math.Ceiling(yHighComplement / this.RowStep);
+                var complementCount = (int)Math.Ceiling(yHighComplement / this.RowStep);
                 yCount += complementCount;
                 yStartIndex = complementCount;
                 newYEnd += complementCount * this.RowStep;
@@ -186,10 +186,10 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             this.Boundary = newBoundary;
         }
 
-        private static ICell[,] CreateCells(Boundary2D boundary, int columnCount, int rowCount, CellFactory cellFactory)
+        private static ICollisionCell[,] CreateCells(Boundary2D boundary, int columnCount, int rowCount, CellFactory cellFactory)
         {
             var boundaries = boundary.Divide(columnCount, rowCount);
-            var cells = new ICell[rowCount, columnCount];
+            var cells = new ICollisionCell[rowCount, columnCount];
             for (var i = 0; i < rowCount; i++) //行
             {
                 for (var j = 0; j < columnCount; j++) //列
@@ -235,7 +235,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// </summary>
         /// <param name="boundary"></param>
         /// <returns></returns>
-        private IEnumerable<ICell> GetBoundaryCells(Boundary2D boundary)
+        private IEnumerable<ICollisionCell> GetBoundaryCells(Boundary2D boundary)
         {
             if (!TryGetColumnIndex(boundary.XLow, out int leftColumnIndex))
             {
@@ -270,7 +270,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// 得到几何体内关联的所有cell
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<ICell> GetGeometryCells(Geometry2D geometry)
+        private IEnumerable<ICollisionCell> GetGeometryCells(Geometry2D geometry)
         {
             return GetBoundaryCells(geometry.OrthogonalBoundary);
         }
@@ -302,7 +302,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// 自适应地添加节点
         /// </summary>
         /// <param name="point"></param>
-        public void AddNode(IPoint2D point)
+        public void Add(IPoint2D point)
         {
             var node = new Node(point);
             var nodePoint = node.Point;
@@ -322,18 +322,18 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         }
 
 
-        public void AddNodes(IEnumerable<IPoint2D> nodeDataCollection)
+        public void AddRange(IList<IPoint2D> nodeDataCollection)
         {
             foreach (var nodeData in nodeDataCollection)
             {
-                AddNode(nodeData);
+                Add(nodeData);
             }
         }
 
         /// <summary>
         /// 删除单元格内元素
         /// </summary>
-        public void ClearNodes()
+        public void Clear()
         {
             foreach (var cell in Cells)
             {
@@ -374,16 +374,16 @@ namespace RLP.Chart.OpenGL.CollisionDetection
         /// <summary>
         /// 重置单元格元素
         /// </summary>
-        public void ResetWithNodes(IEnumerable<IPoint2D> nodes)
+        public void ResetWith(IList<IPoint2D> nodes)
         {
-            this.ClearNodes();
-            this.AddNodes(nodes);
+            this.Clear();
+            this.AddRange(nodes);
         }
 
-        public void ResetWithNode(IPoint2D node)
+        public void ResetWith(IPoint2D node)
         {
-            this.ClearNodes();
-            this.AddNode(node);
+            this.Clear();
+            this.Add(node);
         }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             return false;
         }
 
-        protected bool Equals(CollisionGridLayer other)
+        protected bool Equals(Point2DCollisionGridLayer other)
         {
             return Id.Equals(other.Id);
         }
@@ -422,7 +422,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((CollisionGridLayer) obj);
+            return Equals((Point2DCollisionGridLayer)obj);
         }
 
         public override int GetHashCode()

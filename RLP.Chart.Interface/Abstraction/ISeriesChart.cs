@@ -3,9 +3,10 @@
 namespace RLP.Chart.Interface.Abstraction
 {
     /// <summary>
-    /// 系列构成的图表
+    /// 可渲染系列的图表,一个系列表示可绘制的一类几何体。
+    /// <para>没有类型限制，允许系列表持有多类型集合</para>
     /// </summary>
-    public interface ISeriesChart<T> where T : ISeriesItem
+    public interface ISeriesChart<T>
     {
         /// <summary>
         /// 已附加的系列
@@ -13,7 +14,7 @@ namespace RLP.Chart.Interface.Abstraction
         IReadOnlyList<T> SeriesItems { get; }
 
         /// <summary>
-        /// 创建一个新的系列项
+        /// 创建一个新的系列
         /// </summary>
         /// <returns></returns>
         T NewSeries();

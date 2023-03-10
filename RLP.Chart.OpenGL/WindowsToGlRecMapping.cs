@@ -6,6 +6,7 @@ using RLP.Chart.OpenGL.Renderer;
 
 namespace RLP.Chart.OpenGL
 {
+    //todo：性能优化
     /// <summary>
     /// windows 和 opengl的空间映射
     /// </summary>

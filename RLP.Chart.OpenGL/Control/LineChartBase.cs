@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
@@ -24,7 +24,7 @@ namespace RLP.Chart.OpenGL.Control
     /// 只具有显示能力的图形
     /// </summary>
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(ThreadOpenTkControl))]
-    public class LineChartBase : System.Windows.Controls.Control, ILineChart
+    public class LineChartBase : System.Windows.Controls.Control, ISeriesChart<LineSeriesBase>
     {
         public static Dispatcher AppDispatcher => DispatcherLazy.Value;
 
@@ -34,19 +34,23 @@ namespace RLP.Chart.OpenGL.Control
 
         public const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
-        public static readonly DependencyProperty IsShowFpsProperty = DependencyProperty.Register(
-            "IsShowFps", typeof(bool), typeof(LineChartBase), new PropertyMetadata(true));
-
         public bool IsShowFps
         {
-            get { return (bool)GetValue(IsShowFpsProperty); }
-            set { SetValue(IsShowFpsProperty, value); }
+            get => _isShowFps;
+            set
+            {
+                _isShowFps = value;
+                if (OpenTkControl != null)
+                {
+                    OpenTkControl.IsShowFps = value;
+                }
+            }
         }
 
         public static readonly DependencyProperty AutoYAxisProperty = DependencyProperty.Register(
             "AutoYAxis", typeof(bool), typeof(LineChartBase), new PropertyMetadata(true));
 
-        public virtual bool AutoYAxis
+        public virtual bool AutoYAxisEnable
         {
             get { return (bool)GetValue(AutoYAxisProperty); }
             set { SetValue(AutoYAxisProperty, value); }
@@ -55,28 +59,33 @@ namespace RLP.Chart.OpenGL.Control
         //ActualRegion : SettingRegion
         public virtual Region2D DisplayRegion
         {
-            get { return AutoYAxis ? ActualRegion : SettingRegion; }
+            get { return CoordinateRenderer.AutoYAxisEnable ? ActualRegion : SettingRegion; }
             set { SetValue(SettingRegionProperty, value); }
         }
 
-        public static readonly DependencyProperty GlSettingsProperty = DependencyProperty.Register(
-            "GlSettings", typeof(GLSettings), typeof(LineChartBase),
-            new PropertyMetadata(new GLSettings()
-            {
-                GraphicsContextFlags = GraphicsContextFlags.Offscreen,
-                GraphicsMode = new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 8, 4)
-            }));
-
+        /// <summary>
+        /// gl 设置
+        /// </summary>
         public GLSettings GlSettings
         {
-            get { return (GLSettings)GetValue(GlSettingsProperty); }
-            set { SetValue(GlSettingsProperty, value); }
+            get => _glSettings;
+            set
+            {
+                _glSettings = value;
+                if (OpenTkControl != null)
+                {
+                    OpenTkControl.GlSettings = value;
+                }
+            }
         }
 
         public static readonly DependencyProperty SettingRegionProperty = DependencyProperty.Register(
             "SettingRegion", typeof(Region2D), typeof(LineChartBase),
             new PropertyMetadata(default(Region2D)));
 
+        /// <summary>
+        /// 设置的视域
+        /// </summary>
         public Region2D SettingRegion
         {
             get { return (Region2D)GetValue(SettingRegionProperty); }
@@ -88,7 +97,7 @@ namespace RLP.Chart.OpenGL.Control
             new PropertyMetadata(default(Region2D)));
 
         /// <summary>
-        /// 当前chart实际坐标
+        /// 当前实际视域
         /// </summary>
         public Region2D ActualRegion
         {
@@ -96,39 +105,14 @@ namespace RLP.Chart.OpenGL.Control
             set { SetValue(ActualRegionProperty, value); }
         }
 
-        public static readonly DependencyProperty LineThicknessProperty = DependencyProperty.Register(
-            "LineThickness", typeof(double), typeof(LineChartBase), new PropertyMetadata(1d));
-
-        public double LineThickness
-        {
-            get { return (double)GetValue(LineThicknessProperty); }
-            set { SetValue(LineThicknessProperty, value); }
-        }
-
-        public static readonly DependencyProperty MaxLineThicknessProperty = DependencyProperty.Register(
-            "MaxLineThickness", typeof(double), typeof(LineChartBase), new PropertyMetadata(default(double)));
-
-        public double MaxLineThickness
-        {
-            get { return (double)GetValue(MaxLineThicknessProperty); }
-            set { SetValue(MaxLineThicknessProperty, value); }
-        }
-
-        public static readonly DependencyProperty MinLineThicknessProperty = DependencyProperty.Register(
-            "MinLineThickness", typeof(double), typeof(LineChartBase), new PropertyMetadata(default(double)));
-
-        public double MinLineThickness
-        {
-            get { return (double)GetValue(MinLineThicknessProperty); }
-            set { SetValue(MinLineThicknessProperty, value); }
-        }
-
-        public virtual IReadOnlyList<ILineSeries> SeriesItems => new ReadOnlyCollection<SeriesItemLight>(_items);
+        public virtual IReadOnlyList<LineSeriesBase> SeriesItems =>
+            new ReadOnlyCollection<LineSeriesBase>(LineSeriesRenderer.Cast<LineSeriesBase>().ToArray());
 
 
 #if SimpleLine
-                protected SimpleLineSeriesRenderer LineSeriesRenderer =
-            new SimpleLineSeriesRenderer(new Shader("Shaders/LineShader/shader.vert", "Shaders/LineShader/shader.frag"));
+        protected SimpleLineSeriesRenderer LineSeriesRenderer =
+            new SimpleLineSeriesRenderer(new Shader("Shaders/LineShader/shader.vert",
+                "Shaders/LineShader/shader.frag"));
 #else
         protected AdvancedLineSeriesRenderer LineSeriesRenderer =
             new AdvancedLineSeriesRenderer(new Shader("Shaders/AdvancedLineShader/shader.vert",
@@ -149,24 +133,17 @@ namespace RLP.Chart.OpenGL.Control
             CoordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
             DependencyPropertyDescriptor.FromProperty(SettingRegionProperty, typeof(LineChartBase))
                 .AddValueChanged(this, SettingRegionChangedHandler);
-            DependencyPropertyDescriptor.FromProperty(LineThicknessProperty, typeof(LineChartBase))
-                .AddValueChanged(this, LineThicknessChangedHandler);
             DependencyPropertyDescriptor.FromProperty(AutoYAxisProperty, typeof(LineChartBase))
                 .AddValueChanged(this, AutoYAxisChanged_Handler);
-            CoordinateRenderer.AutoYAxisApex = (bool)AutoYAxisProperty.DefaultMetadata.DefaultValue;
+            CoordinateRenderer.AutoYAxisEnable = (bool)AutoYAxisProperty.DefaultMetadata.DefaultValue;
         }
 
         private void AutoYAxisChanged_Handler(object sender, EventArgs e)
         {
-            CoordinateRenderer.AutoYAxisApex = this.AutoYAxis;
+            CoordinateRenderer.AutoYAxisEnable = this.AutoYAxisEnable;
         }
 
 /*当需要同步依赖属性和独立变量时，使用观察者，倾向于在load或apply template后再绑定以防止未加载的空控件，同时必须初始化值*/
-
-        protected virtual void LineThicknessChangedHandler(object sender, EventArgs e)
-        {
-            LineSeriesRenderer.LineThickness = (float)this.LineThickness;
-        }
 
         protected virtual void SettingRegionChangedHandler(object sender, EventArgs e)
         {
@@ -186,6 +163,7 @@ namespace RLP.Chart.OpenGL.Control
         {
             base.OnApplyTemplate();
             OpenTkControl = GetTemplateChild(ThreadOpenTkControl) as ThreadOpenTkControl;
+            OpenTkControl.GlSettings = this.GlSettings;
             CoordinateRenderer.ActualRegionChanged += SeriesRendererHost_AutoAxisYCompleted;
             OpenTkControl.Renderer = CoordinateRenderer;
             OpenTkControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
@@ -194,12 +172,12 @@ namespace RLP.Chart.OpenGL.Control
 
         private void OpenTkControlOnOpenGlErrorReceived(object sender, OpenGlErrorArgs e)
         {
-            Debug.WriteLine(e.ToString());
+            Trace.WriteLine(e.ToString());
         }
 
         private void OpenTkControlOnRenderErrorReceived(object sender, RenderErrorArgs e)
         {
-            Debug.WriteLine($"{e.Phase}:{e.Exception.Message}");
+            Trace.WriteLine($"{e.Phase}:{e.Exception.Message}");
         }
 
         public virtual void AttachWindow(Window hostWindow)
@@ -212,107 +190,32 @@ namespace RLP.Chart.OpenGL.Control
             this.OpenTkControl.Close();
         }
 
-        private readonly List<SeriesItemLight> _items = new List<SeriesItemLight>(5);
-
-        public virtual ILineSeries NewSeries()
+        private GLSettings _glSettings = new GLSettings()
         {
-            return new SeriesItemLight();
+            GraphicsContextFlags = GraphicsContextFlags.Offscreen,
+            GraphicsMode = new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 8, 4)
+        };
+
+        private bool _isShowFps;
+
+        public virtual LineSeriesBase NewSeries()
+        {
+            return new LineSeriesBase();
         }
 
-        public virtual void Add(ILineSeries item)
+        public virtual void Add(LineSeriesBase item)
         {
-            if (item is SeriesItemLight seriesItemLight)
-            {
-                this._items.Add(seriesItemLight);
-                this.LineSeriesRenderer.Add(seriesItemLight.Renderer);
-            }
+            this.LineSeriesRenderer.Add(item);
         }
 
-        public virtual void Remove(ILineSeries seriesItem)
+        public virtual void Remove(LineSeriesBase seriesItem)
         {
-            var seriesItemLight = _items.Find(light => light.Id == seriesItem.Id);
-            this._items.Remove(seriesItemLight);
-            this.LineSeriesRenderer.Remove(seriesItemLight.Renderer);
+            this.LineSeriesRenderer.Remove(seriesItem);
         }
 
         public virtual void Clear()
         {
             this.LineSeriesRenderer.Clear();
-            this._items.Clear();
-        }
-
-        public class SeriesItemLight : ILineSeries
-        {
-            public Guid Id { get; } = Guid.NewGuid();
-            public string Title { get; set; }
-
-            public bool Visible
-            {
-                get => Renderer.RenderEnable;
-                set => Renderer.RenderEnable = value;
-            }
-
-            public Color LineColor
-            {
-                get { return Renderer.LineColor; }
-                set { Renderer.LineColor = value; }
-            }
-
-            public int PointCountLimit
-            {
-                get => Renderer.PointCountLimit;
-                set => Renderer.PointCountLimit = value;
-            }
-
-            internal SimpleLineRenderer Renderer { get; }
-
-            public SeriesItemLight()
-            {
-                this.Renderer = new SimpleLineRenderer();
-            }
-
-            public virtual void AddGeometry(IPoint2D point)
-            {
-                this.Renderer.AddGeometry(point);
-            }
-
-            public virtual void AddGeometries(IList<IPoint2D> points)
-            {
-                this.Renderer.AddGeometries(points);
-            }
-
-            public virtual void ResetWith(IList<IPoint2D> geometries)
-            {
-                this.Renderer.ResetWith(geometries);
-            }
-
-            public virtual void ResetWith(IPoint2D geometry)
-            {
-                this.Renderer.ResetWith(geometry);
-            }
-
-            public virtual void Clear()
-            {
-                this.Renderer.Clear();
-            }
-
-            protected bool Equals(SeriesItemLight other)
-            {
-                return Id.Equals(other.Id);
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != this.GetType()) return false;
-                return Equals((SeriesItemLight)obj);
-            }
-
-            public override int GetHashCode()
-            {
-                return Id.GetHashCode();
-            }
         }
     }
 }

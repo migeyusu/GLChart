@@ -2,11 +2,15 @@
 
 namespace RLP.Chart.Interface.Abstraction
 {
+    /// <summary>
+    /// 集合体的集合
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IGeometryCollection<T> where T: IGeometry
     {
-        void AddGeometry(T geometry);
+        void Add(T geometry);
 
-        void AddGeometries(IList<T> geometries);
+        void AddRange(IList<T> geometries);
 
         void ResetWith(IList<T> geometries);
 

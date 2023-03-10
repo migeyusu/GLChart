@@ -2,7 +2,7 @@
 {
     public class LinkedListGridCellFactory : CellFactory
     {
-        public override ICell CreateCell(Boundary2D boundary)
+        public override ICollisionCell CreateCell(Boundary2D boundary)
         {
             return new LinkedListGridCell();
         }

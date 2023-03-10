@@ -5,7 +5,7 @@ using RLP.Chart.OpenGL.Renderer;
 namespace RLP.Chart.OpenGL.Abstraction
 {
     /// <summary>
-    /// （基于坐标系的）项渲染器
+    /// （基于坐标系的）渲染项
     /// </summary>
     public interface IRendererItem : IRenderer
     {

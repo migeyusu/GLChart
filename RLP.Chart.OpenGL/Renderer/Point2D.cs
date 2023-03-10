@@ -1,9 +1,13 @@
 ﻿using System;
+using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.CollisionDetection;
 
 namespace RLP.Chart.OpenGL.Renderer
 {
-    public readonly struct Point2D
+    /// <summary>
+    /// 2d 点
+    /// </summary>
+    public readonly struct Point2D : IPoint2D
     {
         public float X { get; }
 
@@ -28,29 +32,29 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public Boundary2D CreateWrapperBoundary(Boundary2D boundary, float rowOverHead, float columnOverHead)
         {
-            var xlow = boundary.XLow;
+            var xLow = boundary.XLow;
             var xHigh = boundary.XHigh;
-            var ylow = boundary.YLow;
-            var yhigh = boundary.YHigh;
-            if (xlow > X)
+            var yLow = boundary.YLow;
+            var yHigh = boundary.YHigh;
+            if (xLow > X)
             {
-                xlow = X;
+                xLow = X;
             }
             else if (xHigh <= X)
             {
                 xHigh = X + columnOverHead;
             }
 
-            if (ylow > Y)
+            if (yLow > Y)
             {
-                ylow = Y;
+                yLow = Y;
             }
-            else if (yhigh <= Y)
+            else if (yHigh <= Y)
             {
-                yhigh = Y + rowOverHead;
+                yHigh = Y + rowOverHead;
             }
 
-            return new Boundary2D(xlow, xHigh, ylow, yhigh);
+            return new Boundary2D(xLow, xHigh, yLow, yHigh);
         }
 
         /// <summary>

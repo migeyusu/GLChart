@@ -7,9 +7,10 @@ namespace RLP.Chart.OpenGL.CollisionDetection
     /*为了配合碰撞，四叉树可以限定精度，可以在插入时限制大小，也可以在搜索时限定大小
      后者的性能更差，但灵活度更好，当前采用后者*/
 
+    //递归方式性能已经满足，如果需要应改为循环
 
     /// <summary>
-    /// 递归方式性能已经满足，如果需要应改为循环
+    /// 四叉树节点
     /// </summary>
     public class QuadTreeNode
     {
@@ -67,7 +68,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             NorthEast = new QuadTreeNode(boundaries[1]);
             SouthWest = new QuadTreeNode(boundaries[2]);
             SouthEast = new QuadTreeNode(boundaries[3]);
-            _nodes = new[] {NorthWest, NorthEast, SouthWest, SouthEast};
+            _nodes = new[] { NorthWest, NorthEast, SouthWest, SouthEast };
 
             foreach (var quadTreeNode in _nodes)
             {

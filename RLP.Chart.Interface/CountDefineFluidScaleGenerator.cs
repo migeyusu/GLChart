@@ -26,13 +26,6 @@ namespace RLP.Chart.Interface
 
         protected abstract int GetScaleCount(ScaleGenerationContext context);
 
-        /// <summary>
-        /// 上一次的步进
-        /// </summary>
-        private double _previousRangeStep, _previousPixelStretch;
-
-        private IList<AxisScale> _cacheScales;
-
         public IEnumerable<AxisScale> Generate(ScaleGenerationContext context)
         {
             var valueRange = context.ValueRange;

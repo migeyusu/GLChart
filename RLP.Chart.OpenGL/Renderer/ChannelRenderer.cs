@@ -17,7 +17,7 @@ namespace RLP.Chart.OpenGL.Renderer
     /// <summary>
     /// single channel renderer
     /// </summary>
-    public class ChannelRenderer : IShaderRendererItem, IGeometryRenderer<IChannel>
+    public class ChannelRenderer : IShaderRendererItem, IGeometryCollection<IChannel>
     {
         private Color4 _color4 = Color4.Red;
 
@@ -271,7 +271,7 @@ namespace RLP.Chart.OpenGL.Renderer
             this._shader = shader;
         }
 
-        public void AddGeometry(IChannel geometry)
+        public void Add(IChannel geometry)
         {
             /*var point3Ds = geometry.Points
                 .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
@@ -279,7 +279,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendArgs(geometry));
         }
 
-        public void AddGeometries(IList<IChannel> geometries)
+        public void AddRange(IList<IChannel> geometries)
         {
             /*var channels = geometries.Select((channel =>
             {

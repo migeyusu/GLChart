@@ -6,18 +6,18 @@ namespace RLP.Chart.OpenGL.CollisionDetection
 {
     public class CollisionGrid
     {
-        private readonly List<ICollisionLayer> _layers = new List<ICollisionLayer>(10);
+        private readonly List<IPoint2DCollisionLayer> _layers = new List<IPoint2DCollisionLayer>(10);
 
         public CollisionGrid()
         {
         }
 
-        public void AddLayer(ICollisionLayer layer)
+        public void AddLayer(IPoint2DCollisionLayer layer)
         {
             _layers.Add(layer);
         }
 
-        public void Remove(ICollisionLayer layer)
+        public void Remove(IPoint2DCollisionLayer layer)
         {
             _layers.Remove(layer);
         }
@@ -27,7 +27,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             _layers.Clear();
         }
 
-        public bool TrySearch(Geometry2D geometry, out Node node, out ICollisionLayer fromLayer)
+        public bool TrySearch(Geometry2D geometry, out Node node, out IPoint2DCollisionLayer fromLayer)
         {
             foreach (var layer in _layers)
             {

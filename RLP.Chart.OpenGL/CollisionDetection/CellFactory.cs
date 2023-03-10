@@ -2,6 +2,6 @@
 {
     public abstract class CellFactory
     {
-        public abstract ICell CreateCell(Boundary2D boundary);
+        public abstract ICollisionCell CreateCell(Boundary2D boundary);
     }
 }

@@ -3,9 +3,9 @@
 namespace RLP.Chart.OpenGL.Abstraction
 {
     /// <summary>
-    /// 
+    /// 线渲染器
     /// </summary>
-    public interface ILineRenderer : IShaderRendererItem, IGeometryRenderer<IPoint2D>, ILine
+    public interface ILineRenderer : IShaderRendererItem, ILine
     {
     }
 }

@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Collection;
-using RLP.Chart.OpenGL.CollisionDetection;
 using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL
+namespace RLP.Chart.OpenGL.CollisionDetection
 {
     /// <summary>
     /// 使用稀疏网格的碰撞算法，当前只适用于大于零的情况
     /// <para>使用x+y mod </para>
     /// <para>x^y mod</para>
     /// </summary>
-    public class SpacialHashSet : ICollisionLayer
+    public class SpacialHashSet : IPoint2DCollisionLayer
     {
         protected bool Equals(SpacialHashSet other)
         {
@@ -26,7 +24,7 @@ namespace RLP.Chart.OpenGL
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((SpacialHashSet) obj);
+            return Equals((SpacialHashSet)obj);
         }
 
         public override int GetHashCode()
@@ -57,12 +55,7 @@ namespace RLP.Chart.OpenGL
             this._units = new SingleLinkedList<LinkedListGridCell>[tableSize];
         }
 
-        public void Insert(IPoint2D point)
-        {
-            AddNode(point);
-        }
-
-        private ICell GetCell(int rowIndex, int columnIndex)
+        private ICollisionCell GetCell(int rowIndex, int columnIndex)
         {
             var tableUnitIndex = _algorithm.Get(rowIndex, columnIndex) % _tableSize;
             tableUnitIndex = Math.Abs(tableUnitIndex);
@@ -89,7 +82,7 @@ namespace RLP.Chart.OpenGL
 
         public void RemoveFromAxisX(double x)
         {
-            var startColumnIndex = (int) Math.Floor(x / _cellSize);
+            var startColumnIndex = (int)Math.Floor(x / _cellSize);
             foreach (var gridCell in _units)
             {
                 if (gridCell != null)
@@ -99,17 +92,17 @@ namespace RLP.Chart.OpenGL
             }
         }
 
-        public IEnumerable<ICell> GetCollisionCells(Geometry2D geometry)
+        public IEnumerable<ICollisionCell> GetCollisionCells(Geometry2D geometry)
         {
             return GetCollisionCells(geometry.OrthogonalBoundary);
         }
 
-        public IEnumerable<ICell> GetCollisionCells(Boundary2D boundary)
+        public IEnumerable<ICollisionCell> GetCollisionCells(Boundary2D boundary)
         {
-            var startColumnIndex = (int) Math.Floor(boundary.XLow / _cellSize);
-            var startRowIndex = (int) Math.Floor(boundary.YLow / _cellSize);
+            var startColumnIndex = (int)Math.Floor(boundary.XLow / _cellSize);
+            var startRowIndex = (int)Math.Floor(boundary.YLow / _cellSize);
             var endColumnIndex = Math.Ceiling(boundary.XHigh / _cellSize);
-            var endRowIndex = (int) Math.Ceiling(boundary.YHigh / _cellSize);
+            var endRowIndex = (int)Math.Ceiling(boundary.YHigh / _cellSize);
             for (int i = startRowIndex; i <= endRowIndex; i++)
             {
                 for (int j = startColumnIndex; j < endColumnIndex; j++)
@@ -139,10 +132,10 @@ namespace RLP.Chart.OpenGL
             return false;
         }
 
-        public void AddNode(IPoint2D point)
+        public void Add(IPoint2D point)
         {
-            var columnIndex = (int) Math.Floor(point.X / _cellSize);
-            var rowIndex = (int) Math.Floor(point.Y / _cellSize);
+            var columnIndex = (int)Math.Floor(point.X / _cellSize);
+            var rowIndex = (int)Math.Floor(point.Y / _cellSize);
             var hash = _algorithm.Get(rowIndex, columnIndex);
             var tableUnitIndex = hash % _tableSize;
             var singleLinkedList = _units[tableUnitIndex];
@@ -157,7 +150,7 @@ namespace RLP.Chart.OpenGL
                 singleLinkedList.Find(cell => cell.ColumnIndex == columnIndex && cell.RowIndex == rowIndex);
             if (singleLinkedNode == null)
             {
-                containerCell = new LinkedListGridCell() {ColumnIndex = columnIndex, RowIndex = rowIndex};
+                containerCell = new LinkedListGridCell() { ColumnIndex = columnIndex, RowIndex = rowIndex };
                 singleLinkedList.Append(containerCell);
             }
             else
@@ -168,27 +161,27 @@ namespace RLP.Chart.OpenGL
             containerCell.Insert(new Node(point));
         }
 
-        public void AddNodes(IEnumerable<IPoint2D> nodes)
+        public void AddRange(IList<IPoint2D> nodes)
         {
             foreach (var point in nodes)
             {
-                AddNode(point);
+                Add(point);
             }
         }
 
-        public void ResetWithNode(IPoint2D node)
+        public void ResetWith(IPoint2D node)
         {
-            this.ClearNodes();
-            this.AddNode(node);
+            this.Clear();
+            this.Add(node);
         }
 
-        public void ResetWithNodes(IEnumerable<IPoint2D> nodes)
+        public void ResetWith(IList<IPoint2D> nodes)
         {
-            this.ClearNodes();
-            this.AddNodes(nodes);
+            this.Clear();
+            this.AddRange(nodes);
         }
 
-        public void ClearNodes()
+        public void Clear()
         {
             for (var index = 0; index < _units.Length; index++)
             {

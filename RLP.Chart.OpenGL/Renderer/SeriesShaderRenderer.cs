@@ -12,7 +12,7 @@ using RLP.Chart.OpenGL.Abstraction;
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// 系列渲染器组
+    /// 着色器渲染集合，管理同一一类渲染器
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SeriesShaderRenderer<T> : BaseRenderer, IEnumerable<T>

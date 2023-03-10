@@ -4,7 +4,7 @@ using RLP.Chart.OpenGL.Renderer;
 
 namespace RLP.Chart.OpenGL.CollisionDetection
 {
-    public class QuadTreeNodeGridCell : ICell
+    public class QuadTreeNodeGridCell : ICollisionCell
     {
         public QuadTreeNode PointsTree { get; }
 

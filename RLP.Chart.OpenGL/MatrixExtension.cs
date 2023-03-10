@@ -43,7 +43,7 @@ namespace RLP.Chart.OpenGL
             return centerPoint.GetDistanceSquare(point);
         }
 
-        public static Node? NearestNodeData(this Geometry2D geometry, IEnumerable<ICell> cells,
+        public static Node? NearestNodeData(this Geometry2D geometry, IEnumerable<ICollisionCell> cells,
             out float squareDistance)
         {
 #if priority

@@ -43,22 +43,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstraction\ICoordinate2DChart.cs" />
     <Compile Include="Abstraction\IGeometry.cs" />
     <Compile Include="Abstraction\IGeometryCollection.cs" />
     <Compile Include="Abstraction\ILine.cs" />
-    <Compile Include="Abstraction\ILineChart.cs" />
+    <Compile Include="Abstraction\IPoint2D.cs" />
     <Compile Include="Abstraction\IPoint3D.cs" />
-    <Compile Include="Abstraction\ISeries2D.cs" />
-    <Compile Include="Abstraction\ISeries3D.cs" />
     <Compile Include="Abstraction\ISeriesChart.cs" />
-    <Compile Include="Abstraction\ISeriesItem.cs" />
     <Compile Include="AxisLabel.cs" />
     <Compile Include="AxisScale.cs" />
-    <Compile Include="Abstraction\IPoint2D.cs" />
-    <Compile Include="Abstraction\IPointsSource.cs" />
-    <Compile Include="Abstraction\ILineSeries.cs" />
-    <Compile Include="Abstraction\ICoordinate3DChart.cs" />
     <Compile Include="AxisRenderOption.cs" />
     <Compile Include="Region2D.cs" />
     <Compile Include="FixedPixelPitchScale.cs" />

@@ -60,7 +60,7 @@ namespace RLP.Chart.Client
                 ChannelWidth = ChannelWidth,
                 MaxChannelCount = MaxChannelCount,
             };
-            _channelRenderer.AddGeometry(new Channel(firstChannelPoints));
+            _channelRenderer.Add(new Channel(firstChannelPoints));
             channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("Shaders/ChannelShader/shader.vert",
                 "Shaders/ChannelShader/shader.frag"))
             {
@@ -132,7 +132,7 @@ namespace RLP.Chart.Client
                 channels[i] = new Channel(points);
             }
 
-            _channelRenderer.AddGeometries(channels);
+            _channelRenderer.AddRange(channels);
             _totalChannelCount += appendChannelCount;
             channelSeriesRenderer.ZHighest = _zMax;
             var leftXInterval = _totalChannelCount < MaxChannelCount

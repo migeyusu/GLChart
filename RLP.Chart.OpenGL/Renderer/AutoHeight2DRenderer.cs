@@ -31,7 +31,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 是否自动适配Y轴顶点
         /// </summary>
-        public bool AutoYAxisApex { get; set; } = true;
+        public bool AutoYAxisEnable { get; set; } = true;
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
@@ -175,7 +175,7 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 regionChanged = true;
                 _lastTargetRegion = _targetRegion;
-                if (AutoYAxisApex)
+                if (AutoYAxisEnable)
                 {
                     /*var coordinateRegion = _targetRegion.Height < DefaultAxisYRange
                         ? _targetRegion.WithTop(DefaultAxisYRange)

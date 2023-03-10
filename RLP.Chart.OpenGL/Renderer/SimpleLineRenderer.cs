@@ -15,7 +15,7 @@ using RLP.Chart.OpenGL.Collection;
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// 系列渲染器
+    /// 简单线条渲染，基于gl基础的线条类型，不可修改粗细
     /// </summary>
     public class SimpleLineRenderer : ILineRenderer
     {
@@ -242,7 +242,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <returns>update source</returns>
         private void WritePoints(IList<Point2D> appendPoints)
         {
-            var updateRegions = new List<GPUBufferRegion>(2);
+            var updateRegions = new List<GPUBufferRegion<float>>(2);
             var pendingPointsCount = appendPoints.Count;
             if (pendingPointsCount > 0)
             {
@@ -257,11 +257,11 @@ namespace RLP.Chart.OpenGL.Renderer
                     /*由于更新的返回脏区域数组是按序的，首个脏区域如果没有达到环形缓冲的长度，
                          说明更新只限于小范围内，可以直接全部拷贝*/
                     var floats = new float[firstDirtRegionLength];
-                    var updateRegion = new GPUBufferRegion
+                    var updateRegion = new GPUBufferRegion<float>
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 2,
-                        Floats = floats
+                        Data = floats
                     };
                     int index;
                     for (int k = 0; k < pendingPointsCount; k++)
@@ -287,11 +287,11 @@ namespace RLP.Chart.OpenGL.Renderer
 
                     //延长复制，因为合并渲染的需要
                     var floats = new float[firstDirtRegionLength + 2];
-                    var updateRegion = new GPUBufferRegion
+                    var updateRegion = new GPUBufferRegion<float>
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 4,
-                        Floats = floats
+                        Data = floats
                     };
 
                     int index;
@@ -311,11 +311,11 @@ namespace RLP.Chart.OpenGL.Renderer
                     floats[index] = point.X;
                     floats[index + 1] = point.Y;
                     updateRegions.Add(updateRegion);
-                    var secondRegion = new GPUBufferRegion() { Low = 0, };
+                    var secondRegion = new GPUBufferRegion<float>() { Low = 0, };
                     if (dirtRegions.Length == 1)
                     {
                         secondRegion.High = 1;
-                        secondRegion.Floats = new[] { point.X, point.Y };
+                        secondRegion.Data = new[] { point.X, point.Y };
                     }
                     else
                     {
@@ -335,7 +335,7 @@ namespace RLP.Chart.OpenGL.Renderer
                             s += 2;
                         }
 
-                        secondRegion.Floats = floats1;
+                        secondRegion.Data = floats1;
                     }
 
                     updateRegions.Add(secondRegion);
@@ -348,7 +348,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 foreach (var updateRegion in updateRegions)
                 {
                     GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(updateRegion.Low * SizeFloat),
-                        (IntPtr)(updateRegion.Length * SizeFloat), updateRegion.Floats);
+                        (IntPtr)(updateRegion.Length * SizeFloat), updateRegion.Data);
                 }
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -366,38 +366,38 @@ namespace RLP.Chart.OpenGL.Renderer
 所以，全局刷新也需要延长、提前拷贝；所有的更新必须使用映射地址。*/
 
 
-        public void AddGeometry(IPoint2D point)
+        public virtual void Add(IPoint2D point)
         {
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendArgs(new Point2D(point.X, point.Y)));
         }
 
-        public void AddGeometries(IList<IPoint2D> points)
+        public virtual void AddRange(IList<IPoint2D> points)
         {
             _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>
                 .AppendRangeArgs(points.Select(point => new Point2D(point.X, point.Y)).ToArray()));
         }
 
-        public void ResetWith(IList<IPoint2D> geometries)
+        public virtual void ResetWith(IList<IPoint2D> geometries)
         {
             _changedEventArgsQueue.Enqueue(new NotifyCollectionChangedEventArgs<Point2D>(
                 NotifyCollectionChangedAction.Reset,
                 geometries.Select(point => new Point2D(point.X, point.Y)).ToArray()));
         }
 
-        public void ResetWith(IPoint2D geometry)
+        public virtual void ResetWith(IPoint2D geometry)
         {
             _changedEventArgsQueue.Enqueue(
                 new NotifyCollectionChangedEventArgs<Point2D>(NotifyCollectionChangedAction.Reset,
                     new Point2D(geometry.X, geometry.Y)));
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>.ResetArgs);
         }
 
-        public void Uninitialize()
+        public virtual void Uninitialize()
         {
             if (!IsInitialized)
             {

@@ -74,15 +74,16 @@
     <Compile Include="Collection\SingleLinkedList.cs" />
     <Compile Include="Collection\ThreadSafeRingBuffer.cs" />
     <Compile Include="CollisionDetection\CellFactory.cs" />
-    <Compile Include="CollisionDetection\CollisionGridLayer.cs" />
-    <Compile Include="CollisionDetection\ICollisionLayer.cs" />
+    <Compile Include="CollisionDetection\Point2DCollisionGridLayer.cs" />
+    <Compile Include="CollisionDetection\IPoint2DCollisionLayer.cs" />
     <Compile Include="CollisionDetection\LinkedListGridCell.cs" />
     <Compile Include="CollisionDetection\LinkedListGridCellFactory.cs" />
     <Compile Include="CollisionDetection\QuadTreeNodeGridCellFactory.cs" />
     <Compile Include="CollisionDetection\CollisionEnum.cs" />
     <Compile Include="Control\Coordinate2D.cs" />
     <Compile Include="Control\LineChartBase.cs" />
-    <Compile Include="DefaultPoint.cs" />
+    <Compile Include="Control\LineSeries.cs" />
+    <Compile Include="Control\LineSeriesBase.cs" />
     <Compile Include="Control\DrawableElement.cs" />
     <Compile Include="Interaction\MouseHoverNodeData.cs" />
     <Compile Include="Interaction\MouseSelect.cs" />
@@ -100,7 +101,6 @@
     <Compile Include="Renderer\Point3D.cs" />
     <Compile Include="Renderer\Region3D.cs" />
     <Compile Include="Renderer\SeriesShaderRenderer.cs" />
-    <Compile Include="Abstraction\IGeometryRenderer.cs" />
     <Compile Include="Abstraction\ILineRenderer.cs" />
     <Compile Include="Abstraction\IRendererItem.cs" />
     <Compile Include="Abstraction\IShaderRendererItem.cs" />
@@ -112,7 +112,7 @@
     <Compile Include="CollisionDetection\AxisSegmentEndPoint.cs" />
     <Compile Include="CollisionDetection\Boundary2D.cs" />
     <Compile Include="CollisionDetection\CollisionGrid.cs" />
-    <Compile Include="CollisionDetection\ICell.cs" />
+    <Compile Include="CollisionDetection\ICollisionCell.cs" />
     <Compile Include="CollisionDetection\Node.cs" />
     <Compile Include="CollisionDetection\QuadTreeNode.cs" />
     <Compile Include="CollisionDetection\QuadTreeNodeGridCell.cs" />

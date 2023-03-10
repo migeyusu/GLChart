@@ -8,7 +8,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using OpenTkWPFHost.Control;
 using RLP.Chart.Interface;
-using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.CollisionDetection;
 using RLP.Chart.OpenGL.Interaction;
 using RLP.Chart.OpenGL.Renderer;
@@ -24,15 +23,7 @@ namespace RLP.Chart.OpenGL.Control
 //    [TemplatePart(Name = Popup, Type = typeof(ToolTip))]
     public class LineChart : LineChartBase
     {
-        public static readonly DependencyProperty CollisionEnumProperty = DependencyProperty.Register(
-            "CollisionEnum", typeof(CollisionEnum), typeof(LineChart),
-            new PropertyMetadata(CollisionEnum.SpacialHash));
-
-        public CollisionEnum CollisionEnum
-        {
-            get { return (CollisionEnum) GetValue(CollisionEnumProperty); }
-            set { SetValue(CollisionEnumProperty, value); }
-        }
+        public CollisionEnum CollisionEnum { get; set; } = CollisionEnum.SpacialHash;
 
         public const string CoordinateElementName = "Coordinate";
 
@@ -50,35 +41,19 @@ namespace RLP.Chart.OpenGL.Control
 
         public DataTemplate ToolTipTemplate
         {
-            get { return (DataTemplate) GetValue(ToolTipTemplateProperty); }
+            get { return (DataTemplate)GetValue(ToolTipTemplateProperty); }
             set { SetValue(ToolTipTemplateProperty, value); }
         }
 
-        public static readonly DependencyProperty CollisionSeedProperty = DependencyProperty.Register(
-            "CollisionSeed", typeof(Boundary2D), typeof(LineChart),
-            new PropertyMetadata(new Boundary2D(0, 100, 0, 100)));
-
         /// <summary>
-        /// “碰撞种子” ,决定了碰撞检测的性能
+        /// “碰撞种子” ,影响碰撞检测的性能
         /// </summary>
-        public Boundary2D CollisionSeed
-        {
-            get { return (Boundary2D) GetValue(CollisionSeedProperty); }
-            set { SetValue(CollisionSeedProperty, value); }
-        }
-
-        public static readonly DependencyProperty InitialCollisionGridProperty = DependencyProperty.Register(
-            "InitialCollisionGrid", typeof(Boundary2D), typeof(LineChart),
-            new PropertyMetadata(new Boundary2D(0, 100, 0, 100)));
+        public Boundary2D CollisionSeed { get; set; } = new Boundary2D(0, 100, 0, 100);
 
         /// <summary>
         /// 初始化碰撞检测的边界，减少碰撞网格的分配开销
         /// </summary>
-        public Boundary2D InitialCollisionGrid
-        {
-            get { return (Boundary2D) GetValue(InitialCollisionGridProperty); }
-            set { SetValue(InitialCollisionGridProperty, value); }
-        }
+        public Boundary2D InitialCollisionGridBoundary { get; set; } = new Boundary2D(0, 100, 0, 100);
 
         public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
             "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
@@ -86,7 +61,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public LabelGenerationOption XLabelGenerationOption
         {
-            get { return (LabelGenerationOption) GetValue(XLabelGenerationOptionProperty); }
+            get { return (LabelGenerationOption)GetValue(XLabelGenerationOptionProperty); }
             set { SetValue(XLabelGenerationOptionProperty, value); }
         }
 
@@ -96,7 +71,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public LabelGenerationOption YLabelGenerationOption
         {
-            get { return (LabelGenerationOption) GetValue(YLabelGenerationOptionProperty); }
+            get { return (LabelGenerationOption)GetValue(YLabelGenerationOptionProperty); }
             set { SetValue(YLabelGenerationOptionProperty, value); }
         }
 
@@ -186,7 +161,7 @@ namespace RLP.Chart.OpenGL.Control
                 var xPixel = _startMovePoint.X - position.X;
                 var xOffset = windowsRectToGlMapping.GetXOffset(xPixel);
                 double yOffset = 0;
-                if (!AutoYAxis)
+                if (!CoordinateRenderer.AutoYAxisEnable)
                 {
                     var yPixel = _startMovePoint.Y - position.Y;
                     yOffset = windowsRectToGlMapping.GetYOffset(-yPixel);
@@ -210,7 +185,7 @@ namespace RLP.Chart.OpenGL.Control
                 var mapGlPoint = windowsRectToGlMapping.MapGlPoint(position);
                 var xDistance = windowsRectToGlMapping.XScaleRatio * 10;
                 var yDistance = windowsRectToGlMapping.YScaleRatio * 10;
-                var ellipseGeometry = new Ellipse(mapGlPoint, (float) xDistance, (float) yDistance);
+                var ellipseGeometry = new Ellipse(mapGlPoint, (float)xDistance, (float)yDistance);
                 if (_nodeGrid.TrySearch(ellipseGeometry, out var point, out var layer))
                 {
                     if (!_popupNode.Equals(point))
@@ -255,9 +230,9 @@ namespace RLP.Chart.OpenGL.Control
             var scale = new WindowsToGlRecMapping(oldRegion.XRange, oldRegion.YRange, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
             var newRegion = new Region2D(xRange, yRange);
-            if (this.AutoYAxis)
+            if (this.CoordinateRenderer.AutoYAxisEnable)
             {
-                this.AutoYAxis = false;
+                this.AutoYAxisEnable = false;
             }
 
             if (newRegion.Height < MinYRange)
@@ -308,43 +283,45 @@ namespace RLP.Chart.OpenGL.Control
 
         #endregion
 
-        private readonly List<SeriesItem> _items = new List<SeriesItem>(5);
+        private readonly List<LineSeries> _items = new List<LineSeries>(5);
 
-        public override IReadOnlyList<ILineSeries> SeriesItems => new ReadOnlyCollection<SeriesItem>(_items);
+        public override IReadOnlyList<LineSeriesBase> SeriesItems => new ReadOnlyCollection<LineSeries>(_items);
 
-        public override ILineSeries NewSeries()
+        public override LineSeriesBase NewSeries()
         {
             var collisionSeed = this.CollisionSeed;
             switch (CollisionEnum)
             {
                 case CollisionEnum.SpacialHash:
-                    return new SeriesItem(new SpacialHashSet(collisionSeed.XSpan, SpacialHashSet.Algorithm.XMapping,
-                        (int) InitialCollisionGrid.XSpan));
+                    return new LineSeries(new SpacialHashSet(collisionSeed.XSpan, SpacialHashSet.Algorithm.XMapping,
+                        (int)InitialCollisionGridBoundary.XSpan));
                 case CollisionEnum.UniformGrid:
-                    var collisionGridLayer = new CollisionGridLayer(InitialCollisionGrid,
+                    var collisionGridLayer = new Point2DCollisionGridLayer(InitialCollisionGridBoundary,
                         collisionSeed.XSpan, collisionSeed.YSpan, new LinkedListGridCellFactory());
-                    return new SeriesItem(collisionGridLayer);
+                    return new LineSeries(collisionGridLayer);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public override void Add(ILineSeries item)
+        public override void Add(LineSeriesBase item)
         {
-            if (item is SeriesItem seriesItem)
+            if (item is LineSeries seriesItem)
             {
                 this._nodeGrid.AddLayer(seriesItem.CollisionGridLayer);
-                this.LineSeriesRenderer.Add(seriesItem.Renderer);
+                this.LineSeriesRenderer.Add(seriesItem);
                 this._items.Add(seriesItem);
             }
         }
 
-        public override void Remove(ILineSeries seriesItem)
+        public override void Remove(LineSeriesBase item)
         {
-            var find = _items.Find((item => item.Id == seriesItem.Id));
-            this._items.Remove(find);
-            this.LineSeriesRenderer.Remove(find.Renderer);
-            this._nodeGrid.Remove(find.CollisionGridLayer);
+            if (item is LineSeries lineSeries)
+            {
+                this._items.Remove(lineSeries);
+                this.LineSeriesRenderer.Remove(lineSeries);
+                this._nodeGrid.Remove(lineSeries.CollisionGridLayer);
+            }
         }
 
         public override void Clear()
@@ -352,50 +329,6 @@ namespace RLP.Chart.OpenGL.Control
             this.LineSeriesRenderer.Clear();
             this._items.Clear();
             this._nodeGrid.Clear();
-        }
-
-        /// <summary>
-        /// 在推送点位上有两种方式：1.从推送目标关联创建
-        /// 2. 独立的集合，附加到目标
-        /// </summary>
-        public class SeriesItem : SeriesItemLight
-        {
-            public SeriesItem(ICollisionLayer collisionGridLayer)
-            {
-                CollisionGridLayer = collisionGridLayer;
-            }
-
-            public ICollisionLayer CollisionGridLayer { get; }
-
-            public override void AddGeometry(IPoint2D point)
-            {
-                base.AddGeometry(point);
-                CollisionGridLayer.AddNode(point);
-            }
-
-            public override void AddGeometries(IList<IPoint2D> points)
-            {
-                base.AddGeometries(points);
-                CollisionGridLayer.AddNodes(points);
-            }
-
-            public override void ResetWith(IPoint2D geometry)
-            {
-                base.ResetWith(geometry);
-                CollisionGridLayer.ResetWithNode(geometry);
-            }
-
-            public override void ResetWith(IList<IPoint2D> geometries)
-            {
-                base.ResetWith(geometries);
-                CollisionGridLayer.ResetWithNodes(geometries);
-            }
-
-            public override void Clear()
-            {
-                base.Clear();
-                this.CollisionGridLayer.ClearNodes();
-            }
         }
     }
 }

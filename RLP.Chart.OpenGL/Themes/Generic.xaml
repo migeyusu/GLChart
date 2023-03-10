@@ -24,8 +24,7 @@
                                   HorizontalAlignment="Stretch">
                                 <control:ThreadOpenTkControl IsAutoAttach="True"
                                                              IsRenderContinuously="True"
-                                                             IsShowFps="{TemplateBinding IsShowFps}"
-                                                             GlSettings="{TemplateBinding GlSettings}"
+                                                             IsShowFps="False"
                                                              x:Name="ThreadOpenTkControl">
                                     <!--<control:ThreadOpenTkControl.RenderSetting>
                                     <configuration:RenderSetting RenderTactic="LatencyPriority"
@@ -71,8 +70,7 @@
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <control:ThreadOpenTkControl x:Name="ThreadOpenTkControl"
                                                      IsAutoAttach="True"
-                                                     IsShowFps="{TemplateBinding IsShowFps}"
-                                                     GlSettings="{TemplateBinding GlSettings}"
+                                                     IsShowFps="False"
                                                      IsRenderContinuously="True" />
                     </Border>
                 </ControlTemplate>

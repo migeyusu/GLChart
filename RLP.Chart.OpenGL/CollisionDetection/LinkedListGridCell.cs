@@ -6,7 +6,7 @@ using RLP.Chart.OpenGL.Renderer;
 
 namespace RLP.Chart.OpenGL.CollisionDetection
 {
-    public class LinkedListGridCell : ICell
+    public class LinkedListGridCell : ICollisionCell
     {
         private readonly SingleLinkedList<Node> _nodesLinkedList = new SingleLinkedList<Node>();
 
