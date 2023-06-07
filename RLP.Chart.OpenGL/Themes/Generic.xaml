@@ -22,6 +22,7 @@
                                   HorizontalAlignment="Stretch">
                                 <control:BitmapOpenTkControl IsAutoAttach="True"
                                                              IsRenderContinuously="True"
+                                                             LifeCycle="BoundToWindow"
                                                              IsShowFps="{TemplateBinding IsShowFps}"
                                                              x:Name="ThreadOpenTkControl">
                                     <control:BitmapOpenTkControl.RenderSetting>

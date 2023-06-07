@@ -19,8 +19,6 @@ namespace RLP.Chart.Interface.Abstraction
         /// <returns></returns>
         T NewSeries();
 
-        void Add(T item);
-
         /// <summary>
         /// 移除系列
         /// </summary>

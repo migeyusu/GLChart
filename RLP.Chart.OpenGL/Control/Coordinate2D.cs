@@ -32,7 +32,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
             "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(Coordinate2D),
-            new PropertyMetadata(default(LabelGenerationOption)));
+            new PropertyMetadata(LabelGenerationOption.Default));
 
         public LabelGenerationOption XLabelGenerationOption
         {
@@ -42,7 +42,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public static readonly DependencyProperty YLabelGenerationOptionProperty = DependencyProperty.Register(
             "YLabelGenerationOption", typeof(LabelGenerationOption), typeof(Coordinate2D),
-            new PropertyMetadata(default(LabelGenerationOption)));
+            new PropertyMetadata(LabelGenerationOption.Default));
 
         public LabelGenerationOption YLabelGenerationOption
         {

@@ -95,7 +95,6 @@ namespace RLP.Chart.OpenGL.Renderer
             }
         }
 
-
         /// <summary>
         /// 渲染快照
         /// </summary>
@@ -121,10 +120,6 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private readonly int[] _emptySsboBuffer = new int[YAxisCastSSBOLength];
 
-        /// <summary>
-        /// 指示是否正在自适应地调整高度
-        /// </summary>
-        private volatile bool _autoAdapting;
 
         public AutoHeight2DRenderer(IList<BaseRenderer> renderSeriesCollection) : base(renderSeriesCollection)
         {
@@ -165,6 +160,10 @@ namespace RLP.Chart.OpenGL.Renderer
             IsInitialized = true;
         }
 
+        /// <summary>
+        /// 指示是否正在自适应地调整高度
+        /// </summary>
+        private volatile bool _isHeightAutoAdapting;
 
         /// <summary>
         /// 渲染的准备阶段，初始化、检查渲染快照变更和刷新缓冲区
@@ -183,7 +182,7 @@ namespace RLP.Chart.OpenGL.Renderer
                         ? _targetRegion.WithTop(DefaultAxisYRange)
                         : _targetRegion;*/
                     RenderingRegion = _targetRegion;
-                    _autoAdapting = true;
+                    _isHeightAutoAdapting = true;
                 }
                 else
                 {
@@ -191,7 +190,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 }
             }
 
-            var renderEnable = _autoAdapting || regionChanged;
+            var renderEnable = _isHeightAutoAdapting || regionChanged;
 
             //检查未初始化，当预渲染ok且渲染可用时表示渲染可用
             foreach (var renderSeries in RenderSeriesCollection)
@@ -236,13 +235,13 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
-                _autoAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
+                _isHeightAutoAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
                 return;
             }
 
             #region transform
 
-            if (_autoAdapting)
+            if (_isHeightAutoAdapting)
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSsbo);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
@@ -252,12 +251,12 @@ namespace RLP.Chart.OpenGL.Renderer
 
             foreach (var seriesItem in _rendererSeriesSnapList)
             {
-                seriesItem.ApplyDirective(new RenderDirective2D(){Transform = _tempTransform});
+                seriesItem.ApplyDirective(new RenderDirective2D() { Transform = _tempTransform });
                 seriesItem.Render(args);
             }
 
             // _renderRegionChanged = false;
-            if (_autoAdapting)
+            if (_isHeightAutoAdapting)
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSsbo);
                 var ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
@@ -280,7 +279,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 {
                     if (regionYRange.Equals(this.DefaultAxisYRange))
                     {
-                        _autoAdapting = false;
+                        _isHeightAutoAdapting = false;
                         return;
                     }
 
@@ -298,7 +297,7 @@ namespace RLP.Chart.OpenGL.Renderer
                     // Debug.WriteLine($"{abs:F2},{precisionValue:F2},{currentHeight:F2},{theoreticalHeight:F2}");
                     if (abs < precisionValue)
                     {
-                        _autoAdapting = false;
+                        _isHeightAutoAdapting = false;
                         return;
                     }
 

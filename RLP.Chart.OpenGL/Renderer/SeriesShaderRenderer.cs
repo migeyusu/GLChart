@@ -13,7 +13,7 @@ using RLP.Chart.OpenGL.Abstraction;
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// 着色器渲染集合，管理同一一类渲染器
+    /// 着色器渲染集合，管理同类渲染器
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SeriesShaderRenderer<T> : BaseRenderer, IEnumerable<T>
@@ -62,6 +62,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
             Context = context;
             this.Shader.Build();
+            this.Shader.Use();
             foreach (var item in LineRendererDictionary.Values)
             {
                 item.Initialize(context);

@@ -107,7 +107,7 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, (int)_channelBuffer.DeviceBufferSize * SizeFloat, IntPtr.Zero,
                 BufferUsageHint.DynamicDraw);
-            VertexArrayObject = GL.GenBuffer();
+            VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * SizeFloat,
                 0);
@@ -117,14 +117,6 @@ namespace RLP.Chart.OpenGL.Renderer
             //index缓存从一开始就是确定的，所以提前分配
             //在gpu环形缓冲中存在首副本节点，所以index缓存也必须扩充 //留有两个model的裕度
             var indexBuffer = PopulateIndex((int)ChannelWidth, (int)_channelBuffer.SuggestMaxModelCount + 2);
-            var stringBuilder = new StringBuilder();
-            foreach (var u in indexBuffer)
-            {
-                stringBuilder.Append(u);
-                stringBuilder.Append(',');
-            }
-
-            Debug.WriteLine(stringBuilder.ToString());
             // var indexBuffer = new uint[] { 0, 2, 1, 3, 3, 2, 2, 4, 3, 5, 5, 4, 4 };
             GL.BufferData(BufferTarget.ElementArrayBuffer, indexBuffer.Length * SizeOfUint, indexBuffer,
                 BufferUsageHint.StaticDraw);
@@ -213,7 +205,7 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 return;
             }
-
+            GL.BindVertexArray(VertexArrayObject);
             var drawRegions = _channelBuffer.EffectRegions;
             var firstDrawRegion = drawRegions[0];
             var firstDrawRegionChannelCount = firstDrawRegion.Length / ChannelBufferWidth;

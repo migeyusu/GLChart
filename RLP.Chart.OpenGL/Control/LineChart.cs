@@ -32,7 +32,7 @@ namespace RLP.Chart.OpenGL.Control
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
 //    [TemplatePart(Name = Popup, Type = typeof(ToolTip))]
-    public class LineChart : System.Windows.Controls.Control, ISeriesChart<LineRenderer>
+    public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine>
     {
         public const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
@@ -77,7 +77,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
             "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
-            new PropertyMetadata(default(LabelGenerationOption)));
+            new PropertyMetadata(LabelGenerationOption.Default));
 
         public LabelGenerationOption XLabelGenerationOption
         {
@@ -87,7 +87,7 @@ namespace RLP.Chart.OpenGL.Control
 
         public static readonly DependencyProperty YLabelGenerationOptionProperty = DependencyProperty.Register(
             "YLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
-            new PropertyMetadata(default(LabelGenerationOption)));
+            new PropertyMetadata(LabelGenerationOption.Default));
 
         public LabelGenerationOption YLabelGenerationOption
         {
@@ -148,13 +148,13 @@ namespace RLP.Chart.OpenGL.Control
         /// </summary>
         public ScrollRange DefaultAutoSizeAxisYRange { get; set; }
 
-        public static readonly DependencyProperty AutoYAxisProperty = DependencyProperty.Register(
-            "AutoYAxis", typeof(bool), typeof(LineChart), new PropertyMetadata(true));
+        public static readonly DependencyProperty IsAutoYAxisEnableProperty = DependencyProperty.Register(
+            "IsAutoYAxisEnable", typeof(bool), typeof(LineChart), new PropertyMetadata(true));
 
-        public virtual bool AutoYAxisEnable
+        public virtual bool IsAutoYAxisEnable
         {
-            get { return (bool)GetValue(AutoYAxisProperty); }
-            set { SetValue(AutoYAxisProperty, value); }
+            get { return (bool)GetValue(IsAutoYAxisEnableProperty); }
+            set { SetValue(IsAutoYAxisEnableProperty, value); }
         }
 
         #endregion
@@ -203,7 +203,7 @@ namespace RLP.Chart.OpenGL.Control
 
         private MouseSelect _scaleElement;
 
-        private readonly CollisionGrid _nodeGrid = new CollisionGrid();
+        private readonly CollisionGridPoint2D _nodeGrid = new CollisionGridPoint2D();
 
         private ToolTip _toolTip;
 
@@ -214,9 +214,9 @@ namespace RLP.Chart.OpenGL.Control
             CoordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
             DependencyPropertyDescriptor.FromProperty(SettingRegionProperty, typeof(LineChart))
                 .AddValueChanged(this, SettingRegionChangedHandler);
-            DependencyPropertyDescriptor.FromProperty(AutoYAxisProperty, typeof(LineChart))
+            DependencyPropertyDescriptor.FromProperty(IsAutoYAxisEnableProperty, typeof(LineChart))
                 .AddValueChanged(this, AutoYAxisChanged_Handler);
-            CoordinateRenderer.AutoYAxisEnable = (bool)AutoYAxisProperty.DefaultMetadata.DefaultValue;
+            CoordinateRenderer.AutoYAxisEnable = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue;
         }
 
         protected BitmapOpenTkControl OpenTkControl;
@@ -262,7 +262,7 @@ namespace RLP.Chart.OpenGL.Control
 
         private void AutoYAxisChanged_Handler(object sender, EventArgs e)
         {
-            CoordinateRenderer.AutoYAxisEnable = this.AutoYAxisEnable;
+            CoordinateRenderer.AutoYAxisEnable = this.IsAutoYAxisEnable;
         }
 
         protected virtual void SeriesRendererHost_AutoAxisYCompleted(Region2D region)
@@ -367,7 +367,7 @@ namespace RLP.Chart.OpenGL.Control
                     {
                         _popupNode = point;
                         var mapWinPoint = windowsRectToGlMapping.MapWinPoint(point.Point);
-                        var seriesItem = _items.First((item => item.CollisionGridLayer.Equals(layer)));
+                        var seriesItem = _items.First((item => item.CollisionLayer.Equals(layer)));
                         _toolTip.HorizontalOffset = mapWinPoint.X + 10;
                         _toolTip.VerticalOffset = mapWinPoint.Y + 10;
                         _toolTip.Content =
@@ -406,7 +406,7 @@ namespace RLP.Chart.OpenGL.Control
             var newRegion = new Region2D(xRange, yRange);
             if (this.CoordinateRenderer.AutoYAxisEnable)
             {
-                this.AutoYAxisEnable = false;
+                this.IsAutoYAxisEnable = false;
             }
 
             if (newRegion.Height < MinAxisYViewSize)
@@ -465,44 +465,42 @@ namespace RLP.Chart.OpenGL.Control
 
         private readonly List<LineRenderer> _items = new List<LineRenderer>(5);
 
-        public IReadOnlyList<LineRenderer> SeriesItems =>
+        public IReadOnlyList<ILine> SeriesItems =>
             new ReadOnlyCollection<LineRenderer>(_items);
 
-        public LineRenderer NewSeries()
+        public ILine NewSeries()
         {
             var collisionSeed = this.CollisionSeed;
+            LineRenderer lineRenderer;
             switch (CollisionEnum)
             {
                 case CollisionEnum.SpacialHash:
-                    return new LineRenderer(new SpacialHashSet(collisionSeed.XSpan,
-                        SpacialHashSet.Algorithm.XMapping,
+                    lineRenderer = new LineRenderer(new SpacialHashCollisionPoint2DLayer(collisionSeed.XSpan,
+                        SpacialHashCollisionPoint2DLayer.Algorithm.XMapping,
                         (int)InitialCollisionGridBoundary.XSpan));
+                    break;
                 case CollisionEnum.UniformGrid:
-                    var collisionGridLayer = new Point2DCollisionGridLayer(InitialCollisionGridBoundary,
+                    var collisionGridLayer = new CollisionGridPoint2DLayer(InitialCollisionGridBoundary,
                         collisionSeed.XSpan, collisionSeed.YSpan, new LinkedListGridCellFactory());
-                    return new LineRenderer(collisionGridLayer);
+                    lineRenderer = new LineRenderer(collisionGridLayer);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            this._nodeGrid.AddLayer(lineRenderer.CollisionLayer);
+            this.LineSeriesRenderer.Add(lineRenderer);
+            this._items.Add(lineRenderer);
+            return lineRenderer;
         }
 
-        public void Add(LineRenderer item)
+        public void Remove(ILine line)
         {
-            if (item is LineRenderer seriesItem)
+            if (line is LineRenderer lineRenderer)
             {
-                this._nodeGrid.AddLayer(seriesItem.CollisionGridLayer);
-                this.LineSeriesRenderer.Add(seriesItem);
-                this._items.Add(seriesItem);
-            }
-        }
-
-        public void Remove(LineRenderer item)
-        {
-            if (item is LineRenderer lineSeries)
-            {
-                this._items.Remove(lineSeries);
-                this.LineSeriesRenderer.Remove(lineSeries);
-                this._nodeGrid.Remove(lineSeries.CollisionGridLayer);
+                this._items.Remove(lineRenderer);
+                this.LineSeriesRenderer.Remove(lineRenderer);
+                this._nodeGrid.Remove(lineRenderer.CollisionLayer);
             }
         }
 

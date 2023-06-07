@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using RLP.Chart.Interface.Abstraction;
@@ -14,9 +15,10 @@ namespace RLP.Chart.Interface
             {
                 return new LabelGenerationOption()
                 {
-                    LabelFunc = f => ((float)f).ToString(),
+                    LabelFunc = f => ((float)f).ToString(CultureInfo.InvariantCulture),
                     RenderOption = AxisRenderOption.Default(),
                     RoundDigit = 2,
+                    ScaleGenerator = new FixedPixelPitchScale(50),
                 };
             }
         }
@@ -30,7 +32,7 @@ namespace RLP.Chart.Interface
 
         public AxisRenderOption RenderOption { get; set; }
 
-        public FlowDirection FlowDirection { get; set; }
+        public FlowDirection FlowDirection { get; set; } = FlowDirection.LeftToRight;
 
         /// <summary>
         /// 保留位数
@@ -64,7 +66,8 @@ namespace RLP.Chart.Interface
             _scrollRange = range;
             var labelFunc = this.LabelFunc;
             _cacheLabels = this.ScaleGenerator
-                .Generate(new ScaleGenerationContext(range, pixelStart, pixelStretch, this.FlowDirection,this.RenderOption))
+                .Generate(new ScaleGenerationContext(range, pixelStart, pixelStretch, this.FlowDirection,
+                    this.RenderOption))
                 .Select(scale =>
                 {
                     var round = Math.Round(scale.Value, this.RoundDigit);

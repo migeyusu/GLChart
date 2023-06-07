@@ -39,8 +39,14 @@ namespace RLP.Chart.OpenGL.Control
 
         public LabelGenerationOption AxisXGenerationOption
         {
-            get { return (LabelGenerationOption)GetValue(AxisXGenerationOptionProperty); }
-            set { SetValue(AxisXGenerationOptionProperty, value); }
+            get
+            {
+                return (LabelGenerationOption)GetValue(AxisXGenerationOptionProperty);
+            }
+            set
+            {
+                SetValue(AxisXGenerationOptionProperty, value);
+            }
         }
 
         public static readonly DependencyProperty AxisYGenerationOptionProperty = DependencyProperty.Register(
@@ -53,7 +59,6 @@ namespace RLP.Chart.OpenGL.Control
             get { return (LabelGenerationOption)GetValue(AxisYGenerationOptionProperty); }
             set { SetValue(AxisYGenerationOptionProperty, value); }
         }
-
 
         private Pen _separatePen;
 

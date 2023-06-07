@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -43,11 +42,14 @@ namespace RLP.Chart.OpenGL.Renderer
             set
             {
                 _pointsCountLimit = value;
-                CalculateBufferSize(value);
+                if (_isInitialized)
+                {
+                    throw new Exception($"Don't support set {nameof(PointCountLimit)} after initialized");
+                }
             }
         }
 
-        private Color4 _color4;
+        private Color4 _color4 = Color4.Blue;
 
         public System.Drawing.Color LineColor
         {
@@ -81,6 +83,8 @@ namespace RLP.Chart.OpenGL.Renderer
 
         protected int ShaderStorageBufferObject;
 
+        protected int VertexArrayObject;
+
         private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs<Point2D>> _changedEventArgsQueue =
             new ConcurrentQueue<NotifyCollectionChangedEventArgs<Point2D>>();
 
@@ -98,7 +102,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private volatile int _pointCount;
 
-        public IPoint2DCollisionLayer CollisionGridLayer { get; }
+        internal ICollisionPoint2D CollisionLayer { get; }
 
         private IList<RingBufferCounter.Region> DrawRegions { get; set; }
 
@@ -107,9 +111,9 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 
         /// </summary>
-        public LineRenderer(IPoint2DCollisionLayer collisionGridLayer)
+        public LineRenderer(ICollisionPoint2D collisionLayer)
         {
-            CollisionGridLayer = collisionGridLayer;
+            CollisionLayer = collisionLayer;
             this.RenderEnable = true;
         }
 
@@ -122,9 +126,10 @@ namespace RLP.Chart.OpenGL.Renderer
                 return;
             }
 
+            CalculateBufferSize(PointCountLimit);
             if (DeviceBufferSize < 1)
             {
-                throw new NotSupportedException($"Must set {PointCountLimit} first");
+                throw new NotSupportedException($"{PointCountLimit} cannot less than 1!");
             }
 
             ShaderStorageBufferObject = GL.GenBuffer();
@@ -132,12 +137,13 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.BufferData(BufferTarget.ShaderStorageBuffer, DeviceBufferSize * SizeFloat, IntPtr.Zero,
                 BufferUsageHint.StaticDraw);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, ShaderStorageBufferObject);
+            VertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(VertexArrayObject);
             this.IsInitialized = true;
         }
 
         private void CalculateBufferSize(int maxPointCount)
         {
-            this.IsInitialized = false;
             maxPointCount++;
             var virtualBufferSize = maxPointCount * 2;
             //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中增加首尾的副本节点
@@ -163,6 +169,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _shader.SetFloat("u_thickness", LineWidth);
             _shader.SetColor("linecolor", _color4);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
+            GL.BindVertexArray(VertexArrayObject);
             var drawRegion = DrawRegions[0];
             if (DrawRegions.Count == 1)
             {
@@ -356,7 +363,7 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendArgs(new Point2D(point.X, point.Y)));
-            CollisionGridLayer.Add(point);
+            CollisionLayer.Add(point);
         }
 
         public void AddRange(IList<IPoint2D> points)
@@ -364,7 +371,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendRangeArgs(points
                     .Select((point => new Point2D(point.X, point.Y))).ToArray()));
-            CollisionGridLayer.AddRange(points);
+            CollisionLayer.AddRange(points);
         }
 
         public void ResetWith(IList<IPoint2D> geometries)
@@ -372,7 +379,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _changedEventArgsQueue.Enqueue(new NotifyCollectionChangedEventArgs<Point2D>(
                 NotifyCollectionChangedAction.Reset,
                 geometries.Select(point => new Point2D(point.X, point.Y)).ToArray()));
-            CollisionGridLayer.ResetWith(geometries);
+            CollisionLayer.ResetWith(geometries);
         }
 
         public void ResetWith(IPoint2D geometry)
@@ -380,13 +387,13 @@ namespace RLP.Chart.OpenGL.Renderer
             _changedEventArgsQueue.Enqueue(
                 new NotifyCollectionChangedEventArgs<Point2D>(NotifyCollectionChangedAction.Reset,
                     new Point2D(geometry.X, geometry.Y)));
-            CollisionGridLayer.ResetWith(geometry);
+            CollisionLayer.ResetWith(geometry);
         }
 
         public void Clear()
         {
             _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>.ResetArgs);
-            this.CollisionGridLayer.Clear();
+            this.CollisionLayer.Clear();
         }
 
         public void Uninitialize()
@@ -396,9 +403,10 @@ namespace RLP.Chart.OpenGL.Renderer
                 return;
             }
 
-            IsInitialized = false;
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
             GL.DeleteBuffer(ShaderStorageBufferObject);
+            GL.DeleteVertexArray(VertexArrayObject);
+            IsInitialized = false;
         }
 
         protected bool Equals(LineRenderer other)

@@ -29,7 +29,6 @@ namespace RLP.Chart.OpenGL.Renderer
             RenderSeriesCollection = renderSeriesCollection;
         }
 
-
         protected IGraphicsContext Context;
 
         public virtual void Initialize(IGraphicsContext context)

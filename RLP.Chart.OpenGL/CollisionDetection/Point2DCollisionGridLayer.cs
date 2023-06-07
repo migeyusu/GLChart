@@ -9,13 +9,13 @@ namespace RLP.Chart.OpenGL.CollisionDetection
     /// <summary>
     /// 使用网格实现静态点位碰撞检测,grid的坐标系同opengl相同，既xy指向右和上为正数
     /// </summary>
-    public class Point2DCollisionGridLayer : IPoint2DCollisionLayer
+    public class CollisionGridPoint2DLayer : ICollisionPoint2D
     {
         public Guid Id { get; } = Guid.NewGuid();
 
         private readonly CellFactory _cellFactory;
 
-        public Point2DCollisionGridLayer(Boundary2D boundary, float xStep, float yStep, CellFactory cellFactory)
+        public CollisionGridPoint2DLayer(Boundary2D boundary, float xStep, float yStep, CellFactory cellFactory)
         {
             var xCount = (int)Math.Round(boundary.XSpan / xStep);
             var yCount = (int)Math.Round(boundary.YSpan / yStep);
@@ -26,7 +26,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             this._cellFactory = cellFactory;
         }
 
-        public Point2DCollisionGridLayer(Boundary2D boundary, CellFactory cellFactory, int split = 10)
+        public CollisionGridPoint2DLayer(Boundary2D boundary, CellFactory cellFactory, int split = 10)
         {
             var xStep = (boundary.XSpan) / split;
             var yStep = (boundary.YSpan) / split;
@@ -186,7 +186,8 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             this.Boundary = newBoundary;
         }
 
-        private static ICollisionCell[,] CreateCells(Boundary2D boundary, int columnCount, int rowCount, CellFactory cellFactory)
+        private static ICollisionCell[,] CreateCells(Boundary2D boundary, int columnCount, int rowCount,
+            CellFactory cellFactory)
         {
             var boundaries = boundary.Divide(columnCount, rowCount);
             var cells = new ICollisionCell[rowCount, columnCount];
@@ -412,7 +413,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             return false;
         }
 
-        protected bool Equals(Point2DCollisionGridLayer other)
+        protected bool Equals(CollisionGridPoint2DLayer other)
         {
             return Id.Equals(other.Id);
         }
@@ -422,7 +423,7 @@ namespace RLP.Chart.OpenGL.CollisionDetection
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((Point2DCollisionGridLayer)obj);
+            return Equals((CollisionGridPoint2DLayer)obj);
         }
 
         public override int GetHashCode()

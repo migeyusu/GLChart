@@ -9,7 +9,7 @@ namespace RLP.Chart.Client
         static void Main(string[] args)
         {
             var application = new Application();
-            application.Run(new RenderTestWindow());
+            application.Run(new ChartTestWindow());
         }
     }
 }
