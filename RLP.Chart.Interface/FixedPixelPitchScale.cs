@@ -5,7 +5,7 @@ namespace RLP.Chart.Interface
     /// <summary>
     /// 固定的像素间距，表现为无论图放大缩小在界面上都是固定间隔
     /// </summary>
-    public class FixedPixelPitchScale : CountDefineFluidScaleGenerator
+    public class FixedPixelPitchScale : CountBasedScaleGenerator
     {
         /// <summary>
         /// pitch of scale,it's a virtual value, maybe any of measurement

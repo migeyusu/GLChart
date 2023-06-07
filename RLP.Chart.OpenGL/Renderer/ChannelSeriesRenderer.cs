@@ -2,6 +2,7 @@
 using System.Linq;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
 namespace RLP.Chart.OpenGL.Renderer

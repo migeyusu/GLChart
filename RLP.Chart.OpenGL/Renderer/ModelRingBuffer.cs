@@ -10,13 +10,14 @@ namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
     /// 模型环形缓冲，允许存储指定的数据模型到环形缓冲。
+    /// <see cref="T"/>:模型类型；<see cref="TK"/>：数据类型
     /// </summary>
-    public class ModelRingBuffer<T, K> where K : struct
+    public class ModelRingBuffer<T, TK> where TK : struct
     {
         /// <summary>
         /// 模型到比特数组的映射
         /// </summary>
-        private Func<T, K[]> _modelToFloatsMapping;
+        private Func<T, TK[]> _modelToFloatsMapping;
 
         /// <summary>
         /// 有效填充区域
@@ -83,9 +84,9 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 分配空间
         /// </summary>
         /// <param name="maxCount">最大模型数量</param>
-        /// <param name="modelSize">模型导出数组的大小，以<see cref="K"/>为单位</param>
+        /// <param name="modelSize">模型导出数组的大小，以<see cref="TK"/>为单位</param>
         /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
-        public ModelRingBuffer(uint maxCount, uint modelSize, Func<T, K[]> modelToFloatsMapping)
+        public ModelRingBuffer(uint maxCount, uint modelSize, Func<T, TK[]> modelToFloatsMapping)
         {
             this.Allocate(maxCount, modelSize, modelToFloatsMapping);
         }
@@ -95,9 +96,9 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 分配空间
         /// </summary>
         /// <param name="maxModelCount">最大模型数量</param>
-        /// <param name="modelSize">模型导出数组的大小，以<see cref="K"/>为单位</param>
+        /// <param name="modelSize">模型导出数组的大小，以<see cref="TK"/>为单位</param>
         /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
-        public void Allocate(uint maxModelCount, uint modelSize, Func<T, K[]> modelToFloatsMapping)
+        public void Allocate(uint maxModelCount, uint modelSize, Func<T, TK[]> modelToFloatsMapping)
         {
             _modelToFloatsMapping = modelToFloatsMapping;
             this.MaxModelCount = maxModelCount;
@@ -112,7 +113,7 @@ namespace RLP.Chart.OpenGL.Renderer
             _changedEventArgsQueue.Enqueue(args);
         }
 
-        public bool TryFlush(out IList<GPUBufferRegion<K>> regions)
+        public bool TryFlush(out IList<GPUBufferRegion<TK>> regions)
         {
             if (_changedEventArgsQueue.IsEmpty)
             {
@@ -161,9 +162,9 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 将待添加的模型转换为gpu缓冲需要更新的区域
         /// </summary>
         /// <returns>update source</returns>
-        private IList<GPUBufferRegion<K>> TryFlushModels(IList<T> appendModels)
+        private IList<GPUBufferRegion<TK>> TryFlushModels(IList<T> appendModels)
         {
-            var updateRegions = new List<GPUBufferRegion<K>>(2);
+            var updateRegions = new List<GPUBufferRegion<TK>>(2);
             long pendingPointsCount = appendModels.Count;
             var bufferLength = pendingPointsCount * ModelSize;
             var dirtRegions = _ringBufferCounter.AddDifference((uint)bufferLength).ToArray(); //防止重复添加
@@ -171,8 +172,8 @@ namespace RLP.Chart.OpenGL.Renderer
             this.RecentModelCount = (uint)(_ringBufferCounter.Length / ModelSize);
             var firstDirtRegion = dirtRegions[0];
             var firstDirtRegionLength = firstDirtRegion.Length;
-            var floats = new K[firstDirtRegionLength];
-            var firstUpdateRegion = new GPUBufferRegion<K>
+            var floats = new TK[firstDirtRegionLength];
+            var firstUpdateRegion = new GPUBufferRegion<TK>
             {
                 Low = firstDirtRegion.Tail + ModelSize,
                 High = firstDirtRegion.Head + ModelSize,
@@ -190,7 +191,7 @@ namespace RLP.Chart.OpenGL.Renderer
             long index;
             int modelIndex = 0;
             T point = default;
-            K[] firstRegionData = new K[ModelSize];
+            TK[] firstRegionData = new TK[ModelSize];
             while (modelIndex < firstDirtRegionLength / ModelSize)
             {
                 point = appendModels[pointIndex];
@@ -206,7 +207,7 @@ namespace RLP.Chart.OpenGL.Renderer
             //头已经顶到ringbuffer结尾，此时需要复制最后一个模型到下一行的起始；并且说明可能有两个脏区域
             if (firstDirtRegion.Head >= _ringBufferCounter.Capacity - 1)
             {
-                var secondRegion = new GPUBufferRegion<K>() { Low = 0, };
+                var secondRegion = new GPUBufferRegion<TK>() { Low = 0, };
                 if (dirtRegions.Length == 1)
                 {
                     //只有一个更新区域，第二个更新区域只填充预缓存
@@ -217,7 +218,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 {
                     var secondDirtRegion = dirtRegions[1];
                     secondRegion.High = secondDirtRegion.Head + ModelSize;
-                    var secondRegionData = new K[secondDirtRegion.Length + ModelSize]; //复制首节点
+                    var secondRegionData = new TK[secondDirtRegion.Length + ModelSize]; //复制首节点
                     Array.Copy(firstRegionData, 0, secondRegionData, 0, ModelSize);
                     long s = ModelSize;
                     while (modelIndex < pendingPointsCount)

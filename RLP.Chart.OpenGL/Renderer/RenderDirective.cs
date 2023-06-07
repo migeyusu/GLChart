@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Mathematics;
 
 namespace RLP.Chart.OpenGL.Renderer
 {

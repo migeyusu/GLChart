@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 using RLP.Chart.OpenGL.Abstraction;
 

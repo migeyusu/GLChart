@@ -1,16 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Threading;
+using OpenTK.Graphics;
+using OpenTK.Windowing.Common;
+using OpenTkWPFHost.Configuration;
 using OpenTkWPFHost.Control;
+using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
+using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.CollisionDetection;
 using RLP.Chart.OpenGL.Interaction;
 using RLP.Chart.OpenGL.Renderer;
+using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
+using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
 
 namespace RLP.Chart.OpenGL.Control
 {
@@ -18,12 +29,13 @@ namespace RLP.Chart.OpenGL.Control
     /// 基于2d xy坐标系的图
     /// </summary>
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(Coordinate2D))]
-    [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(ThreadOpenTkControl))]
+    [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
 //    [TemplatePart(Name = Popup, Type = typeof(ToolTip))]
-    public class LineChart : LineChartBase
+    public class LineChart : System.Windows.Controls.Control, ISeriesChart<LineRenderer>
     {
-        public CollisionEnum CollisionEnum { get; set; } = CollisionEnum.SpacialHash;
+        public const string ThreadOpenTkControl = "ThreadOpenTkControl";
+
 
         public const string CoordinateElementName = "Coordinate";
 
@@ -45,6 +57,10 @@ namespace RLP.Chart.OpenGL.Control
             set { SetValue(ToolTipTemplateProperty, value); }
         }
 
+        #region collision
+
+        public CollisionEnum CollisionEnum { get; set; } = CollisionEnum.SpacialHash;
+
         /// <summary>
         /// “碰撞种子” ,影响碰撞检测的性能
         /// </summary>
@@ -54,6 +70,10 @@ namespace RLP.Chart.OpenGL.Control
         /// 初始化碰撞检测的边界，减少碰撞网格的分配开销
         /// </summary>
         public Boundary2D InitialCollisionGridBoundary { get; set; } = new Boundary2D(0, 100, 0, 100);
+
+        #endregion
+
+        #region coordinate
 
         public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
             "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
@@ -75,6 +95,38 @@ namespace RLP.Chart.OpenGL.Control
             set { SetValue(YLabelGenerationOptionProperty, value); }
         }
 
+        //ActualRegion : SettingRegion
+        public virtual Region2D DisplayRegion
+        {
+            get { return CoordinateRenderer.AutoYAxisEnable ? ActualRegion : SettingRegion; }
+            set { SetValue(SettingRegionProperty, value); }
+        }
+
+        public static readonly DependencyProperty SettingRegionProperty = DependencyProperty.Register(
+            "SettingRegion", typeof(Region2D), typeof(LineChart),
+            new PropertyMetadata(default(Region2D)));
+
+        /// <summary>
+        /// 设置的视域
+        /// </summary>
+        public Region2D SettingRegion
+        {
+            get { return (Region2D)GetValue(SettingRegionProperty); }
+            set { SetValue(SettingRegionProperty, value); }
+        }
+
+        public static readonly DependencyProperty ActualRegionProperty = DependencyProperty.Register(
+            "ActualRegion", typeof(Region2D), typeof(LineChart),
+            new PropertyMetadata(default(Region2D)));
+
+        /// <summary>
+        /// 当前实际视域
+        /// </summary>
+        public Region2D ActualRegion
+        {
+            get { return (Region2D)GetValue(ActualRegionProperty); }
+            set { SetValue(ActualRegionProperty, value); }
+        }
 
         /// <summary>
         /// x轴缩放边界，超过该边界将重置
@@ -96,6 +148,59 @@ namespace RLP.Chart.OpenGL.Control
         /// </summary>
         public ScrollRange DefaultAutoSizeAxisYRange { get; set; }
 
+        public static readonly DependencyProperty AutoYAxisProperty = DependencyProperty.Register(
+            "AutoYAxis", typeof(bool), typeof(LineChart), new PropertyMetadata(true));
+
+        public virtual bool AutoYAxisEnable
+        {
+            get { return (bool)GetValue(AutoYAxisProperty); }
+            set { SetValue(AutoYAxisProperty, value); }
+        }
+
+        #endregion
+
+        #region render
+
+        private GLSettings _glSettings = new GLSettings()
+        {
+            GraphicsContextFlags = ContextFlags.Offscreen,
+        };
+
+        /// <summary>
+        /// gl 设置
+        /// </summary>
+        public GLSettings GlSettings
+        {
+            get => _glSettings;
+            set
+            {
+                _glSettings = value;
+                if (OpenTkControl != null)
+                {
+                    OpenTkControl.GlSettings = value;
+                }
+            }
+        }
+
+
+        public static readonly DependencyProperty IsShowFpsProperty = DependencyProperty.Register(
+            nameof(IsShowFps), typeof(bool), typeof(LineChart), new PropertyMetadata(default(bool)));
+
+        public bool IsShowFps
+        {
+            get { return (bool)GetValue(IsShowFpsProperty); }
+            set { SetValue(IsShowFpsProperty, value); }
+        }
+
+        public static Dispatcher AppDispatcher => DispatcherLazy.Value;
+
+        private static readonly Lazy<Dispatcher> DispatcherLazy = new Lazy<Dispatcher>(
+            () => Application.Current.Dispatcher,
+            LazyThreadSafetyMode.ExecutionAndPublication);
+
+        #endregion
+
+
         private MouseSelect _scaleElement;
 
         private readonly CollisionGrid _nodeGrid = new CollisionGrid();
@@ -106,11 +211,27 @@ namespace RLP.Chart.OpenGL.Control
 
         public LineChart() : base()
         {
+            CoordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
+            DependencyPropertyDescriptor.FromProperty(SettingRegionProperty, typeof(LineChart))
+                .AddValueChanged(this, SettingRegionChangedHandler);
+            DependencyPropertyDescriptor.FromProperty(AutoYAxisProperty, typeof(LineChart))
+                .AddValueChanged(this, AutoYAxisChanged_Handler);
+            CoordinateRenderer.AutoYAxisEnable = (bool)AutoYAxisProperty.DefaultMetadata.DefaultValue;
         }
+
+        protected BitmapOpenTkControl OpenTkControl;
+
+        protected AutoHeight2DRenderer CoordinateRenderer;
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
+            OpenTkControl = GetTemplateChild(ThreadOpenTkControl) as BitmapOpenTkControl;
+            OpenTkControl.GlSettings = this.GlSettings;
+            CoordinateRenderer.ActualRegionChanged += SeriesRendererHost_AutoAxisYCompleted;
+            OpenTkControl.Renderer = CoordinateRenderer;
+            OpenTkControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
+            OpenTkControl.OpenGlErrorReceived += OpenTkControlOnOpenGlErrorReceived;
             _scaleElement = GetTemplateChild(SelectScaleElement) as MouseSelect;
             _scaleElement.Selected += scaleElement_Scaled;
             _scaleElement.MouseMove += _openTkControl_MouseMove;
@@ -126,6 +247,54 @@ namespace RLP.Chart.OpenGL.Control
                 ContentTemplate = this.ToolTipTemplate,
             };
         }
+
+        #region render event handler
+
+        /*当需要同步依赖属性和独立变量时，使用观察者，倾向于在load或apply template后再绑定以防止未加载的空控件，同时必须初始化值*/
+
+        protected virtual void SettingRegionChangedHandler(object sender, EventArgs e)
+        {
+            var region = this.SettingRegion;
+            this.CoordinateRenderer.TargetRegion = region;
+            this.ActualRegion = region; //直接拷贝数据
+            // Debug.WriteLine(region.ToString());
+        }
+
+        private void AutoYAxisChanged_Handler(object sender, EventArgs e)
+        {
+            CoordinateRenderer.AutoYAxisEnable = this.AutoYAxisEnable;
+        }
+
+        protected virtual void SeriesRendererHost_AutoAxisYCompleted(Region2D region)
+        {
+            // AppDispatcher.Invoke(() => { OpenTkControl.IsRenderContinuously = false; });
+            AppDispatcher.InvokeAsync(() => { this.ActualRegion = region; });
+        }
+
+
+        private static void OpenTkControlOnOpenGlErrorReceived(object sender, OpenGlErrorArgs e)
+        {
+            Trace.WriteLine(e.ToString());
+        }
+
+        private static void OpenTkControlOnRenderErrorReceived(object sender, RenderErrorArgs e)
+        {
+            Trace.WriteLine($"{e.Exception.Message}");
+        }
+
+        #endregion
+
+        public virtual void AttachWindow(Window hostWindow)
+        {
+            this.OpenTkControl.Start(hostWindow);
+        }
+
+        public virtual void DetachWindow()
+        {
+            this.OpenTkControl.Close();
+        }
+
+        #region interaction
 
         private Point _startMovePoint;
 
@@ -221,7 +390,6 @@ namespace RLP.Chart.OpenGL.Control
             }
         }
 
-        #region scale
 
         public event Action<Region2D> ChangeRegionRequest;
 
@@ -289,30 +457,38 @@ namespace RLP.Chart.OpenGL.Control
 
         #endregion
 
-        private readonly List<LineSeries> _items = new List<LineSeries>(5);
+        #region collection
 
-        public override IReadOnlyList<LineSeriesBase> SeriesItems => new ReadOnlyCollection<LineSeries>(_items);
+        protected LineSeriesRenderer LineSeriesRenderer =
+            new LineSeriesRenderer(new Shader("Shaders/LineShader/shader.vert",
+                "Shaders/LineShader/shader.frag"));
 
-        public override LineSeriesBase NewSeries()
+        private readonly List<LineRenderer> _items = new List<LineRenderer>(5);
+
+        public IReadOnlyList<LineRenderer> SeriesItems =>
+            new ReadOnlyCollection<LineRenderer>(_items);
+
+        public LineRenderer NewSeries()
         {
             var collisionSeed = this.CollisionSeed;
             switch (CollisionEnum)
             {
                 case CollisionEnum.SpacialHash:
-                    return new LineSeries(new SpacialHashSet(collisionSeed.XSpan, SpacialHashSet.Algorithm.XMapping,
+                    return new LineRenderer(new SpacialHashSet(collisionSeed.XSpan,
+                        SpacialHashSet.Algorithm.XMapping,
                         (int)InitialCollisionGridBoundary.XSpan));
                 case CollisionEnum.UniformGrid:
                     var collisionGridLayer = new Point2DCollisionGridLayer(InitialCollisionGridBoundary,
                         collisionSeed.XSpan, collisionSeed.YSpan, new LinkedListGridCellFactory());
-                    return new LineSeries(collisionGridLayer);
+                    return new LineRenderer(collisionGridLayer);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public override void Add(LineSeriesBase item)
+        public void Add(LineRenderer item)
         {
-            if (item is LineSeries seriesItem)
+            if (item is LineRenderer seriesItem)
             {
                 this._nodeGrid.AddLayer(seriesItem.CollisionGridLayer);
                 this.LineSeriesRenderer.Add(seriesItem);
@@ -320,9 +496,9 @@ namespace RLP.Chart.OpenGL.Control
             }
         }
 
-        public override void Remove(LineSeriesBase item)
+        public void Remove(LineRenderer item)
         {
-            if (item is LineSeries lineSeries)
+            if (item is LineRenderer lineSeries)
             {
                 this._items.Remove(lineSeries);
                 this.LineSeriesRenderer.Remove(lineSeries);
@@ -330,11 +506,13 @@ namespace RLP.Chart.OpenGL.Control
             }
         }
 
-        public override void Clear()
+        public void Clear()
         {
             this.LineSeriesRenderer.Clear();
             this._items.Clear();
             this._nodeGrid.Clear();
         }
+
+        #endregion
     }
 }

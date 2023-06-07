@@ -7,6 +7,8 @@ using Microsoft.Xaml.Behaviors;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;

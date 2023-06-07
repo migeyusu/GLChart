@@ -11,12 +11,12 @@
         Height="450"
         Width="800">
     <Grid>
-        <control:ThreadOpenTkControl IsAutoAttach="True"
+        <control:BitmapOpenTkControl IsAutoAttach="True"
                                      IsRenderContinuously="True"
                                      IsShowFps="True"
                                      x:Name="ThreadOpenTkControl">
 
-        </control:ThreadOpenTkControl>
+        </control:BitmapOpenTkControl>
         <StackPanel VerticalAlignment="Bottom"
                     HorizontalAlignment="Center"
                     Orientation="Horizontal">

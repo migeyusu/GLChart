@@ -42,12 +42,12 @@ namespace RLP.Chart.Interface
 
         public static AxisRenderOption Default()
         {
-            var defaultFont = SystemFonts.DefaultFont;
+            var defaultFont = SystemFonts.CaptionFontFamily;
             return new AxisRenderOption()
             {
                 FontEmSize = 16,
                 Foreground = Brushes.Black,
-                Typeface = new Typeface(new FontFamily(defaultFont.FontFamily.Name),
+                Typeface = new Typeface(defaultFont,
                     FontStyles.Normal,
                     FontWeights.Normal,
                     FontStretches.Normal),

@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Graphics;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 using RLP.Chart.OpenGL.Abstraction;
 

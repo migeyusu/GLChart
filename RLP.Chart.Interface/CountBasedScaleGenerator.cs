@@ -8,19 +8,19 @@ namespace RLP.Chart.Interface
     /// <summary>
     /// 利用子类提供的线条数量的刻度生成器
     /// </summary>
-    public abstract class CountDefineFluidScaleGenerator : IScaleGenerator
+    public abstract class CountBasedScaleGenerator : IScaleGenerator
     {
         /// <summary>
         /// 如果范围小于该值，从<see cref="ValueStart"/>开始产生刻度
         /// </summary>
         public double ValueStart { get; }
 
-        protected CountDefineFluidScaleGenerator(double valueStart)
+        protected CountBasedScaleGenerator(double valueStart)
         {
             ValueStart = valueStart;
         }
 
-        protected CountDefineFluidScaleGenerator() : this(0)
+        protected CountBasedScaleGenerator() : this(0)
         {
         }
 

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
 using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Renderer;
@@ -24,8 +26,7 @@ namespace RLP.Chart.Client
             InitializeComponent();
             ThreadOpenTkControl.GlSettings = new GLSettings()
             {
-                GraphicsContextFlags = GraphicsContextFlags.Offscreen,
-                GraphicsMode = new GraphicsMode(new ColorFormat(8, 8, 8, 8), 24, 8, 4)
+                GraphicsContextFlags = ContextFlags.Offscreen,
             };
             ThreadOpenTkControl.OpenGlErrorReceived += ThreadOpenTkControl_OpenGlErrorReceived;
             ThreadOpenTkControl.RenderErrorReceived += ThreadOpenTkControl_RenderErrorReceived;
@@ -76,7 +77,7 @@ namespace RLP.Chart.Client
 
         private void ThreadOpenTkControl_RenderErrorReceived(object sender, OpenTkWPFHost.Core.RenderErrorArgs e)
         {
-            Debug.WriteLine($"{e.Phase}:{e.Exception}");
+            Debug.WriteLine($"{e.Exception}");
         }
 
         private void ThreadOpenTkControl_OpenGlErrorReceived(object sender, OpenTkWPFHost.Core.OpenGlErrorArgs e)

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
 using RLP.Chart.Interface.Abstraction;
@@ -273,42 +275,22 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public void Add(IChannel geometry)
         {
-            /*var point3Ds = geometry.Points
-                .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                .ToArray();*/
             _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendArgs(geometry));
         }
 
         public void AddRange(IList<IChannel> geometries)
         {
-            /*var channels = geometries.Select((channel =>
-            {
-                var point3Ds = channel.Points
-                    .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                    .ToArray();
-                return new Channel() { Points = point3Ds };
-            })).ToArray();*/
             _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendRangeArgs(geometries));
         }
 
         public void ResetWith(IList<IChannel> geometries)
         {
-            /*var channels = geometries.Select((channel =>
-            {
-                var point3Ds = channel.Points
-                    .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                    .ToArray();
-                return new Channel() { Points = point3Ds };
-            })).ToArray();*/
             _channelBuffer.SendChange(
                 new NotifyCollectionChangedEventArgs<IChannel>(NotifyCollectionChangedAction.Reset, geometries));
         }
 
         public void ResetWith(IChannel geometry)
         {
-            /*var point3Ds = geometry.Points
-                .Select(point3D => new Point3D(point3D.X, point3D.Y, point3D.Z))
-                .ToArray();*/
             _channelBuffer.SendChange(
                 new NotifyCollectionChangedEventArgs<IChannel>(NotifyCollectionChangedAction.Reset, geometry));
         }

@@ -1,15 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472</TargetFrameworks>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<OutputType>WinExe</OutputType>
 		<StartupObject>RLP.Chart.Client.Program</StartupObject>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="OpenTK" Version="3.3.1" />
-	  <PackageReference Include="OpenTkWPFHost" Version="3.1.0.1" />
+	  <PackageReference Include="OpenTkWPFHost" Version="4.0.0" />
 	  <PackageReference Include="xunit" Version="2.4.1" />
 	</ItemGroup>
 

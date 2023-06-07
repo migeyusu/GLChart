@@ -4,6 +4,7 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace RLP.Chart.OpenGL.Renderer
 {

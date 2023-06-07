@@ -2,24 +2,28 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
 using System.Linq;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
 using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Abstraction;
 using RLP.Chart.OpenGL.Collection;
+using RLP.Chart.OpenGL.CollisionDetection;
 
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// 简单线条渲染，基于gl基础的线条类型，不可修改粗细
+    /// 线条渲染，基于三角形绘制
     /// </summary>
-    public class SimpleLineRenderer : ILineRenderer
+    public class LineRenderer : IShaderRendererItem, ILine
     {
         public Guid Id { get; } = Guid.NewGuid();
+
+        public string Title { get; set; }
 
         public bool RenderEnable
         {
@@ -45,16 +49,16 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private Color4 _color4;
 
-        public Color LineColor
+        public System.Drawing.Color LineColor
         {
-            get => Color.FromArgb(_color4.ToArgb());
+            get => System.Drawing.Color.FromArgb(_color4.ToArgb());
             set => _color4 = new Color4(value.R, value.G, value.B, value.A);
         }
 
-
-        protected int VertexBufferObject;
-
-        protected int VertexArrayObject;
+        /// <summary>
+        /// 线宽
+        /// </summary>
+        public float LineWidth { get; set; } = 2;
 
         /// <summary>
         /// GPU缓冲区大小
@@ -75,7 +79,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private const int SizeFloat = sizeof(float);
 
-        private int _stride = 1;
+        protected int ShaderStorageBufferObject;
 
         private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs<Point2D>> _changedEventArgsQueue =
             new ConcurrentQueue<NotifyCollectionChangedEventArgs<Point2D>>();
@@ -94,13 +98,18 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private volatile int _pointCount;
 
+        public IPoint2DCollisionLayer CollisionGridLayer { get; }
+
         private IList<RingBufferCounter.Region> DrawRegions { get; set; }
+
+        // private readonly ModelRingBuffer<IPoint2D, float> _pointsBuffer = new ModelRingBuffer<IPoint2D, float>();
 
         /// <summary>
         /// 
         /// </summary>
-        public SimpleLineRenderer()
+        public LineRenderer(IPoint2DCollisionLayer collisionGridLayer)
         {
+            CollisionGridLayer = collisionGridLayer;
             this.RenderEnable = true;
         }
 
@@ -118,45 +127,24 @@ namespace RLP.Chart.OpenGL.Renderer
                 throw new NotSupportedException($"Must set {PointCountLimit} first");
             }
 
-            VertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, DeviceBufferSize * SizeFloat, IntPtr.Zero,
-                BufferUsageHint.DynamicDraw);
-            VertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(VertexArrayObject);
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 2 * SizeFloat,
-                0);
-            GL.EnableVertexAttribArray(0);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
+            ShaderStorageBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, DeviceBufferSize * SizeFloat, IntPtr.Zero,
+                BufferUsageHint.StaticDraw);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, ShaderStorageBufferObject);
             this.IsInitialized = true;
-        }
-
-        public void BindShader(Shader shader)
-        {
-            this._shader = shader;
         }
 
         private void CalculateBufferSize(int maxPointCount)
         {
             this.IsInitialized = false;
-            //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中必须加首尾的副本节点
+            maxPointCount++;
+            var virtualBufferSize = maxPointCount * 2;
+            //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中增加首尾的副本节点
             this.DeviceBufferSize = (maxPointCount + 2) * 2;
-            this.Counter = new RingBufferCounter(maxPointCount * 2);
-        }
-
-        public void ChangeStride(int stride)
-        {
-            if (_stride == stride)
-            {
-                return;
-            }
-
-            GL.BindVertexArray(VertexArrayObject);
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride * 2 * SizeFloat,
-                0);
-            GL.BindVertexArray(0);
-            _stride = stride;
+            this.Counter = new RingBufferCounter(virtualBufferSize);
+            Add(new Point2D(0, 0));
+            // WritePoints(new Point[] { new Point(0, 0) });
         }
 
         public virtual void Render(GlRenderEventArgs args)
@@ -172,38 +160,25 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.GetBufferSubData(BufferTarget.ArrayBuffer, (IntPtr) 0, GPUBufferSize * SizeFloat, floats);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 #endif
-
+            _shader.SetFloat("u_thickness", LineWidth);
             _shader.SetColor("linecolor", _color4);
-
-            GL.BindVertexArray(VertexArrayObject);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
             var drawRegion = DrawRegions[0];
             if (DrawRegions.Count == 1)
             {
-                GL.DrawArrays(PrimitiveType.LineStrip, drawRegion.Tail / 2 + 1, drawRegion.Length / 2);
+                _shader.SetInt("startIndex", drawRegion.Tail + 2);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 6 * (drawRegion.Length / 2 - 1));
             }
             else
             {
-                GL.DrawArrays(PrimitiveType.LineStrip, drawRegion.Tail / 2 + 1, drawRegion.Length / 2 + 1);
+                _shader.SetInt("startIndex", drawRegion.Tail + 2);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 6 * (drawRegion.Length / 2));
                 var secondDrawRegion = DrawRegions[1];
-                GL.DrawArrays(PrimitiveType.LineStrip, secondDrawRegion.Tail / 2, secondDrawRegion.Length / 2 + 1);
+                _shader.SetInt("startIndex", secondDrawRegion.Tail);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 6 * (secondDrawRegion.Length / 2));
             }
-
-            GL.BindVertexArray(0);
         }
 
-        public void Resize(PixelSize size)
-        {
-        }
-
-        public void ApplyDirective(RenderDirective directive)
-        {
-        }
-
-
-        /// <summary>
-        /// 冲洗之前操作到设备缓冲，在opengl上下文调用
-        /// </summary>
-        /// <returns>true:更新了设备缓冲；false：未更新</returns>
         public bool PreviewRender()
         {
             if (_changedEventArgsQueue.IsEmpty)
@@ -222,11 +197,6 @@ namespace RLP.Chart.OpenGL.Renderer
                         PointCount = 0; //重设计数器，但是不需要清空缓存
                         DrawRegions = default;
                         Counter.Reset();
-                        if (result.NewItems != null)
-                        {
-                            WritePoints(result.NewItems);
-                        }
-
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -234,6 +204,21 @@ namespace RLP.Chart.OpenGL.Renderer
             }
 
             return true;
+        }
+
+        public void ApplyDirective(RenderDirective directive)
+        {
+            //no implement
+        }
+
+        public void BindShader(Shader shader)
+        {
+            this._shader = shader;
+        }
+
+        public void Resize(PixelSize size)
+        {
+            //no implement
         }
 
         /// <summary>
@@ -257,7 +242,7 @@ namespace RLP.Chart.OpenGL.Renderer
                     /*由于更新的返回脏区域数组是按序的，首个脏区域如果没有达到环形缓冲的长度，
                          说明更新只限于小范围内，可以直接全部拷贝*/
                     var floats = new float[firstDirtRegionLength];
-                    var updateRegion = new GPUBufferRegion<float>
+                    var updateRegion = new GPUBufferRegion<float>()
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 2,
@@ -287,7 +272,7 @@ namespace RLP.Chart.OpenGL.Renderer
 
                     //延长复制，因为合并渲染的需要
                     var floats = new float[firstDirtRegionLength + 2];
-                    var updateRegion = new GPUBufferRegion<float>
+                    var updateRegion = new GPUBufferRegion<float>()
                     {
                         Low = firstDirtRegion.Tail + 2,
                         High = firstDirtRegion.Head + 4,
@@ -344,14 +329,12 @@ namespace RLP.Chart.OpenGL.Renderer
 
             if (updateRegions.Count > 0)
             {
-                GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
                 foreach (var updateRegion in updateRegions)
                 {
-                    GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)(updateRegion.Low * SizeFloat),
+                    GL.BufferSubData(BufferTarget.ShaderStorageBuffer, (IntPtr)(updateRegion.Low * SizeFloat),
                         (IntPtr)(updateRegion.Length * SizeFloat), updateRegion.Data);
                 }
-
-                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 #if Read
                 var floats = new float[GPUBufferSize];
                 GL.GetBufferSubData(BufferTarget.ArrayBuffer, (IntPtr) 0, GPUBufferSize * SizeFloat, floats);
@@ -365,39 +348,48 @@ namespace RLP.Chart.OpenGL.Renderer
         但是，如果恰好一次更新刚好位于结尾，两个区域将没有直接联系，所以拷贝的方式为：在前后两个额外索引位拷贝两次最后一个点位
 所以，全局刷新也需要延长、提前拷贝；所有的更新必须使用映射地址。*/
 
-
-        public virtual void Add(IPoint2D point)
+        /// <summary>
+        /// 冲洗之前操作到设备缓冲，在opengl上下文调用
+        /// </summary>
+        /// <returns>true:更新了设备缓冲；false：未更新</returns>
+        public void Add(IPoint2D point)
         {
             _changedEventArgsQueue.Enqueue(
                 NotifyCollectionChangedEventArgs<Point2D>.AppendArgs(new Point2D(point.X, point.Y)));
+            CollisionGridLayer.Add(point);
         }
 
-        public virtual void AddRange(IList<IPoint2D> points)
+        public void AddRange(IList<IPoint2D> points)
         {
-            _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>
-                .AppendRangeArgs(points.Select(point => new Point2D(point.X, point.Y)).ToArray()));
+            _changedEventArgsQueue.Enqueue(
+                NotifyCollectionChangedEventArgs<Point2D>.AppendRangeArgs(points
+                    .Select((point => new Point2D(point.X, point.Y))).ToArray()));
+            CollisionGridLayer.AddRange(points);
         }
 
-        public virtual void ResetWith(IList<IPoint2D> geometries)
+        public void ResetWith(IList<IPoint2D> geometries)
         {
             _changedEventArgsQueue.Enqueue(new NotifyCollectionChangedEventArgs<Point2D>(
                 NotifyCollectionChangedAction.Reset,
                 geometries.Select(point => new Point2D(point.X, point.Y)).ToArray()));
+            CollisionGridLayer.ResetWith(geometries);
         }
 
-        public virtual void ResetWith(IPoint2D geometry)
+        public void ResetWith(IPoint2D geometry)
         {
             _changedEventArgsQueue.Enqueue(
                 new NotifyCollectionChangedEventArgs<Point2D>(NotifyCollectionChangedAction.Reset,
                     new Point2D(geometry.X, geometry.Y)));
+            CollisionGridLayer.ResetWith(geometry);
         }
 
-        public virtual void Clear()
+        public void Clear()
         {
             _changedEventArgsQueue.Enqueue(NotifyCollectionChangedEventArgs<Point2D>.ResetArgs);
+            this.CollisionGridLayer.Clear();
         }
 
-        public virtual void Uninitialize()
+        public void Uninitialize()
         {
             if (!IsInitialized)
             {
@@ -405,11 +397,11 @@ namespace RLP.Chart.OpenGL.Renderer
             }
 
             IsInitialized = false;
-            GL.DeleteBuffer(VertexBufferObject);
-            GL.DeleteVertexArray(VertexArrayObject);
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
+            GL.DeleteBuffer(ShaderStorageBufferObject);
         }
 
-        protected bool Equals(SimpleLineRenderer other)
+        protected bool Equals(LineRenderer other)
         {
             return Id.Equals(other.Id);
         }
@@ -419,7 +411,7 @@ namespace RLP.Chart.OpenGL.Renderer
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((SimpleLineRenderer)obj);
+            return Equals((LineRenderer)obj);
         }
 
         public override int GetHashCode()

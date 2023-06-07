@@ -1,15 +1,16 @@
 ﻿using System;
 using OpenTK;
+using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
 namespace RLP.Chart.OpenGL.Renderer
 {
     /// <summary>
-    /// 高级线渲染组
+    /// 线渲染集合
     /// </summary>
-    public class AdvancedLineSeriesRenderer : SeriesShaderRenderer<AdvancedLineRenderer>
+    public class LineSeriesRenderer : SeriesShaderRenderer<LineRenderer>
     {
-        public AdvancedLineSeriesRenderer(Shader shader) : base(shader)
+        public LineSeriesRenderer(Shader shader) : base(shader)
         {
         }
 
