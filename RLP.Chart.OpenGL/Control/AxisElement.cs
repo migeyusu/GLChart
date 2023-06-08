@@ -38,13 +38,13 @@ namespace RLP.Chart.OpenGL.Control
         }
 
         public static readonly DependencyProperty LabelGenerationOptionProperty = DependencyProperty.Register(
-            "LabelGenerationOption", typeof(LabelGenerationOption), typeof(AxisElement),
-            new FrameworkPropertyMetadata(LabelGenerationOption.Default,
+            "LabelGenerationOption", typeof(AxisOption), typeof(AxisElement),
+            new FrameworkPropertyMetadata(new AxisOption(),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public LabelGenerationOption LabelGenerationOption
+        public AxisOption LabelGenerationOption
         {
-            get { return (LabelGenerationOption) GetValue(LabelGenerationOptionProperty); }
+            get { return (AxisOption) GetValue(LabelGenerationOptionProperty); }
             set { SetValue(LabelGenerationOptionProperty, value); }
         }
 
@@ -77,7 +77,7 @@ namespace RLP.Chart.OpenGL.Control
         /// <param name="labelGenerationOption"></param>
         /// <param name="range"></param>
         /// <param name="context"></param>
-        protected abstract void RenderAxis(LabelGenerationOption labelGenerationOption, ScrollRange range,
+        protected abstract void RenderAxis(AxisOption labelGenerationOption, ScrollRange range,
             DrawingContext context);
     }
 }

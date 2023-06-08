@@ -8,12 +8,12 @@ namespace RLP.Chart.OpenGL.Control
 {
     public class XAxisElement : AxisElement
     {
-        protected override void RenderAxis(LabelGenerationOption labelGenerationOption, ScrollRange range,
+        protected override void RenderAxis(AxisOption labelGenerationOption, ScrollRange range,
             DrawingContext context)
         {
             var option = labelGenerationOption.RenderOption;
             var labels =
-                labelGenerationOption.GenerateLabels(0, this.RenderSize.Width, range);
+                labelGenerationOption.GenerateLabels(0, this.RenderSize.Width, range, FlowDirection.LeftToRight);
             var emSize = option.FontEmSize;
             var typeface = option.Typeface;
             var foreground = option.Foreground;

@@ -91,7 +91,6 @@ namespace RLP.Chart.OpenGL.Renderer
                 this._renderingRegion = value;
                 this.ActualRegion = value;
                 this._tempTransform = GetTransform(value);
-                // this._renderRegionChanged = true;
             }
         }
 
@@ -99,7 +98,6 @@ namespace RLP.Chart.OpenGL.Renderer
         /// 渲染快照
         /// </summary>
         private IList<BaseRenderer> _rendererSeriesSnapList = new List<BaseRenderer>();
-
 
         /// <summary>
         /// 基于ndc的Y轴（-1-1）进行划分的块数量

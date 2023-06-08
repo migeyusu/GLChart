@@ -13,99 +13,67 @@ namespace RLP.Chart.OpenGL.Control
     /// </summary>
     public class SeparatorLayer : FrameworkElement
     {
-        public static readonly DependencyProperty OptionProperty = DependencyProperty.Register(
-            "Option", typeof(SeparatorOption), typeof(SeparatorLayer), new PropertyMetadata(new SeparatorOption()));
-
-        public SeparatorOption Option
-        {
-            get { return (SeparatorOption)GetValue(OptionProperty); }
-            set { SetValue(OptionProperty, value); }
-        }
-
-
-        public static readonly DependencyProperty CoordinateRegionProperty = DependencyProperty.Register(
-            "CoordinateRegion", typeof(Region2D), typeof(SeparatorLayer),
+        public static readonly DependencyProperty RegionProperty = DependencyProperty.Register(
+            "Region", typeof(Region2D), typeof(SeparatorLayer),
             new FrameworkPropertyMetadata(default(Region2D), FrameworkPropertyMetadataOptions.AffectsRender));
-        public Region2D CoordinateRegion
+
+        public Region2D Region
         {
-            get { return (Region2D)GetValue(CoordinateRegionProperty); }
-            set { SetValue(CoordinateRegionProperty, value); }
+            get { return (Region2D)GetValue(RegionProperty); }
+            set { SetValue(RegionProperty, value); }
         }
 
-        public static readonly DependencyProperty AxisXGenerationOptionProperty = DependencyProperty.Register(
-            "AxisXGenerationOption", typeof(LabelGenerationOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(LabelGenerationOption.Default,
+        public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
+            "AxisXOption", typeof(AxisOption), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(new AxisOption(),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public LabelGenerationOption AxisXGenerationOption
+        public AxisOption AxisXOption
         {
-            get
-            {
-                return (LabelGenerationOption)GetValue(AxisXGenerationOptionProperty);
-            }
-            set
-            {
-                SetValue(AxisXGenerationOptionProperty, value);
-            }
+            get { return (AxisOption)GetValue(AxisXOptionProperty); }
+            set { SetValue(AxisXOptionProperty, value); }
         }
 
-        public static readonly DependencyProperty AxisYGenerationOptionProperty = DependencyProperty.Register(
-            "AxisYGenerationOption", typeof(LabelGenerationOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(LabelGenerationOption.Default,
+        public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
+            "AxisYOption", typeof(AxisOption), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(new AxisOption(),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public LabelGenerationOption AxisYGenerationOption
+        public AxisOption AxisYOption
         {
-            get { return (LabelGenerationOption)GetValue(AxisYGenerationOptionProperty); }
-            set { SetValue(AxisYGenerationOptionProperty, value); }
-        }
-
-        private Pen _separatePen;
-
-        private bool _showXAxis, _showYAxis;
-
-        public SeparatorLayer()
-        {
-            void Refresh()
-            {
-                _separatePen = this.Option.Pen;
-                _showXAxis = Option.ShowXAxis;
-                _showYAxis = Option.ShowYAxis;
-            }
-
-            Refresh();
-            DependencyPropertyDescriptor.FromProperty(OptionProperty, typeof(SeparatorLayer))
-                .AddValueChanged(this,
-                    ((sender, args) => { Refresh(); }));
+            get { return (AxisOption)GetValue(AxisYOptionProperty); }
+            set { SetValue(AxisYOptionProperty, value); }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            var coordinateRegion = CoordinateRegion;
-            var coordinateRegionXRange = coordinateRegion.XRange;
-            var coordinateRegionYRange = coordinateRegion.YRange;
-            var axisXGenerationOption = AxisXGenerationOption;
-            var axisYGenerationOption = AxisYGenerationOption;
+            var region = Region;
+            var axisXOption = AxisXOption;
+            var axisYOption = AxisYOption;
             var renderSize = this.RenderSize;
             var height = renderSize.Height;
             var width = renderSize.Width;
-            if (_showXAxis)
+            if (axisXOption.IsSeparatorVisible)
             {
-                var xAxisLabels = axisXGenerationOption.GenerateLabels(0, width, coordinateRegionXRange);
+                var separatePen = axisXOption.SeparatorPen;
+                var xAxisLabels =
+                    axisXOption.GenerateLabels(0, width, region.XRange, FlowDirection.LeftToRight);
                 foreach (var xAxisLabel in xAxisLabels)
                 {
-                    drawingContext.DrawLine(_separatePen, new Point(xAxisLabel.Location, 0),
+                    drawingContext.DrawLine(separatePen, new Point(xAxisLabel.Location, 0),
                         new Point(xAxisLabel.Location, height));
                 }
             }
 
-            if (_showYAxis)
+            if (axisYOption.IsSeparatorVisible)
             {
-                var yAxisLabels = axisYGenerationOption.GenerateLabels(height, height, coordinateRegionYRange);
+                var separatePen = axisYOption.SeparatorPen;
+                var yAxisLabels = axisYOption.GenerateLabels(height, height, region.YRange,
+                    FlowDirection.RightToLeft);
                 foreach (var yAxisLabel in yAxisLabels)
                 {
-                    drawingContext.DrawLine(_separatePen, new Point(0, yAxisLabel.Location),
+                    drawingContext.DrawLine(separatePen, new Point(0, yAxisLabel.Location),
                         new Point(width, yAxisLabel.Location));
                 }
             }

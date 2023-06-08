@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
 
 namespace RLP.Chart.Interface
 {
     /// <summary>
-    /// 表示图标坐标系区域，和windows的<see cref="Rect"/>相反：top为高点，bottom为低点
+    /// 表示图标坐标系区域，和windows的<see cref="System.Windows.Rect"/>相反：top为高点，bottom为低点
     /// </summary>
     public struct Region2D
     {
@@ -118,6 +119,22 @@ namespace RLP.Chart.Interface
         public override string ToString()
         {
             return $"Left:{Left},Top:{Top},Bottom:{Bottom},Right:{Right}";
+        }
+
+        public bool Equals(Region2D other)
+        {
+            return Top.Equals(other.Top) && Bottom.Equals(other.Bottom) && Left.Equals(other.Left) &&
+                   Right.Equals(other.Right);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Region2D other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Top, Bottom, Left, Right);
         }
     }
 }

@@ -13,14 +13,15 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <local:Coordinate2D XLabelGenerationOption="{TemplateBinding XLabelGenerationOption}"
-                                            YLabelGenerationOption="{TemplateBinding YLabelGenerationOption}"
+                        <local:Coordinate2D XLabelGenerationOption="{TemplateBinding AxisXOption}"
+                                            YLabelGenerationOption="{TemplateBinding AxisYOption}"
                                             CoordinateRegion="{TemplateBinding ActualRegion}"
                                             VerticalContentAlignment="Stretch"
                                             HorizontalContentAlignment="Stretch">
                             <Grid VerticalAlignment="Stretch"
                                   HorizontalAlignment="Stretch">
                                 <control:BitmapOpenTkControl IsAutoAttach="True"
+                                                             GlSettings="{TemplateBinding GLSettings}"
                                                              IsRenderContinuously="True"
                                                              LifeCycle="BoundToWindow"
                                                              IsShowFps="{TemplateBinding IsShowFps}"
@@ -31,7 +32,8 @@
                                 </control:BitmapOpenTkControl>
                                 <interaction:MouseSelect VerticalAlignment="Stretch"
                                                          HorizontalAlignment="Stretch"
-                                                         x:Name="SelectScaleElement" />
+                                                         x:Name="SelectScaleElement">
+                                </interaction:MouseSelect>
                             </Grid>
                         </local:Coordinate2D>
                     </Border>
@@ -92,9 +94,9 @@
                                                 LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
                             <local:SeparatorLayer Grid.Row="0"
                                                   Grid.Column="1"
-                                                  AxisXGenerationOption="{TemplateBinding XLabelGenerationOption}"
-                                                  AxisYGenerationOption="{TemplateBinding YLabelGenerationOption}"
-                                                  CoordinateRegion="{TemplateBinding CoordinateRegion}"
+                                                  AxisXOption="{TemplateBinding XLabelGenerationOption}"
+                                                  AxisYOption="{TemplateBinding YLabelGenerationOption}"
+                                                  Region="{TemplateBinding CoordinateRegion}"
                                                   x:Name="SeparatorLayer" />
                         </Grid>
                     </Border>

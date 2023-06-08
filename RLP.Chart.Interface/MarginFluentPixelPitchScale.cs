@@ -1,7 +1,6 @@
 ﻿using System;
-using RLP.Chart.Interface;
 
-namespace RLP.Chart.Client;
+namespace RLP.Chart.Interface;
 
 public class MarginFluentPixelPitchScale : CountBasedScaleGenerator
 {

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Threading;
-using OpenTK.Graphics;
+using System.Windows.Media;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
 using OpenTkWPFHost.Control;
@@ -31,15 +30,15 @@ namespace RLP.Chart.OpenGL.Control
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(Coordinate2D))]
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
-//    [TemplatePart(Name = Popup, Type = typeof(ToolTip))]
     public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine>
     {
-        public const string ThreadOpenTkControl = "ThreadOpenTkControl";
+        private const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
+        private const string CoordinateElementName = "Coordinate";
 
-        public const string CoordinateElementName = "Coordinate";
+        private const string SelectScaleElement = "SelectScaleElement";
 
-        public const string SelectScaleElement = "SelectScaleElement";
+        private const string ToolTipName = "ToolTip";
 
         static LineChart()
         {
@@ -48,13 +47,13 @@ namespace RLP.Chart.OpenGL.Control
         }
 
         public static readonly DependencyProperty ToolTipTemplateProperty = DependencyProperty.Register(
-            "ToolTipTemplate", typeof(DataTemplate), typeof(LineChart),
+            nameof(ToolTipTemplate), typeof(DataTemplate), typeof(LineChart),
             new PropertyMetadata(default(DataTemplate)));
 
         public DataTemplate ToolTipTemplate
         {
-            get { return (DataTemplate)GetValue(ToolTipTemplateProperty); }
-            set { SetValue(ToolTipTemplateProperty, value); }
+            get => (DataTemplate)GetValue(ToolTipTemplateProperty);
+            set => SetValue(ToolTipTemplateProperty, value);
         }
 
         #region collision
@@ -75,48 +74,41 @@ namespace RLP.Chart.OpenGL.Control
 
         #region coordinate
 
-        public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
-            "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
-            new PropertyMetadata(LabelGenerationOption.Default));
+        public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
+            nameof(AxisXOption), typeof(AxisOption), typeof(LineChart),
+            new PropertyMetadata(new AxisOption()));
 
-        public LabelGenerationOption XLabelGenerationOption
+        public AxisOption AxisXOption
         {
-            get { return (LabelGenerationOption)GetValue(XLabelGenerationOptionProperty); }
-            set { SetValue(XLabelGenerationOptionProperty, value); }
+            get => (AxisOption)GetValue(AxisXOptionProperty);
+            set => SetValue(AxisXOptionProperty, value);
         }
 
-        public static readonly DependencyProperty YLabelGenerationOptionProperty = DependencyProperty.Register(
-            "YLabelGenerationOption", typeof(LabelGenerationOption), typeof(LineChart),
-            new PropertyMetadata(LabelGenerationOption.Default));
+        public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
+            nameof(AxisYOption), typeof(AxisOption), typeof(LineChart),
+            new PropertyMetadata(new AxisOption()));
 
-        public LabelGenerationOption YLabelGenerationOption
+        public AxisOption AxisYOption
         {
-            get { return (LabelGenerationOption)GetValue(YLabelGenerationOptionProperty); }
-            set { SetValue(YLabelGenerationOptionProperty, value); }
-        }
-
-        //ActualRegion : SettingRegion
-        public virtual Region2D DisplayRegion
-        {
-            get { return CoordinateRenderer.AutoYAxisEnable ? ActualRegion : SettingRegion; }
-            set { SetValue(SettingRegionProperty, value); }
+            get => (AxisOption)GetValue(AxisYOptionProperty);
+            set => SetValue(AxisYOptionProperty, value);
         }
 
         public static readonly DependencyProperty SettingRegionProperty = DependencyProperty.Register(
-            "SettingRegion", typeof(Region2D), typeof(LineChart),
-            new PropertyMetadata(default(Region2D)));
+            nameof(SettingRegion), typeof(Region2D), typeof(LineChart),
+            new PropertyMetadata(default(Region2D), SettingRegionChangedCallback));
 
         /// <summary>
         /// 设置的视域
         /// </summary>
         public Region2D SettingRegion
         {
-            get { return (Region2D)GetValue(SettingRegionProperty); }
-            set { SetValue(SettingRegionProperty, value); }
+            get => (Region2D)GetValue(SettingRegionProperty);
+            set => SetValue(SettingRegionProperty, value);
         }
 
         public static readonly DependencyProperty ActualRegionProperty = DependencyProperty.Register(
-            "ActualRegion", typeof(Region2D), typeof(LineChart),
+            nameof(ActualRegion), typeof(Region2D), typeof(LineChart),
             new PropertyMetadata(default(Region2D)));
 
         /// <summary>
@@ -124,115 +116,103 @@ namespace RLP.Chart.OpenGL.Control
         /// </summary>
         public Region2D ActualRegion
         {
-            get { return (Region2D)GetValue(ActualRegionProperty); }
-            set { SetValue(ActualRegionProperty, value); }
+            get => (Region2D)GetValue(ActualRegionProperty);
+            set => SetValue(ActualRegionProperty, value);
         }
 
-        /// <summary>
-        /// x轴缩放边界，超过该边界将重置
-        /// </summary>
-        public ScrollRange AxisXScrollBoundary { get; set; }
-
-        /// <summary>
-        /// X轴最小视野宽度
-        /// </summary>
-        public float MinAxisXViewSize { get; set; }
-
-        /// <summary>
-        /// Y轴最小视野宽度
-        /// </summary>
-        public float MinAxisYViewSize { get; set; }
+        public static readonly DependencyProperty DefaultYRangeProperty = DependencyProperty.Register(
+            nameof(DefaultYRange), typeof(ScrollRange), typeof(LineChart),
+            new PropertyMetadata(new ScrollRange(0, 100), (DefaultYRangeChangedCallback)));
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
         /// </summary>
-        public ScrollRange DefaultAutoSizeAxisYRange { get; set; }
+        public ScrollRange DefaultYRange
+        {
+            get => (ScrollRange)GetValue(DefaultYRangeProperty);
+            set => SetValue(DefaultYRangeProperty, value);
+        }
 
         public static readonly DependencyProperty IsAutoYAxisEnableProperty = DependencyProperty.Register(
-            "IsAutoYAxisEnable", typeof(bool), typeof(LineChart), new PropertyMetadata(true));
+            nameof(IsAutoYAxisEnable), typeof(bool), typeof(LineChart),
+            new PropertyMetadata(true, AutoYAxisChangedCallback));
 
         public virtual bool IsAutoYAxisEnable
         {
-            get { return (bool)GetValue(IsAutoYAxisEnableProperty); }
-            set { SetValue(IsAutoYAxisEnableProperty, value); }
+            get => (bool)GetValue(IsAutoYAxisEnableProperty);
+            set => SetValue(IsAutoYAxisEnableProperty, value);
         }
 
         #endregion
 
         #region render
 
-        private GLSettings _glSettings = new GLSettings()
-        {
-            GraphicsContextFlags = ContextFlags.Offscreen,
-        };
-
-        /// <summary>
-        /// gl 设置
-        /// </summary>
-        public GLSettings GlSettings
-        {
-            get => _glSettings;
-            set
+        // ReSharper disable once InconsistentNaming
+        public static readonly DependencyProperty GLSettingsProperty = DependencyProperty.Register(
+            nameof(GLSettings), typeof(GLSettings), typeof(LineChart), new PropertyMetadata(new GLSettings()
             {
-                _glSettings = value;
-                if (OpenTkControl != null)
-                {
-                    OpenTkControl.GlSettings = value;
-                }
-            }
+                GraphicsContextFlags = ContextFlags.Offscreen,
+            }));
+
+        // ReSharper disable once InconsistentNaming
+        public GLSettings GLSettings
+        {
+            get => (GLSettings)GetValue(GLSettingsProperty);
+            set => SetValue(GLSettingsProperty, value);
         }
 
+        public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
+            nameof(BackgroundColor), typeof(Color), typeof(LineChart),
+            new PropertyMetadata(Colors.White, BackgroundColorChangedCallback));
+
+        public Color BackgroundColor
+        {
+            get => (Color)GetValue(BackgroundColorProperty);
+            set => SetValue(BackgroundColorProperty, value);
+        }
 
         public static readonly DependencyProperty IsShowFpsProperty = DependencyProperty.Register(
             nameof(IsShowFps), typeof(bool), typeof(LineChart), new PropertyMetadata(default(bool)));
 
         public bool IsShowFps
         {
-            get { return (bool)GetValue(IsShowFpsProperty); }
-            set { SetValue(IsShowFpsProperty, value); }
+            get => (bool)GetValue(IsShowFpsProperty);
+            set => SetValue(IsShowFpsProperty, value);
         }
 
-        public static Dispatcher AppDispatcher => DispatcherLazy.Value;
-
-        private static readonly Lazy<Dispatcher> DispatcherLazy = new Lazy<Dispatcher>(
-            () => Application.Current.Dispatcher,
-            LazyThreadSafetyMode.ExecutionAndPublication);
+        private readonly AutoHeight2DRenderer _coordinateRenderer;
 
         #endregion
 
-
         private MouseSelect _scaleElement;
 
-        private readonly CollisionGridPoint2D _nodeGrid = new CollisionGridPoint2D();
+        private Node _popupNode;
 
-        private ToolTip _toolTip;
-
-        private Node _popupNode = default;
-
-        public LineChart() : base()
+        public LineChart()
         {
-            CoordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer });
-            DependencyPropertyDescriptor.FromProperty(SettingRegionProperty, typeof(LineChart))
-                .AddValueChanged(this, SettingRegionChangedHandler);
-            DependencyPropertyDescriptor.FromProperty(IsAutoYAxisEnableProperty, typeof(LineChart))
-                .AddValueChanged(this, AutoYAxisChanged_Handler);
-            CoordinateRenderer.AutoYAxisEnable = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue;
+            var color = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
+            _coordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer })
+            {
+                BackgroundColor = new Color4(color.A, color.R, color.G, color.B),
+                AutoYAxisEnable = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue,
+                DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
+                TargetRegion = (Region2D)SettingRegionProperty.DefaultMetadata.DefaultValue
+            };
         }
 
         protected BitmapOpenTkControl OpenTkControl;
-
-        protected AutoHeight2DRenderer CoordinateRenderer;
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
             OpenTkControl = GetTemplateChild(ThreadOpenTkControl) as BitmapOpenTkControl;
-            OpenTkControl.GlSettings = this.GlSettings;
-            CoordinateRenderer.ActualRegionChanged += SeriesRendererHost_AutoAxisYCompleted;
-            OpenTkControl.Renderer = CoordinateRenderer;
+            _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
+            Debug.Assert(OpenTkControl != null, nameof(OpenTkControl) + " != null");
+            OpenTkControl.Renderer = _coordinateRenderer;
             OpenTkControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
             OpenTkControl.OpenGlErrorReceived += OpenTkControlOnOpenGlErrorReceived;
             _scaleElement = GetTemplateChild(SelectScaleElement) as MouseSelect;
+            Debug.Assert(_scaleElement != null, nameof(_scaleElement) + " != null");
             _scaleElement.Selected += scaleElement_Scaled;
             _scaleElement.MouseMove += _openTkControl_MouseMove;
             _scaleElement.MouseLeave += _scaleElement_MouseLeave;
@@ -241,36 +221,54 @@ namespace RLP.Chart.OpenGL.Control
             _toolTip = new ToolTip()
             {
                 IsOpen = false,
-                StaysOpen = true,
                 PlacementTarget = OpenTkControl,
                 Placement = PlacementMode.Relative,
-                ContentTemplate = this.ToolTipTemplate,
+                ContentTemplate = ToolTipTemplate
             };
         }
 
         #region render event handler
 
-        /*当需要同步依赖属性和独立变量时，使用观察者，倾向于在load或apply template后再绑定以防止未加载的空控件，同时必须初始化值*/
-
-        protected virtual void SettingRegionChangedHandler(object sender, EventArgs e)
+        private static void DefaultYRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var region = this.SettingRegion;
-            this.CoordinateRenderer.TargetRegion = region;
-            this.ActualRegion = region; //直接拷贝数据
-            // Debug.WriteLine(region.ToString());
+            if (d is LineChart lineChart)
+            {
+                lineChart._coordinateRenderer.DefaultAxisYRange = (ScrollRange)e.NewValue;
+            }
         }
 
-        private void AutoYAxisChanged_Handler(object sender, EventArgs e)
+        private static void BackgroundColorChangedCallback(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
         {
-            CoordinateRenderer.AutoYAxisEnable = this.IsAutoYAxisEnable;
+            if (d is LineChart lineChart)
+            {
+                var color = (Color)e.NewValue;
+                lineChart._coordinateRenderer.BackgroundColor = new Color4(color.A, color.R, color.G, color.B);
+            }
         }
 
-        protected virtual void SeriesRendererHost_AutoAxisYCompleted(Region2D region)
+        private static void SettingRegionChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            // AppDispatcher.Invoke(() => { OpenTkControl.IsRenderContinuously = false; });
-            AppDispatcher.InvokeAsync(() => { this.ActualRegion = region; });
+            if (d is LineChart lineChart)
+            {
+                var region = (Region2D)e.NewValue;
+                lineChart._coordinateRenderer.TargetRegion = region;
+                lineChart.ActualRegion = region;
+            }
         }
 
+        private static void AutoYAxisChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is LineChart lineChart)
+            {
+                lineChart._coordinateRenderer.AutoYAxisEnable = (bool)e.NewValue;
+            }
+        }
+
+        protected virtual void OnRendererHostAutoAxisYCompleted(Region2D region)
+        {
+            this.Dispatcher.InvokeAsync(() => { this.ActualRegion = region; });
+        }
 
         private static void OpenTkControlOnOpenGlErrorReceived(object sender, OpenGlErrorArgs e)
         {
@@ -311,8 +309,10 @@ namespace RLP.Chart.OpenGL.Control
         {
             _isMouseLeftButtonPressed = true;
             _startMovePoint = e.GetPosition(OpenTkControl);
-            _startMoveRegion = this.DisplayRegion;
+            _startMoveRegion = this.ActualRegion;
         }
+
+        private ToolTip _toolTip;
 
         private void _scaleElement_MouseLeave(object sender, MouseEventArgs e)
         {
@@ -323,53 +323,70 @@ namespace RLP.Chart.OpenGL.Control
             }
         }
 
+        private readonly CollisionGridPoint2D _nodeGrid = new CollisionGridPoint2D();
+
         private void _openTkControl_MouseMove(object sender, MouseEventArgs e)
         {
             var position = e.GetPosition(OpenTkControl); //像素
-            var coordinateRegion = this.DisplayRegion;
+            var coordinateRegion = this.ActualRegion;
             var xRange = coordinateRegion.XRange;
             var yRange = coordinateRegion.YRange;
-            var windowsRectToGlMapping =
+            var winToGlMapping =
                 new WindowsToGlRecMapping(xRange, yRange, new Rect(OpenTkControl.RenderSize));
             if (_isMouseLeftButtonPressed)
             {
                 var xPixel = _startMovePoint.X - position.X;
-                var xOffset = windowsRectToGlMapping.GetXOffset(xPixel);
-                double yOffset = 0;
-                if (!CoordinateRenderer.AutoYAxisEnable)
+                var xOffset = winToGlMapping.GetXOffset(xPixel);
+                if (this._coordinateRenderer.AutoYAxisEnable)
                 {
-                    var yPixel = _startMovePoint.Y - position.Y;
-                    yOffset = windowsRectToGlMapping.GetYOffset(-yPixel);
+                    this.IsAutoYAxisEnable = false;
                 }
-
+                var yPixel = _startMovePoint.Y - position.Y;
+                var yOffset = winToGlMapping.GetYOffset(-yPixel);
                 var region = _startMoveRegion.CreateOffset(xOffset, yOffset);
-                if (region.XRange.End > AxisXScrollBoundary.End)
+                var xZoomBoundary = AxisXOption.ZoomBoundary;
+                var regionXRange = region.XRange;
+                if (regionXRange.End > xZoomBoundary.End)
                 {
-                    region.ChangeXRange(xRange);
+                    regionXRange.WithEnd(xZoomBoundary.End);
+                    // region.ChangeXRange(xRange);
                 }
-                else if (region.XRange.Start < AxisXScrollBoundary.Start)
+                else if (regionXRange.Start < xZoomBoundary.Start)
                 {
-                    region.ChangeXRange(xRange);
+                    regionXRange.WithStart(xZoomBoundary.Start);
+                    // region.ChangeXRange(xRange);
                 }
 
-                this.DisplayRegion = region;
-                OnChangeRegionRequest(region);
+                var yZoomBoundary = AxisXOption.ZoomBoundary;
+                var regionYRange = region.YRange;
+                if (regionYRange.End > yZoomBoundary.End)
+                {
+                    regionYRange.WithEnd(yZoomBoundary.End);
+                    // region.ChangeYRange(yRange);
+                }
+                else if (regionYRange.Start < yZoomBoundary.Start)
+                {
+                    regionYRange.WithStart(yZoomBoundary.Start);
+                    // region.ChangeYRange(yRange);
+                }
+
+                this.SettingRegion = new Region2D(regionXRange, regionYRange);
             }
             else
             {
-                var mapGlPoint = windowsRectToGlMapping.MapGlPoint(position);
-                var xDistance = windowsRectToGlMapping.XScaleRatio * 10;
-                var yDistance = windowsRectToGlMapping.YScaleRatio * 10;
-                var ellipseGeometry = new Ellipse(mapGlPoint, (float)xDistance, (float)yDistance);
-                if (_nodeGrid.TrySearch(ellipseGeometry, out var point, out var layer))
+                var mapGlPoint = winToGlMapping.GetGlPointByWindowsPoint(position);
+                var xDistance = winToGlMapping.XScaleRatio * 10;
+                var yDistance = winToGlMapping.YScaleRatio * 10;
+                var ellipse = new Ellipse(mapGlPoint, (float)xDistance, (float)yDistance);
+                if (_nodeGrid.TrySearch(ellipse, out var point, out var layer))
                 {
                     if (!_popupNode.Equals(point))
                     {
                         _popupNode = point;
-                        var mapWinPoint = windowsRectToGlMapping.MapWinPoint(point.Point);
+                        var winPoint = winToGlMapping.GetWindowsPointByGLPoint(point.Point);
                         var seriesItem = _items.First((item => item.CollisionLayer.Equals(layer)));
-                        _toolTip.HorizontalOffset = mapWinPoint.X + 10;
-                        _toolTip.VerticalOffset = mapWinPoint.Y + 10;
+                        _toolTip.HorizontalOffset = winPoint.X + 10;
+                        _toolTip.VerticalOffset = winPoint.Y + 10;
                         _toolTip.Content =
                             new MouseHoverNodeData(seriesItem.LineColor, point.Data,
                                 seriesItem.Title);
@@ -391,67 +408,85 @@ namespace RLP.Chart.OpenGL.Control
         }
 
 
-        public event Action<Region2D> ChangeRegionRequest;
-
-        protected virtual void OnChangeRegionRequest(Region2D obj)
-        {
-            ChangeRegionRequest?.Invoke(obj);
-        }
-
         private void scaleElement_Scaled(object sender, SelectionArgs e)
         {
-            var oldRegion = this.DisplayRegion;
+            var oldRegion = this.ActualRegion;
             var scale = new WindowsToGlRecMapping(oldRegion.XRange, oldRegion.YRange, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
             var newRegion = new Region2D(xRange, yRange);
-            if (this.CoordinateRenderer.AutoYAxisEnable)
+            if (this._coordinateRenderer.AutoYAxisEnable)
             {
                 this.IsAutoYAxisEnable = false;
             }
 
-            if (newRegion.Height < MinAxisYViewSize)
+            if (newRegion.Height < AxisYOption.MinDisplayExtent)
             {
                 newRegion.ChangeYRange(oldRegion.YRange);
             }
 
-            if (newRegion.Width < MinAxisXViewSize)
+            if (newRegion.Width < AxisXOption.MinDisplayExtent)
             {
                 newRegion.ChangeXRange(oldRegion.XRange);
             }
 
             if (!newRegion.Equals(oldRegion))
             {
-                this.DisplayRegion = newRegion;
-                OnChangeRegionRequest(newRegion);
+                this.SettingRegion = newRegion;
             }
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
             base.OnMouseWheel(e);
-            var originDisplayRegion = this.DisplayRegion;
-            var xRange = originDisplayRegion.XRange;
-            var newRange = e.Scale(xRange);
-            if (newRange.Range < this.MinAxisXViewSize)
+            var axisXOption = AxisXOption;
+            var region = this.ActualRegion;
+            var newXRange = region.XRange;
+            var newYRange = region.YRange;
+            if (axisXOption.ZoomEnable)
             {
-                return;
+                newXRange = e.Scale(newXRange);
+                if (newXRange.Range < axisXOption.MinDisplayExtent)
+                {
+                    return;
+                }
+
+                var zoomBoundary = axisXOption.ZoomBoundary;
+                if (newXRange.Start < zoomBoundary.Start)
+                {
+                    newXRange = newXRange.WithStart(zoomBoundary.Start);
+                }
+
+                if (newXRange.End > zoomBoundary.End)
+                {
+                    newXRange = newXRange.WithEnd(zoomBoundary.End);
+                }
             }
 
-            if (newRange.Start < this.AxisXScrollBoundary.Start)
+            var axisYOption = AxisYOption;
+            if (axisYOption.ZoomEnable)
             {
-                newRange = newRange.WithStart(this.AxisXScrollBoundary.Start);
+                newYRange = e.Scale(newYRange);
+                if (newYRange.Range < axisYOption.MinDisplayExtent)
+                {
+                    return;
+                }
+
+                var zoomBoundary = axisYOption.ZoomBoundary;
+                if (newYRange.Start < zoomBoundary.Start)
+                {
+                    newYRange = newYRange.WithStart(zoomBoundary.Start);
+                }
+
+                if (newYRange.End > zoomBoundary.End)
+                {
+                    newYRange = newYRange.WithEnd(zoomBoundary.End);
+                }
             }
 
-            if (newRange.End > this.AxisXScrollBoundary.End)
+            var newRegion = new Region2D(newXRange, newYRange);
+            if (!newRegion.Equals(this.ActualRegion))
             {
-                newRange = newRange.WithEnd(this.AxisXScrollBoundary.End);
-            }
-
-            if (!newRange.Equals(xRange))
-            {
-                var finalRange = originDisplayRegion.ChangeXRange(newRange);
-                this.DisplayRegion = finalRange;
-                this.OnChangeRegionRequest(finalRange);
+                this.SettingRegion = newRegion;
             }
         }
 

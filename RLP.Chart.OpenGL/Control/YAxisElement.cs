@@ -7,13 +7,13 @@ namespace RLP.Chart.OpenGL.Control
 {
     public class YAxisElement : AxisElement
     {
-        protected override void RenderAxis(LabelGenerationOption labelGenerationOption, ScrollRange range,
+        protected override void RenderAxis(AxisOption labelGenerationOption, ScrollRange range,
             DrawingContext context)
         {
             var option = labelGenerationOption.RenderOption;
             var height = this.RenderSize.Height;
             var labels =
-                labelGenerationOption.GenerateLabels(height, height, range);
+                labelGenerationOption.GenerateLabels(height, height, range, FlowDirection.RightToLeft);
             var fontSize = option.FontEmSize;
             var typeface = option.Typeface;
             var cultureInfo = option.CultureInfo;

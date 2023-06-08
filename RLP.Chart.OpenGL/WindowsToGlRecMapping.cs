@@ -47,7 +47,7 @@ namespace RLP.Chart.OpenGL
         {
             if (!_pixelRect.Contains(newPixelRect) && validate)
             {
-                throw new ArgumentException(nameof(newPixelRect));
+                throw new ArgumentException(null, nameof(newPixelRect));
             }
 
             newPixelRect.Intersect(_pixelRect);
@@ -60,14 +60,14 @@ namespace RLP.Chart.OpenGL
             xRange = new ScrollRange(left, right);
         }
 
-        public System.Windows.Point MapWinPoint(Point2D point)
+        public Point GetWindowsPointByGLPoint(Point2D point)
         {
             var x = (point.X - _xScrollRange.Start) / XScaleRatio;
             var y = (point.Y - _yScrollRange.Start) / YScaleRatio;
             return new System.Windows.Point(x, _pixelRect.Height - y);
         }
 
-        public Point2D MapGlPoint(System.Windows.Point winPoint)
+        public Point2D GetGlPointByWindowsPoint(Point winPoint)
         {
             winPoint.Y = _pixelRect.Height - winPoint.Y;
             return new Point2D((float)(XScaleRatio * winPoint.X + _xScrollRange.Start),

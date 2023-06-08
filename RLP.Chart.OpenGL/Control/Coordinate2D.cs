@@ -31,22 +31,22 @@ namespace RLP.Chart.OpenGL.Control
         }
 
         public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
-            "XLabelGenerationOption", typeof(LabelGenerationOption), typeof(Coordinate2D),
-            new PropertyMetadata(LabelGenerationOption.Default));
+            "XLabelGenerationOption", typeof(AxisOption), typeof(Coordinate2D),
+            new PropertyMetadata(new AxisOption()));
 
-        public LabelGenerationOption XLabelGenerationOption
+        public AxisOption XLabelGenerationOption
         {
-            get { return (LabelGenerationOption)GetValue(XLabelGenerationOptionProperty); }
+            get { return (AxisOption)GetValue(XLabelGenerationOptionProperty); }
             set { SetValue(XLabelGenerationOptionProperty, value); }
         }
 
         public static readonly DependencyProperty YLabelGenerationOptionProperty = DependencyProperty.Register(
-            "YLabelGenerationOption", typeof(LabelGenerationOption), typeof(Coordinate2D),
-            new PropertyMetadata(LabelGenerationOption.Default));
+            "YLabelGenerationOption", typeof(AxisOption), typeof(Coordinate2D),
+            new PropertyMetadata(new AxisOption()));
 
-        public LabelGenerationOption YLabelGenerationOption
+        public AxisOption YLabelGenerationOption
         {
-            get { return (LabelGenerationOption)GetValue(YLabelGenerationOptionProperty); }
+            get { return (AxisOption)GetValue(YLabelGenerationOptionProperty); }
             set { SetValue(YLabelGenerationOptionProperty, value); }
         }
 
