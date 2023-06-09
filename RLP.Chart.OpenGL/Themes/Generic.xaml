@@ -13,28 +13,30 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <local:Coordinate2D XLabelGenerationOption="{TemplateBinding AxisXOption}"
-                                            YLabelGenerationOption="{TemplateBinding AxisYOption}"
-                                            CoordinateRegion="{TemplateBinding ActualRegion}"
-                                            VerticalContentAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch">
-                            <Grid VerticalAlignment="Stretch"
-                                  HorizontalAlignment="Stretch">
-                                <control:BitmapOpenTkControl IsAutoAttach="True"
-                                                             GlSettings="{TemplateBinding GLSettings}"
-                                                             IsRenderContinuously="True"
-                                                             LifeCycle="BoundToWindow"
-                                                             IsShowFps="{TemplateBinding IsShowFps}"
-                                                             x:Name="ThreadOpenTkControl">
-                                    <control:BitmapOpenTkControl.RenderSetting>
-                                        <configuration:RenderSetting RenderTactic="Default" />
-                                    </control:BitmapOpenTkControl.RenderSetting>
-                                </control:BitmapOpenTkControl>
-                                <interaction:MouseSelect VerticalAlignment="Stretch"
-                                                         HorizontalAlignment="Stretch"
-                                                         x:Name="SelectScaleElement" />
-                            </Grid>
-                        </local:Coordinate2D>
+                        <Grid>
+                            <local:Coordinate2D XLabelGenerationOption="{TemplateBinding AxisXOption}"
+                                                YLabelGenerationOption="{TemplateBinding AxisYOption}"
+                                                CoordinateRegion="{TemplateBinding ActualRegion}"
+                                                VerticalContentAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch">
+                                <Grid VerticalAlignment="Stretch"
+                                      HorizontalAlignment="Stretch">
+                                    <control:BitmapOpenTkControl IsAutoAttach="True"
+                                                                 GlSettings="{TemplateBinding GLSettings}"
+                                                                 IsRenderContinuously="True"
+                                                                 LifeCycle="BoundToWindow"
+                                                                 IsShowFps="{TemplateBinding IsShowFps}"
+                                                                 x:Name="ThreadOpenTkControl">
+                                        <control:BitmapOpenTkControl.RenderSetting>
+                                            <configuration:RenderSetting RenderTactic="Default" />
+                                        </control:BitmapOpenTkControl.RenderSetting>
+                                    </control:BitmapOpenTkControl>
+                                </Grid>
+                            </local:Coordinate2D>
+                            <interaction:MouseSelect VerticalAlignment="Stretch"
+                                                     HorizontalAlignment="Stretch"
+                                                     x:Name="SelectScaleElement" />
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

@@ -83,10 +83,10 @@ namespace RLP.Chart.OpenGL.Renderer
             }
         }
 
-        public Region2D RenderingRegion
+        private Region2D RenderingRegion
         {
             get => _renderingRegion;
-            private set
+            set
             {
                 this._renderingRegion = value;
                 this.ActualRegion = value;
@@ -174,18 +174,8 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 regionChanged = true;
                 _lastTargetRegion = _targetRegion;
-                if (AutoYAxisEnable)
-                {
-                    /*var coordinateRegion = _targetRegion.Height < DefaultAxisYRange
-                        ? _targetRegion.WithTop(DefaultAxisYRange)
-                        : _targetRegion;*/
-                    RenderingRegion = _targetRegion;
-                    _isHeightAutoAdapting = true;
-                }
-                else
-                {
-                    RenderingRegion = _targetRegion;
-                }
+                RenderingRegion = _targetRegion;
+                _isHeightAutoAdapting = AutoYAxisEnable;
             }
 
             var renderEnable = _isHeightAutoAdapting || regionChanged;
@@ -285,8 +275,8 @@ namespace RLP.Chart.OpenGL.Renderer
                 }
                 else
                 {
-                    /*1. 当最高点依然在ssbo的299位置时，应用变换然后在下次渲染再次检查，直到最高点不在299
-                  2. 每次都检查，当差额小于特定百分比时停止变换。*/
+                    /* 1. 当最高点依然在ssbo的299位置时，应用变换然后在下次渲染再次检查，直到最高点不在299
+                       2. 每次都检查，当差额小于特定百分比时停止变换。*/
                     var currentHeight = regionYRange.Range;
                     var ratio = i / (double)NdcYAxisSpacialSplitCount;
                     var theoreticalHeight = ratio * currentHeight / AutoAxisYContentRatio;

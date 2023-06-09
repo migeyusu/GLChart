@@ -60,7 +60,7 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 线宽
         /// </summary>
-        public float LineWidth { get; set; } = 2;
+        public float Thickness { get; set; } = 2;
 
         /// <summary>
         /// GPU缓冲区大小
@@ -166,7 +166,7 @@ namespace RLP.Chart.OpenGL.Renderer
             GL.GetBufferSubData(BufferTarget.ArrayBuffer, (IntPtr) 0, GPUBufferSize * SizeFloat, floats);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 #endif
-            _shader.SetFloat("u_thickness", LineWidth);
+            _shader.SetFloat("u_thickness", Thickness);
             _shader.SetColor("linecolor", _color4);
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, ShaderStorageBufferObject);
             GL.BindVertexArray(VertexArrayObject);

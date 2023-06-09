@@ -13,7 +13,7 @@ namespace RLP.Chart.OpenGL.Renderer
         }
     }
 
-    public class RenderDirective2D:RenderDirective
+    public class RenderDirective2D : RenderDirective
     {
         public Matrix4 Transform { get; set; }
     }

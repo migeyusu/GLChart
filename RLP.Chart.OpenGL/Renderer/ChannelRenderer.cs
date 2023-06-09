@@ -65,13 +65,12 @@ namespace RLP.Chart.OpenGL.Renderer
 
         public bool RenderEnable { get; private set; } = true;
 
-        private readonly ModelRingBuffer<IChannel, float> _channelBuffer;
+        private ModelRingBuffer<IChannel, float> _channelBuffer = new ModelRingBuffer<IChannel, float>();
 
         private Shader _shader;
 
         public ChannelRenderer()
         {
-            _channelBuffer = new ModelRingBuffer<IChannel, float>();
         }
 
         private const int SizeOfUint = sizeof(uint);
@@ -89,7 +88,7 @@ namespace RLP.Chart.OpenGL.Renderer
             }
 
             var channelBufferLength = ChannelBufferWidth;
-            _channelBuffer.Allocate(this.MaxChannelCount, channelBufferLength, channel =>
+            _channelBuffer.Initialize(this.MaxChannelCount, channelBufferLength, channel =>
             {
                 var buffer = new float[channelBufferLength];
                 var index = 0;
@@ -205,6 +204,7 @@ namespace RLP.Chart.OpenGL.Renderer
             {
                 return;
             }
+
             GL.BindVertexArray(VertexArrayObject);
             var drawRegions = _channelBuffer.EffectRegions;
             var firstDrawRegion = drawRegions[0];

@@ -10,8 +10,10 @@
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
         <control:LineChart
-            x:Name="LineChart">
-
-        </control:LineChart>
+            x:Name="LineChart" />
+        <Button Click="ButtonBase_OnClick"
+                Height="40"
+                Width="100" 
+                VerticalAlignment="Top"/>
     </Grid>
 </Window>

@@ -46,17 +46,17 @@ namespace RLP.Chart.OpenGL.Renderer
         /// <summary>
         /// 最大实体数量
         /// </summary>
-        public uint MaxModelCount { get; set; }
+        private uint _maxModelCount;
 
         /// <summary>
         /// 建议的最大模型数，包含了副本节点
         /// </summary>
-        public uint SuggestMaxModelCount => MaxModelCount + 1;
+        public uint SuggestMaxModelCount => _maxModelCount + 1;
 
         /// <summary>
         /// 模型大小
         /// </summary>
-        public uint ModelSize { get; private set; }
+        private uint _modelSize;
 
         /// <summary>
         /// 当前模型数量
@@ -75,37 +75,25 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private IList<RingBufferCounter.Region> _effectRegions;
 
-
+        /// <summary>
+        /// 分配空间
+        /// </summary>
+        /// <param name="modelSize">模型导出数组的大小，以<see cref="TK"/>为单位</param>
+        /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
+        /// <param name="maxModelCount">最大模型数量</param>
         public ModelRingBuffer()
         {
         }
 
-        /// <summary>
-        /// 分配空间
-        /// </summary>
-        /// <param name="maxCount">最大模型数量</param>
-        /// <param name="modelSize">模型导出数组的大小，以<see cref="TK"/>为单位</param>
-        /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
-        public ModelRingBuffer(uint maxCount, uint modelSize, Func<T, TK[]> modelToFloatsMapping)
-        {
-            this.Allocate(maxCount, modelSize, modelToFloatsMapping);
-        }
-
-
-        /// <summary>
-        /// 分配空间
-        /// </summary>
-        /// <param name="maxModelCount">最大模型数量</param>
-        /// <param name="modelSize">模型导出数组的大小，以<see cref="TK"/>为单位</param>
-        /// <param name="modelToFloatsMapping">模型导出数组的函数</param>
-        public void Allocate(uint maxModelCount, uint modelSize, Func<T, TK[]> modelToFloatsMapping)
+        public void Initialize(uint maxModelCount, uint modelSize, Func<T, TK[]> modelToFloatsMapping)
         {
             _modelToFloatsMapping = modelToFloatsMapping;
-            this.MaxModelCount = maxModelCount;
-            ModelSize = modelSize;
-            var deviceContainsCount = maxModelCount + 1; //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中必须加首部副本节点
+            _modelSize = modelSize;
+            this._maxModelCount = maxModelCount;
+            //为了使得环形缓冲的分块绘制点位不断，在gpu缓冲中必须加首部副本节点
+            var deviceContainsCount = maxModelCount + 1;
             DeviceBufferSize = deviceContainsCount * modelSize;
-            _ringBufferCounter = new RingBufferCounter((int)(maxModelCount * modelSize));
+            this._ringBufferCounter = new RingBufferCounter((int)(maxModelCount * modelSize));
         }
 
         public void SendChange(NotifyCollectionChangedEventArgs<T> args)
@@ -166,38 +154,38 @@ namespace RLP.Chart.OpenGL.Renderer
         {
             var updateRegions = new List<GPUBufferRegion<TK>>(2);
             long pendingPointsCount = appendModels.Count;
-            var bufferLength = pendingPointsCount * ModelSize;
+            var bufferLength = pendingPointsCount * _modelSize;
             var dirtRegions = _ringBufferCounter.AddDifference((uint)bufferLength).ToArray(); //防止重复添加
             this.EffectRegions = _ringBufferCounter.ContiguousRegions.ToArray();
-            this.RecentModelCount = (uint)(_ringBufferCounter.Length / ModelSize);
+            this.RecentModelCount = (uint)(_ringBufferCounter.Length / _modelSize);
             var firstDirtRegion = dirtRegions[0];
             var firstDirtRegionLength = firstDirtRegion.Length;
             var floats = new TK[firstDirtRegionLength];
             var firstUpdateRegion = new GPUBufferRegion<TK>
             {
-                Low = firstDirtRegion.Tail + ModelSize,
-                High = firstDirtRegion.Head + ModelSize,
+                Low = firstDirtRegion.Tail + _modelSize,
+                High = firstDirtRegion.Head + _modelSize,
                 Data = floats
             };
             //表示脏区域已经达到或跨过环形缓冲
             int pointIndex = 0;
-            if (pendingPointsCount > MaxModelCount)
+            if (pendingPointsCount > _maxModelCount)
             {
                 //如果大于可用长度，重置点集合的索引和长度
-                pointIndex = (int)(pendingPointsCount - MaxModelCount);
-                pendingPointsCount = MaxModelCount;
+                pointIndex = (int)(pendingPointsCount - _maxModelCount);
+                pendingPointsCount = _maxModelCount;
             }
 
             long index;
             int modelIndex = 0;
             T point = default;
-            TK[] firstRegionData = new TK[ModelSize];
-            while (modelIndex < firstDirtRegionLength / ModelSize)
+            TK[] firstRegionData = new TK[_modelSize];
+            while (modelIndex < firstDirtRegionLength / _modelSize)
             {
                 point = appendModels[pointIndex];
-                index = modelIndex * ModelSize;
+                index = modelIndex * _modelSize;
                 firstRegionData = _modelToFloatsMapping.Invoke(point);
-                Array.Copy(firstRegionData, 0, floats, index, ModelSize);
+                Array.Copy(firstRegionData, 0, floats, index, _modelSize);
                 pointIndex++;
                 modelIndex++;
             }
@@ -211,24 +199,24 @@ namespace RLP.Chart.OpenGL.Renderer
                 if (dirtRegions.Length == 1)
                 {
                     //只有一个更新区域，第二个更新区域只填充预缓存
-                    secondRegion.High = ModelSize - 1;
+                    secondRegion.High = _modelSize - 1;
                     secondRegion.Data = firstRegionData;
                 }
                 else
                 {
                     var secondDirtRegion = dirtRegions[1];
-                    secondRegion.High = secondDirtRegion.Head + ModelSize;
-                    var secondRegionData = new TK[secondDirtRegion.Length + ModelSize]; //复制首节点
-                    Array.Copy(firstRegionData, 0, secondRegionData, 0, ModelSize);
-                    long s = ModelSize;
+                    secondRegion.High = secondDirtRegion.Head + _modelSize;
+                    var secondRegionData = new TK[secondDirtRegion.Length + _modelSize]; //复制首节点
+                    Array.Copy(firstRegionData, 0, secondRegionData, 0, _modelSize);
+                    long s = _modelSize;
                     while (modelIndex < pendingPointsCount)
                     {
                         point = appendModels[pointIndex];
                         var invoke = _modelToFloatsMapping.Invoke(point);
-                        Array.Copy(invoke, 0, secondRegionData, s, ModelSize);
+                        Array.Copy(invoke, 0, secondRegionData, s, _modelSize);
                         pointIndex++;
                         modelIndex++;
-                        s += ModelSize;
+                        s += _modelSize;
                     }
 
                     secondRegion.Data = secondRegionData;

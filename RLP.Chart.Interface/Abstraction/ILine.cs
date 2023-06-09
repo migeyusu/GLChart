@@ -8,7 +8,9 @@ namespace RLP.Chart.Interface.Abstraction
     public interface ILine : IGeometry, IGeometryCollection<IPoint2D>
     {
         Color LineColor { get; set; }
-
-        int PointCountLimit { get; set; }
+     
+        string Title { get; set; }
+        
+        float Thickness { get; set; }
     }
 }

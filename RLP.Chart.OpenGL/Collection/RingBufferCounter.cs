@@ -248,6 +248,11 @@ namespace RLP.Chart.OpenGL.Collection
                     return Head - Tail + 1;
                 }
             }
+
+            public override string ToString()
+            {
+                return $"Head:{Head},Tail:{Tail}";
+            }
         }
     }
 }

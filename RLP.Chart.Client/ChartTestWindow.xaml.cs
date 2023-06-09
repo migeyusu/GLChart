@@ -11,7 +11,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using OpenTK.Windowing.Common;
+using OpenTkWPFHost.Configuration;
 using RLP.Chart.Interface;
+using RLP.Chart.Interface.Abstraction;
 using RLP.Chart.OpenGL.Renderer;
 
 namespace RLP.Chart.Client
@@ -29,14 +32,21 @@ namespace RLP.Chart.Client
         private void ChartTestWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             var lineRenderer = LineChart.NewSeries();
-            LineChart.SettingRegion = new Region2D(new ScrollRange(0, 100), new ScrollRange(0, 100));
-            LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-50, 120);
-            LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-50, 600);
+            LineChart.SettingRegion = new Region2D(new ScrollRange(0, 110), new ScrollRange(0, 510));
+            LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-1000, 1000);
+            LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-1000, 1000);
             var random = new Random();
-            for (int i = 0; i < 100; i++)
-            {
-                lineRenderer.Add(new Point2D(i, 200 + i + random.Next(-100, 100)));
-            }
+            var array = Enumerable.Range(0, 100)
+                .Select((i => new Point2D(i, 200 + i + random.Next(-100, 100))))
+                .Cast<IPoint2D>()
+                .ToList();
+            lineRenderer.AddRange(array);
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            LineChart.IsAutoYAxisEnable = true;
+            /*LineChart.SettingRegion = new Region2D(new ScrollRange(-10, 100), new ScrollRange(0, 310));*/
         }
     }
 }
