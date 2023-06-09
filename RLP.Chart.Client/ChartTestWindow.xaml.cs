@@ -30,8 +30,8 @@ namespace RLP.Chart.Client
         {
             var lineRenderer = LineChart.NewSeries();
             LineChart.SettingRegion = new Region2D(new ScrollRange(0, 100), new ScrollRange(0, 100));
-            LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-1000, 1000);
-            LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-1000, 1000);
+            LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-50, 120);
+            LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-50, 600);
             var random = new Random();
             for (int i = 0; i < 100; i++)
             {

@@ -32,8 +32,7 @@
                                 </control:BitmapOpenTkControl>
                                 <interaction:MouseSelect VerticalAlignment="Stretch"
                                                          HorizontalAlignment="Stretch"
-                                                         x:Name="SelectScaleElement">
-                                </interaction:MouseSelect>
+                                                         x:Name="SelectScaleElement" />
                             </Grid>
                         </local:Coordinate2D>
                     </Border>

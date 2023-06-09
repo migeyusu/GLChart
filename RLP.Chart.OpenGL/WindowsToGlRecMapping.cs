@@ -15,21 +15,21 @@ namespace RLP.Chart.OpenGL
         private Rect _pixelRect; //像素区域
 
         private readonly double _xScaleRatio;
+        
         private readonly double _yScaleRatio;
-        private readonly ScrollRange _xScrollRange;
-        private readonly ScrollRange _yScrollRange;
+
+        private readonly Region2D _scrollRegion;
 
         public double XScaleRatio => _xScaleRatio;
 
         public double YScaleRatio => _yScaleRatio;
 
-        public WindowsToGlRecMapping(ScrollRange xScrollRange, ScrollRange yScrollRange, Rect pixelRect)
+        public WindowsToGlRecMapping(Region2D region2D, Rect pixelRect)
         {
-            this._xScrollRange = xScrollRange;
-            this._yScrollRange = yScrollRange;
+            _scrollRegion = region2D;
             this._pixelRect = pixelRect;
-            _xScaleRatio = xScrollRange.Range / pixelRect.Width;
-            _yScaleRatio = yScrollRange.Range / pixelRect.Height;
+            _xScaleRatio = region2D.XExtend / pixelRect.Width;
+            _yScaleRatio = region2D.YExtend / pixelRect.Height;
         }
 
         public double GetXOffset(double xPixelDistance)
@@ -52,26 +52,26 @@ namespace RLP.Chart.OpenGL
 
             newPixelRect.Intersect(_pixelRect);
             //wpf的窗体的y轴方向是反转的，而y轴坐标start也从bottom开始
-            var bottom = _yScrollRange.Start + (_pixelRect.Bottom - newPixelRect.Bottom) * YScaleRatio;
+            var bottom = _scrollRegion.Bottom + (_pixelRect.Bottom - newPixelRect.Bottom) * YScaleRatio;
             var top = bottom + newPixelRect.Height * YScaleRatio;
-            var left = _xScrollRange.Start + (newPixelRect.Left - _pixelRect.Left) * XScaleRatio;
+            var left = _scrollRegion.Left + (newPixelRect.Left - _pixelRect.Left) * XScaleRatio;
             var right = left + newPixelRect.Width * XScaleRatio;
             yRange = new ScrollRange(bottom, top);
             xRange = new ScrollRange(left, right);
         }
 
-        public Point GetWindowsPointByGLPoint(Point2D point)
+        public Point GetWindowsPointByGlPoint(Point2D point)
         {
-            var x = (point.X - _xScrollRange.Start) / XScaleRatio;
-            var y = (point.Y - _yScrollRange.Start) / YScaleRatio;
-            return new System.Windows.Point(x, _pixelRect.Height - y);
+            var x = (point.X - _scrollRegion.Left) / XScaleRatio;
+            var y = (point.Y - _scrollRegion.Bottom) / YScaleRatio;
+            return new Point(x, _pixelRect.Height - y);
         }
 
         public Point2D GetGlPointByWindowsPoint(Point winPoint)
         {
             winPoint.Y = _pixelRect.Height - winPoint.Y;
-            return new Point2D((float)(XScaleRatio * winPoint.X + _xScrollRange.Start),
-                (float)(YScaleRatio * winPoint.Y + _yScrollRange.Start));
+            return new Point2D((float)(XScaleRatio * winPoint.X + _scrollRegion.Left),
+                (float)(YScaleRatio * winPoint.Y + _scrollRegion.Bottom));
         }
     }
 }

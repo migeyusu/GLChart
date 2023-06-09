@@ -24,6 +24,10 @@ namespace RLP.Chart.Interface
 
         public ScrollRange XRange => new ScrollRange(this.Left, this.Right);
 
+        public double XExtend => Right - Left;
+
+        public double YExtend => Top - Bottom;
+
         public Region2D(double top, double bottom, double left, double right)
         {
             Top = top;
@@ -111,7 +115,7 @@ namespace RLP.Chart.Interface
             Top += y;
         }
 
-        public Region2D CreateOffset(double x, double y)
+        public Region2D OffsetNew(double x, double y)
         {
             return new Region2D(Top + y, Bottom + y, Left + x, Right + x);
         }

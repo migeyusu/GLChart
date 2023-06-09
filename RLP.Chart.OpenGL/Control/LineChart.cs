@@ -214,10 +214,6 @@ namespace RLP.Chart.OpenGL.Control
             _scaleElement = GetTemplateChild(SelectScaleElement) as MouseSelect;
             Debug.Assert(_scaleElement != null, nameof(_scaleElement) + " != null");
             _scaleElement.Selected += scaleElement_Scaled;
-            _scaleElement.MouseMove += _openTkControl_MouseMove;
-            _scaleElement.MouseLeave += _scaleElement_MouseLeave;
-            _scaleElement.MouseLeftButtonDown += _scaleElement_MouseLeftButtonDown;
-            _scaleElement.MouseLeftButtonUp += _scaleElement_MouseLeftButtonUp;
             _toolTip = new ToolTip()
             {
                 IsOpen = false,
@@ -296,27 +292,20 @@ namespace RLP.Chart.OpenGL.Control
 
         private Point _startMovePoint;
 
-        private bool _isMouseLeftButtonPressed;
-
         private Region2D _startMoveRegion;
 
-        private void _scaleElement_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            _isMouseLeftButtonPressed = false;
-        }
-
-        private void _scaleElement_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            _isMouseLeftButtonPressed = true;
+            base.OnMouseLeftButtonDown(e);
             _startMovePoint = e.GetPosition(OpenTkControl);
             _startMoveRegion = this.ActualRegion;
         }
 
         private ToolTip _toolTip;
 
-        private void _scaleElement_MouseLeave(object sender, MouseEventArgs e)
+        protected override void OnMouseLeave(MouseEventArgs e)
         {
-            _isMouseLeftButtonPressed = false;
+            base.OnMouseLeave(e);
             if (_toolTip.IsOpen)
             {
                 _toolTip.IsOpen = false;
@@ -325,52 +314,59 @@ namespace RLP.Chart.OpenGL.Control
 
         private readonly CollisionGridPoint2D _nodeGrid = new CollisionGridPoint2D();
 
-        private void _openTkControl_MouseMove(object sender, MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
             var position = e.GetPosition(OpenTkControl); //像素
             var coordinateRegion = this.ActualRegion;
-            var xRange = coordinateRegion.XRange;
-            var yRange = coordinateRegion.YRange;
             var winToGlMapping =
-                new WindowsToGlRecMapping(xRange, yRange, new Rect(OpenTkControl.RenderSize));
-            if (_isMouseLeftButtonPressed)
+                new WindowsToGlRecMapping(coordinateRegion, new Rect(OpenTkControl.RenderSize));
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var xPixel = _startMovePoint.X - position.X;
-                var xOffset = winToGlMapping.GetXOffset(xPixel);
                 if (this._coordinateRenderer.AutoYAxisEnable)
                 {
                     this.IsAutoYAxisEnable = false;
                 }
+
+                var xPixel = _startMovePoint.X - position.X;
+                var xOffset = winToGlMapping.GetXOffset(xPixel);
                 var yPixel = _startMovePoint.Y - position.Y;
                 var yOffset = winToGlMapping.GetYOffset(-yPixel);
-                var region = _startMoveRegion.CreateOffset(xOffset, yOffset);
+                var newRegion = _startMoveRegion.OffsetNew(xOffset, yOffset);
                 var xZoomBoundary = AxisXOption.ZoomBoundary;
-                var regionXRange = region.XRange;
-                if (regionXRange.End > xZoomBoundary.End)
+                var right = xZoomBoundary.End;
+                var start = xZoomBoundary.Start;
+                var xExtend = newRegion.XExtend;
+                if (newRegion.Right > right)
                 {
-                    regionXRange.WithEnd(xZoomBoundary.End);
-                    // region.ChangeXRange(xRange);
+                    var xStart = right - xExtend;
+                    newRegion.SetLeft(xStart);
+                    newRegion.SetRight(right);
                 }
-                else if (regionXRange.Start < xZoomBoundary.Start)
+                else if (newRegion.Left < start)
                 {
-                    regionXRange.WithStart(xZoomBoundary.Start);
-                    // region.ChangeXRange(xRange);
-                }
-
-                var yZoomBoundary = AxisXOption.ZoomBoundary;
-                var regionYRange = region.YRange;
-                if (regionYRange.End > yZoomBoundary.End)
-                {
-                    regionYRange.WithEnd(yZoomBoundary.End);
-                    // region.ChangeYRange(yRange);
-                }
-                else if (regionYRange.Start < yZoomBoundary.Start)
-                {
-                    regionYRange.WithStart(yZoomBoundary.Start);
-                    // region.ChangeYRange(yRange);
+                    var xEnd = start + xExtend;
+                    newRegion.SetLeft(start);
+                    newRegion.SetRight(xEnd);
                 }
 
-                this.SettingRegion = new Region2D(regionXRange, regionYRange);
+                var yZoomBoundary = AxisYOption.ZoomBoundary;
+                var end = yZoomBoundary.End;
+                var bottom = yZoomBoundary.Start;
+                var yExtend = newRegion.YExtend;
+                if (newRegion.Top > end)
+                {
+                    var yStart = end - yExtend;
+                    newRegion.SetTop(end);
+                    newRegion.SetBottom(yStart);
+                }
+                else if (newRegion.Bottom < bottom)
+                {
+                    var yEnd = bottom + yExtend;
+                    newRegion.SetBottom(bottom);
+                    newRegion.SetTop(yEnd);
+                }
+
+                this.SettingRegion = newRegion;
             }
             else
             {
@@ -383,7 +379,7 @@ namespace RLP.Chart.OpenGL.Control
                     if (!_popupNode.Equals(point))
                     {
                         _popupNode = point;
-                        var winPoint = winToGlMapping.GetWindowsPointByGLPoint(point.Point);
+                        var winPoint = winToGlMapping.GetWindowsPointByGlPoint(point.Point);
                         var seriesItem = _items.First((item => item.CollisionLayer.Equals(layer)));
                         _toolTip.HorizontalOffset = winPoint.X + 10;
                         _toolTip.VerticalOffset = winPoint.Y + 10;
@@ -407,11 +403,10 @@ namespace RLP.Chart.OpenGL.Control
             }
         }
 
-
         private void scaleElement_Scaled(object sender, SelectionArgs e)
         {
             var oldRegion = this.ActualRegion;
-            var scale = new WindowsToGlRecMapping(oldRegion.XRange, oldRegion.YRange, e.FullRect);
+            var scale = new WindowsToGlRecMapping(oldRegion, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
             var newRegion = new Region2D(xRange, yRange);
             if (this._coordinateRenderer.AutoYAxisEnable)

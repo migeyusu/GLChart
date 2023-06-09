@@ -67,5 +67,10 @@ namespace RLP.Chart.Interface
                 return (Start.GetHashCode() * 397) ^ End.GetHashCode();
             }
         }
+
+        public override string ToString()
+        {
+            return $"Start:{Start},End:{End}";
+        }
     }
 }
