@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using GLChart.Interface;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
-using RLP.Chart.Interface;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /*2021.12.22：
      已知问题：不能设置零一下的Y轴起点*/

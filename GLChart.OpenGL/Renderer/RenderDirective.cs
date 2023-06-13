@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /// <summary>
     /// 绘制指令

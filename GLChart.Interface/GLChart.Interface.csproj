@@ -8,7 +8,7 @@
     <Product>RLP.Chart.Interface</Product>
     <Copyright>Copyright © HP Inc. 2021</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <RootNamespace>RLP.Chart.Interface</RootNamespace>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>

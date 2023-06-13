@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     /// <summary>
     /// 碰撞网格

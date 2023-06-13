@@ -11,7 +11,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWPF>true</UseWPF>
-    <RootNamespace>RLP.Chart.OpenGL</RootNamespace>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -31,7 +31,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RLP.Chart.Interface\RLP.Chart.Interface.csproj" />
+    <ProjectReference Include="..\GLChart.Interface\GLChart.Interface.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.5" />

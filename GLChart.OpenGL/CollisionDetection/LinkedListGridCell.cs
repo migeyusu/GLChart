@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RLP.Chart.OpenGL.Collection;
-using RLP.Chart.OpenGL.Renderer;
+using GLChart.OpenTK.Collection;
+using GLChart.OpenTK.Renderer;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public class LinkedListGridCell : ICollisionCell
     {

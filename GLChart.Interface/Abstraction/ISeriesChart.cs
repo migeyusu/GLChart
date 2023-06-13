@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RLP.Chart.Interface.Abstraction
+namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 可渲染系列的图表,一个系列表示可绘制的一类几何体。

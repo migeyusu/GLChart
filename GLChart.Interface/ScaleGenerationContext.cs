@@ -1,7 +1,6 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// context used to generate scale 

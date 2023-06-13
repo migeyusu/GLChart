@@ -1,7 +1,7 @@
 ﻿using System;
-using RLP.Chart.Interface;
+using GLChart.Interface;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public readonly struct AxisSegment
     {

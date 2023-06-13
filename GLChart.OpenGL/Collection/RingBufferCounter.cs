@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RLP.Chart.OpenGL.Collection
+namespace GLChart.OpenTK.Collection
 {
     /// <summary>
     /// 针对数组类型的环形缓冲索引指示器，和缓冲不绑定

@@ -3,10 +3,10 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using GLChart.OpenTK.Control;
 using Microsoft.Xaml.Behaviors;
-using RLP.Chart.OpenGL.Control;
 
-namespace RLP.Chart.OpenGL.Interaction
+namespace GLChart.OpenTK.Interaction
 {
     public class SelectScaleAttach : Behavior<UIElement>
     {

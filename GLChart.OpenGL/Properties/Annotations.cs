@@ -32,7 +32,7 @@ using System;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace RLP.Chart.OpenGL.Properties
+namespace GLChart.OpenTK.Properties
 {
   /// <summary>
   /// Indicates that the value of the marked element could be <c>null</c> sometimes,

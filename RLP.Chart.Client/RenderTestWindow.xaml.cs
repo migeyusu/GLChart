@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using OpenTK;
-using OpenTK.Graphics;
+using GLChart.Interface.Abstraction;
+using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
-using RLP.Chart.Interface.Abstraction;
-using RLP.Chart.OpenGL.Renderer;
 using Color = System.Drawing.Color;
 
-namespace RLP.Chart.Client
+namespace GLChart.Samples
 {
     /// <summary>
     /// TestWindow.xaml 的交互逻辑

@@ -1,9 +1,9 @@
 ﻿using System;
+using GLChart.OpenTK.Abstraction;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
-using RLP.Chart.OpenGL.Abstraction;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /// <summary>
     /// 基础渲染器

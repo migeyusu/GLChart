@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.Interface.Abstraction
+﻿namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 通道

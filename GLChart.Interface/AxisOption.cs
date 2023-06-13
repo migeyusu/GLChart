@@ -4,9 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using RLP.Chart.Interface.Abstraction;
+using GLChart.Interface.Abstraction;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     public class AxisOption
     {

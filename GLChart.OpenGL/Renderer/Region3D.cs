@@ -1,6 +1,6 @@
-﻿using RLP.Chart.Interface;
+﻿using GLChart.Interface;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     public struct Region3D
     {

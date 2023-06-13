@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Media;
-using RLP.Chart.Interface;
-using RLP.Chart.OpenGL.Collection;
+using GLChart.Interface;
+using GLChart.OpenTK.Collection;
 
-namespace RLP.Chart.OpenGL.Control
+namespace GLChart.OpenTK.Control
 {
     public class YAxisElement : AxisElement
     {

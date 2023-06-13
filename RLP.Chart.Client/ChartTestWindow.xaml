@@ -1,15 +1,14 @@
-﻿<Window x:Class="RLP.Chart.Client.ChartTestWindow"
+﻿<Window x:Class="GLChart.Samples.ChartTestWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:RLP.Chart.Client"
-        xmlns:control="clr-namespace:RLP.Chart.OpenGL.Control;assembly=RLP.Chart.OpenGL"
+        xmlns:control1="clr-namespace:GLChart.OpenTK.Control;assembly=GLChart.OpenTK"
         mc:Ignorable="d"
         Loaded="ChartTestWindow_OnLoaded"
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
-        <control:LineChart
+        <control1:LineChart
             x:Name="LineChart" />
         <Button Click="ButtonBase_OnClick"
                 Height="40"

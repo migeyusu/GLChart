@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 
-namespace RLP.Chart.Client
+namespace GLChart.Samples
 { 
     class Program
     {
@@ -10,6 +10,7 @@ namespace RLP.Chart.Client
         {
             var application = new Application();
             application.Run(new ChartTestWindow());
+            application.Shutdown();
         }
     }
 }

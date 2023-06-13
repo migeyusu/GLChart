@@ -1,8 +1,8 @@
 ﻿using System;
+using GLChart.OpenTK.Renderer;
 using OpenTkWPFHost.Abstraction;
-using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL.Abstraction
+namespace GLChart.OpenTK.Abstraction
 {
     /// <summary>
     /// （基于坐标系的）渲染项

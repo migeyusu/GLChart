@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// 固定值间距，表现为放大时间距变大，增大range时刻度变多

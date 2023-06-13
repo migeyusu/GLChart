@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using RLP.Chart.OpenGL.Renderer;
 
-
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public class CollisionGridPoint2D
     {

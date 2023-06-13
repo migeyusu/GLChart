@@ -4,25 +4,24 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using GLChart.Interface;
+using GLChart.Interface.Abstraction;
+using GLChart.OpenTK.CollisionDetection;
+using GLChart.OpenTK.Interaction;
+using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
 using OpenTkWPFHost.Control;
 using OpenTkWPFHost.Core;
-using RLP.Chart.Interface;
-using RLP.Chart.Interface.Abstraction;
-using RLP.Chart.OpenGL.CollisionDetection;
-using RLP.Chart.OpenGL.Interaction;
-using RLP.Chart.OpenGL.Renderer;
 using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
 using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
 
-namespace RLP.Chart.OpenGL.Control
+namespace GLChart.OpenTK.Control
 {
     /// <summary>
     /// 基于2d xy坐标系的图

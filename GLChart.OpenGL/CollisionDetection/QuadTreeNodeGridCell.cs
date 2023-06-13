@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public class QuadTreeNodeGridCell : ICollisionCell
     {

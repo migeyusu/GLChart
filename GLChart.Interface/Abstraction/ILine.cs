@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace RLP.Chart.Interface.Abstraction
+namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 表示线条

@@ -1,6 +1,6 @@
-﻿using RLP.Chart.Interface;
+﻿using GLChart.Interface;
 
-namespace RLP.Chart.OpenGL.Interaction
+namespace GLChart.OpenTK.Interaction
 {
     public static class MouseWheelScaleExtension
     {

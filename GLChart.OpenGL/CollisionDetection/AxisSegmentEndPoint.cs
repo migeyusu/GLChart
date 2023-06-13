@@ -1,6 +1,6 @@
 ﻿
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public readonly struct AxisSegmentEndPoint
     {

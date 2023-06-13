@@ -2,9 +2,9 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using RLP.Chart.OpenGL.Control;
+using GLChart.OpenTK.Control;
 
-namespace RLP.Chart.OpenGL.Interaction
+namespace GLChart.OpenTK.Interaction
 {
     public class MouseSelect : FrameworkElement
     {

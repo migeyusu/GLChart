@@ -1,7 +1,7 @@
-﻿using RLP.Chart.Interface.Abstraction;
-using RLP.Chart.OpenGL.Renderer;
+﻿using GLChart.Interface.Abstraction;
+using GLChart.OpenTK.Renderer;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     public interface ICollisionGeometry2D : IGeometry
     {

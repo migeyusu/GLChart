@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.Interface.Abstraction
+﻿namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 二维点，可以通过继承该接口暴露二维信息

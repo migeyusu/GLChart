@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace RLP.Chart.OpenGL.Interaction
+namespace GLChart.OpenTK.Interaction
 {
     public class SelectionArgs
     {

@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.Interface
+﻿namespace GLChart.Interface
 {
     /// <summary>
     /// 轴刻度

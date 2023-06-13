@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RLP.Chart.Interface.Abstraction
+namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 集合体的集合

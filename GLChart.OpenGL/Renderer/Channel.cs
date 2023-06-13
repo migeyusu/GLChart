@@ -1,6 +1,6 @@
-﻿using RLP.Chart.Interface.Abstraction;
+﻿using GLChart.Interface.Abstraction;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     public struct Channel : IChannel
     {

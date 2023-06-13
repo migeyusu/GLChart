@@ -1,8 +1,8 @@
 ﻿using System;
-using RLP.Chart.Interface.Abstraction;
-using RLP.Chart.OpenGL.CollisionDetection;
+using GLChart.Interface.Abstraction;
+using GLChart.OpenTK.CollisionDetection;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /// <summary>
     /// 2d 点

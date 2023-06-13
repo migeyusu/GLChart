@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     
     /// <summary>

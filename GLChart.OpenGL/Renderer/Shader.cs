@@ -4,7 +4,7 @@ using System.IO;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     // A simple class meant to help create shaders.
     public class Shader

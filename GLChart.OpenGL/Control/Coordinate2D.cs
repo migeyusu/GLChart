@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using RLP.Chart.Interface;
+using GLChart.Interface;
 
-namespace RLP.Chart.OpenGL.Control
+namespace GLChart.OpenTK.Control
 {
     /// <summary>
     /// 基于wpf的2d坐标轴和网格绘制

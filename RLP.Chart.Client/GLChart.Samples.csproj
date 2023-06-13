@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<OutputType>WinExe</OutputType>
-		<StartupObject>RLP.Chart.Client.Program</StartupObject>
+		<StartupObject>GLChart.Samples.Program</StartupObject>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.OpenGL.csproj" />
+	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.OpenTK.csproj" />
 	</ItemGroup>
 
 </Project>

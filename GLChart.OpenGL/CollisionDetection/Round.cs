@@ -1,7 +1,7 @@
 ﻿using System;
-using RLP.Chart.OpenGL.Renderer;
+using GLChart.OpenTK.Renderer;
 
-namespace RLP.Chart.OpenGL.CollisionDetection
+namespace GLChart.OpenTK.CollisionDetection
 {
     /// <summary>
     /// 用于碰撞检测的圆形

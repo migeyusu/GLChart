@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.OpenGL.Renderer
+﻿namespace GLChart.OpenTK.Renderer
 {
     public class GPUBufferRegion<TK> where TK : struct
     {

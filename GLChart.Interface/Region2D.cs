@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Security.Cryptography;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// 表示图标坐标系区域，和windows的<see cref="System.Windows.Rect"/>相反：top为高点，bottom为低点

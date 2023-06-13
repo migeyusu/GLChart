@@ -1,6 +1,6 @@
-﻿using RLP.Chart.OpenGL.Renderer;
+﻿using GLChart.OpenTK.Renderer;
 
-namespace RLP.Chart.OpenGL.Abstraction
+namespace GLChart.OpenTK.Abstraction
 {
     /// <summary>
     /// 可绑定着色器的渲染器

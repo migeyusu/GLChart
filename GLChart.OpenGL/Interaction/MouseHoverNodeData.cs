@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
-using RLP.Chart.Interface.Abstraction;
+using GLChart.Interface.Abstraction;
 
-namespace RLP.Chart.OpenGL.Interaction
+namespace GLChart.OpenTK.Interaction
 {
     public class MouseHoverNodeData
     {

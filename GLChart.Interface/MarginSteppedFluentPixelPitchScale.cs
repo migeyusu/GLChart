@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     public class MarginSteppedFluentPixelPitchScale : CountBasedScaleGenerator
     {

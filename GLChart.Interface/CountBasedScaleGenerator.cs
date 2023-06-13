@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-using RLP.Chart.Interface.Abstraction;
+using GLChart.Interface.Abstraction;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// 利用子类提供的线条数量的刻度生成器

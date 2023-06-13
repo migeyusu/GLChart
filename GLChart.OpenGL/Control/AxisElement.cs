@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Media;
-using RLP.Chart.Interface;
+using GLChart.Interface;
 
-namespace RLP.Chart.OpenGL.Control
+namespace GLChart.OpenTK.Control
 {
     /// <summary>
     /// 绘制坐标轴的图层

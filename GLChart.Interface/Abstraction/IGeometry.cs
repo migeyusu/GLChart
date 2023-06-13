@@ -1,4 +1,4 @@
-﻿namespace RLP.Chart.Interface.Abstraction
+﻿namespace GLChart.Interface.Abstraction
 {
     /// <summary>
     /// 所有几何体的基础接口

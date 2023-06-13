@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using GLChart.Interface;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
-using RLP.Chart.Interface;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /// <summary>
     /// 基于3d 坐标轴的渲染器

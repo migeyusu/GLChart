@@ -4,12 +4,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using GLChart.OpenTK.Abstraction;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
-using RLP.Chart.OpenGL.Abstraction;
 
-namespace RLP.Chart.OpenGL.Renderer
+namespace GLChart.OpenTK.Renderer
 {
     /// <summary>
     /// 着色器渲染集合，管理同类渲染器

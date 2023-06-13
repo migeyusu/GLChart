@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLP.Chart.Interface", "RLP.Chart.Interface\RLP.Chart.Interface.csproj", "{D496772A-5045-4CE5-96AF-81540EBCB461}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Interface", "GLChart.Interface\GLChart.Interface.csproj", "{D496772A-5045-4CE5-96AF-81540EBCB461}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLP.Chart.OpenGL", "RLP.Chart.OpenGL\RLP.Chart.OpenGL.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.OpenTK", "GLChart.OpenGL\GLChart.OpenTK.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RLP.Chart.Client", "RLP.Chart.Client\RLP.Chart.Client.csproj", "{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Samples", "RLP.Chart.Client\GLChart.Samples.csproj", "{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

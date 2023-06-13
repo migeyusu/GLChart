@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using OpenTK;
+using GLChart.Interface;
+using GLChart.Interface.Abstraction;
+using GLChart.OpenTK.CollisionDetection;
+using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
-using RLP.Chart.Interface;
-using RLP.Chart.Interface.Abstraction;
-using RLP.Chart.OpenGL.CollisionDetection;
-using RLP.Chart.OpenGL.Renderer;
 
-namespace RLP.Chart.OpenGL
+namespace GLChart.OpenTK
 {
     public static class GeometryExtension
     {

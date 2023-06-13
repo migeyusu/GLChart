@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Drawing;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
-using FontFamily = System.Windows.Media.FontFamily;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// 坐标轴渲染参数

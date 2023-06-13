@@ -2,9 +2,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
-    xmlns:local="clr-namespace:RLP.Chart.OpenGL.Control"
-    xmlns:interaction="clr-namespace:RLP.Chart.OpenGL.Interaction"
-    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost">
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
+    xmlns:local="clr-namespace:GLChart.OpenTK.Control"
+    xmlns:interaction="clr-namespace:GLChart.OpenTK.Interaction">
 
     <Style TargetType="{x:Type local:LineChart}">
         <Setter Property="Template">

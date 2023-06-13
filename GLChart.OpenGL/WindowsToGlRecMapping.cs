@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Windows;
-using OpenTK.Input;
-using RLP.Chart.Interface;
-using RLP.Chart.OpenGL.Renderer;
+using GLChart.Interface;
+using GLChart.OpenTK.Renderer;
 
-namespace RLP.Chart.OpenGL
+namespace GLChart.OpenTK
 {
     //todo：性能优化
     /// <summary>

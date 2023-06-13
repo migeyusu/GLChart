@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     /// <summary>
     /// 滚动范围

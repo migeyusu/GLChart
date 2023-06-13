@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using RLP.Chart.OpenGL.Renderer;
+﻿using System.Text;
+using GLChart.OpenTK.Renderer;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace RLP.Chart.Client.UnitTest
+namespace GLChart.Samples.UnitTest
 {
     public class Channel
     {

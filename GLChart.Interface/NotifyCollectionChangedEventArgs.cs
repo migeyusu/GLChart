@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Data.Common;
-using System.Diagnostics;
 
-namespace RLP.Chart.Interface
+namespace GLChart.Interface
 {
     public class NotifyCollectionChangedEventArgs<T> : EventArgs
     {
