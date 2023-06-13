@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
 
 namespace RLP.Chart.OpenGL.Renderer
 {
+    /*2021.12.22：
+     已知问题：不能设置零一下的Y轴起点*/
+
     /// <summary>
     /// 基于2d 坐标轴的渲染器；
     /// 能够自适应内容高度
     /// </summary>
-    public class AutoHeight2DRenderer : Coordinate2DRenderer
+    public class Coordinate2DRenderer : IRenderer
     {
         /// <summary>
         /// 事件在非UI线程上被调用,actual region变化时触发。
@@ -31,20 +34,28 @@ namespace RLP.Chart.OpenGL.Renderer
         public Func<int, ScrollRange> SamplingFunction { get; set; }
 
         /// <summary>
-        /// 是否自动适配Y轴顶点
+        /// 是否适配Y轴顶点正在执行
         /// </summary>
-        public bool AutoYAxisEnable { get; set; } = true;
+        public bool AutoYAxisWorking
+        {
+            get => _autoYAxisWorking;
+            set
+            {
+                if (_autoYAxisEnable)
+                {
+                    _autoYAxisWorking = value;
+                }
+                else
+                {
+                    throw new Exception($"Cannot set {nameof(AutoYAxisWorking)} property.");
+                }
+            }
+        }
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
         /// </summary>
         public ScrollRange DefaultAxisYRange { get; set; } = new ScrollRange(0, 100);
-
-        public const float AutoAxisYContentRatio = 0.8f;
-
-        public const float AutoAxisYContentRatioAccuracy = 0.05f;
-
-        private Region2D _actualRegion;
 
         /// <summary>
         /// 当前渲染器的实际坐标，如果自动高度，<see cref="ActualRegion"/>和<see cref="TargetRegion"/>会不同
@@ -83,6 +94,10 @@ namespace RLP.Chart.OpenGL.Renderer
             }
         }
 
+        private Matrix4 _tempTransform = Matrix4.Identity;
+
+        private Region2D _renderingRegion = default;
+
         private Region2D RenderingRegion
         {
             get => _renderingRegion;
@@ -110,17 +125,38 @@ namespace RLP.Chart.OpenGL.Renderer
         private const int YAxisCastSSBOLength = 300;
 
         /// <summary>
+        /// 指示是否正在自适应地调整高度
+        /// </summary>
+        private volatile bool _isHeightAutoAdapting;
+
+        /// <summary>
         /// 基于ndc的y轴投影计量缓冲
         /// </summary>
-        private int _yAxisCastSsbo;
+        private int YAxisCastSSSBO;
 
         private readonly int[] _yAxisRaster = new int[YAxisCastSSBOLength];
 
         private readonly int[] _emptySsboBuffer = new int[YAxisCastSSBOLength];
 
+        public const float AutoAxisYContentRatio = 0.8f;
 
-        public AutoHeight2DRenderer(IList<BaseRenderer> renderSeriesCollection) : base(renderSeriesCollection)
+        public const float AutoAxisYContentRatioAccuracy = 0.05f;
+
+        private Region2D _actualRegion;
+
+        public Color4 BackgroundColor { get; set; } = Color4.White;
+
+        public IReadOnlyCollection<BaseRenderer> Series =>
+            new ReadOnlyCollection<BaseRenderer>(RenderSeriesCollection);
+
+        protected readonly IList<BaseRenderer> RenderSeriesCollection;
+        private readonly bool _autoYAxisEnable;
+
+        public Coordinate2DRenderer(IList<BaseRenderer> renderSeriesCollection, bool autoYAxisEnable = true)
         {
+            RenderSeriesCollection = renderSeriesCollection;
+            _autoYAxisEnable = autoYAxisEnable;
+            _autoYAxisWorking = autoYAxisEnable;
         }
 
         private static Matrix4 GetTransform(Region2D value)
@@ -129,14 +165,16 @@ namespace RLP.Chart.OpenGL.Renderer
             var xScale = 2f / (value.Right - value.Left);
             var yScale = 2f / (value.Top - value.Bottom);
             transform *= Matrix4.CreateScale((float)xScale,
-                (float)yScale, 0f);
+                (float)yScale, 0);
             var xStart = xScale * value.Left;
             var yStart = yScale * value.Bottom;
             transform *= Matrix4.CreateTranslation((float)(-1 - xStart), (float)(-1 - yStart), 0);
             return transform;
         }
 
-        public override void Initialize(IGraphicsContext context)
+        protected IGraphicsContext Context;
+
+        public virtual void Initialize(IGraphicsContext context)
         {
             if (IsInitialized)
             {
@@ -150,24 +188,26 @@ namespace RLP.Chart.OpenGL.Renderer
                 coordinateRendererSeries.Initialize(context);
             }
 
-            _yAxisCastSsbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSsbo);
-            GL.BufferData<int>(BufferTarget.ShaderStorageBuffer, _yAxisRaster.Length * sizeof(int), _yAxisRaster,
-                BufferUsageHint.DynamicDraw);
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _yAxisCastSsbo);
+            if (_autoYAxisEnable)
+            {
+                YAxisCastSSSBO = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
+                GL.BufferData<int>(BufferTarget.ShaderStorageBuffer, _yAxisRaster.Length * sizeof(int), _yAxisRaster,
+                    BufferUsageHint.DynamicDraw);
+                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, YAxisCastSSSBO);
+            }
+
             IsInitialized = true;
         }
 
-        /// <summary>
-        /// 指示是否正在自适应地调整高度
-        /// </summary>
-        private volatile bool _isHeightAutoAdapting;
+        private Region2D _lastTargetRegion;
+        private bool _autoYAxisWorking;
 
         /// <summary>
         /// 渲染的准备阶段，初始化、检查渲染快照变更和刷新缓冲区
         /// </summary>
         /// <returns></returns>
-        public override bool PreviewRender()
+        public virtual bool PreviewRender()
         {
             var regionChanged = false;
             if (!_lastTargetRegion.Equals(_targetRegion))
@@ -175,7 +215,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 regionChanged = true;
                 _lastTargetRegion = _targetRegion;
                 RenderingRegion = _targetRegion;
-                _isHeightAutoAdapting = AutoYAxisEnable;
+                _isHeightAutoAdapting = AutoYAxisWorking;
             }
 
             var renderEnable = _isHeightAutoAdapting || regionChanged;
@@ -206,18 +246,12 @@ namespace RLP.Chart.OpenGL.Renderer
             return renderEnable;
         }
 
-        private Matrix4 _tempTransform = Matrix4.Identity;
-
-        private Region2D _lastTargetRegion;
-
-        private Region2D _renderingRegion = default;
-
         /// <summary>
         /// render不运行在UI线程上，所以基本思路是:当非自动Y轴时，每次设置区域都变为最终区域，更新transform；
         /// 当为自动时，设置后指示已更新，但是不更新transform，render线程负责维护
         /// </summary>
         /// <param name="args"></param>
-        public override void Render(GlRenderEventArgs args)
+        public virtual void Render(GlRenderEventArgs args)
         {
             GL.ClearColor(BackgroundColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -231,12 +265,12 @@ namespace RLP.Chart.OpenGL.Renderer
 
             if (_isHeightAutoAdapting)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSsbo);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
                     _emptySsboBuffer.Length * sizeof(int),
                     _emptySsboBuffer);
             }
-
+            
             foreach (var seriesItem in _rendererSeriesSnapList)
             {
                 seriesItem.ApplyDirective(new RenderDirective2D() { Transform = _tempTransform });
@@ -246,7 +280,7 @@ namespace RLP.Chart.OpenGL.Renderer
             // _renderRegionChanged = false;
             if (_isHeightAutoAdapting)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSsbo);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
                 var ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
                 Marshal.Copy(ptr, _yAxisRaster, 0, _yAxisRaster.Length);
                 GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
@@ -298,6 +332,21 @@ namespace RLP.Chart.OpenGL.Renderer
 
             #endregion
         }
+
+        public virtual void Resize(PixelSize size)
+        {
+            GL.Viewport(0, 0, size.Width, size.Height);
+        }
+
+        public virtual void Uninitialize()
+        {
+            foreach (var coordinateRendererSeries in RenderSeriesCollection)
+            {
+                coordinateRendererSeries.Uninitialize();
+            }
+        }
+
+        public bool IsInitialized { get; protected set; }
 
         protected virtual void OnActualRegionChanged(Region2D obj)
         {

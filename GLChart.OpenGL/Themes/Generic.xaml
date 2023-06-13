@@ -28,7 +28,7 @@
                                                                  IsShowFps="{TemplateBinding IsShowFps}"
                                                                  x:Name="ThreadOpenTkControl">
                                         <control:BitmapOpenTkControl.RenderSetting>
-                                            <configuration:RenderSetting RenderTactic="Default" />
+                                            <configuration:RenderSetting RenderTactic="LatencyPriority" />
                                         </control:BitmapOpenTkControl.RenderSetting>
                                     </control:BitmapOpenTkControl>
                                 </Grid>

@@ -20,28 +20,12 @@ namespace RLP.Chart.OpenGL.Renderer
         private Func<T, TK[]> _modelToFloatsMapping;
 
         /// <summary>
-        /// 有效填充区域
+        /// 有效填充区域，第一段为索引更大的部分
         /// </summary>
         public IList<RingBufferCounter.Region> EffectRegions
         {
-            get => _effectRegions;
-            set
-            {
-                _effectRegions = value;
-                /*if (value != null && value.Any())
-                {
-                    this.RightRegion = value[0];
-                    if (value.Count > 1)
-                    {
-                        this.LeftRegion = value[1];
-                    }
-                }*/
-            }
+            get => _ringBufferCounter.ContiguousRegions.ToArray();
         }
-
-        /*public RingBufferCounter.Region? RightRegion { get; set; }
-
-        public RingBufferCounter.Region? LeftRegion { get; set; }*/
 
         /// <summary>
         /// 最大实体数量
@@ -72,8 +56,6 @@ namespace RLP.Chart.OpenGL.Renderer
 
         private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs<T>> _changedEventArgsQueue =
             new ConcurrentQueue<NotifyCollectionChangedEventArgs<T>>();
-
-        private IList<RingBufferCounter.Region> _effectRegions;
 
         /// <summary>
         /// 分配空间
@@ -121,7 +103,6 @@ namespace RLP.Chart.OpenGL.Renderer
                         break;
                     case NotifyCollectionChangedAction.Reset:
                         RecentModelCount = 0; //重设计数器，但是不需要清空缓存
-                        EffectRegions = null;
                         _ringBufferCounter.Reset();
                         finalArgs = result;
                         break;
@@ -146,6 +127,11 @@ namespace RLP.Chart.OpenGL.Renderer
     当首次启动时，缓冲从1位置开始，_123…………；
     当越过末尾缓冲时，ringbuffer变为 9910023…………*/
 
+        /*考虑两种种更新情况：
+ 1. head tail都在区间内，此时正常更新
+ 2. 只要head触及array末端，拷贝延长一个点，在环形开始处提前一个点。
+        但是，如果恰好一次更新刚好位于结尾，两个区域将没有直接联系，所以拷贝的方式为：在前后两个额外索引位拷贝两次最后一个点位
+所以，全局刷新也需要延长、提前拷贝；所有的更新必须使用映射地址。*/
         /// <summary>
         /// 将待添加的模型转换为gpu缓冲需要更新的区域
         /// </summary>
@@ -156,7 +142,6 @@ namespace RLP.Chart.OpenGL.Renderer
             long pendingPointsCount = appendModels.Count;
             var bufferLength = pendingPointsCount * _modelSize;
             var dirtRegions = _ringBufferCounter.AddDifference((uint)bufferLength).ToArray(); //防止重复添加
-            this.EffectRegions = _ringBufferCounter.ContiguousRegions.ToArray();
             this.RecentModelCount = (uint)(_ringBufferCounter.Length / _modelSize);
             var firstDirtRegion = dirtRegions[0];
             var firstDirtRegionLength = firstDirtRegion.Length;
@@ -167,7 +152,7 @@ namespace RLP.Chart.OpenGL.Renderer
                 High = firstDirtRegion.Head + _modelSize,
                 Data = floats
             };
-            //表示脏区域已经达到或跨过环形缓冲
+            //重置拷贝起始，表示脏区域已经达到或跨过环形缓冲而丢弃一些数据
             int pointIndex = 0;
             if (pendingPointsCount > _maxModelCount)
             {

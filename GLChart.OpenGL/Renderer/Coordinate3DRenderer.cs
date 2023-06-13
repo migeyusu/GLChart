@@ -1,18 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Microsoft.Xaml.Behaviors;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
 using RLP.Chart.Interface;
-using Buffer = System.Buffer;
 
 namespace RLP.Chart.OpenGL.Renderer
 {

@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="OpenTkWPFHost" Version="4.0.0" />
+	  <PackageReference Include="OpenTkWPFHost" Version="4.1.0" />
 	  <PackageReference Include="xunit" Version="2.4.1" />
 	</ItemGroup>
 
@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\RLP.Chart.OpenGL\RLP.Chart.OpenGL.csproj" />
+	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.OpenGL.csproj" />
 	</ItemGroup>
 
 </Project>

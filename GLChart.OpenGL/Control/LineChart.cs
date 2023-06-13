@@ -180,7 +180,7 @@ namespace RLP.Chart.OpenGL.Control
             set => SetValue(IsShowFpsProperty, value);
         }
 
-        private readonly AutoHeight2DRenderer _coordinateRenderer;
+        private readonly Coordinate2DRenderer _coordinateRenderer;
 
         #endregion
 
@@ -191,10 +191,10 @@ namespace RLP.Chart.OpenGL.Control
         public LineChart()
         {
             var color = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
-            _coordinateRenderer = new AutoHeight2DRenderer(new BaseRenderer[] { LineSeriesRenderer })
+            _coordinateRenderer = new Coordinate2DRenderer(new BaseRenderer[] { LineSeriesRenderer })
             {
                 BackgroundColor = new Color4(color.A, color.R, color.G, color.B),
-                AutoYAxisEnable = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue,
+                AutoYAxisWorking = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue,
                 DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
                 TargetRegion = (Region2D)SettingRegionProperty.DefaultMetadata.DefaultValue
             };
@@ -257,7 +257,7 @@ namespace RLP.Chart.OpenGL.Control
         {
             if (d is LineChart lineChart)
             {
-                lineChart._coordinateRenderer.AutoYAxisEnable = (bool)e.NewValue;
+                lineChart._coordinateRenderer.AutoYAxisWorking = (bool)e.NewValue;
             }
         }
 
@@ -322,7 +322,7 @@ namespace RLP.Chart.OpenGL.Control
                 new WindowsToGlRecMapping(coordinateRegion, new Rect(OpenTkControl.RenderSize));
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (this._coordinateRenderer.AutoYAxisEnable)
+                if (this._coordinateRenderer.AutoYAxisWorking)
                 {
                     this.IsAutoYAxisEnable = false;
                 }
@@ -409,7 +409,7 @@ namespace RLP.Chart.OpenGL.Control
             var scale = new WindowsToGlRecMapping(oldRegion, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
             var newRegion = new Region2D(xRange, yRange);
-            if (this._coordinateRenderer.AutoYAxisEnable)
+            if (this._coordinateRenderer.AutoYAxisWorking)
             {
                 this.IsAutoYAxisEnable = false;
             }

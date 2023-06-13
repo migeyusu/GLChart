@@ -1,6 +1,4 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
 namespace RLP.Chart.OpenGL.Renderer

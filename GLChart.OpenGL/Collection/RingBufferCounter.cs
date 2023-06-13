@@ -37,7 +37,8 @@ namespace RLP.Chart.OpenGL.Collection
 
         /// <summary>
         /// 表示缓冲有效连续区域的的组合，<see cref="Head"/>大于<see cref="Tail"/>
-        /// 当实际添加的数据超过capacity后，将会存在两个连续区域
+        /// <para>当实际添加的数据超过capacity后，将会存在两个连续区域</para>
+        /// <para>第一段：索引更大的部分</para> 
         /// </summary>
         public IEnumerable<Region> ContiguousRegions
         {
