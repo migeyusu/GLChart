@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Interface", "GLChar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.OpenTK", "GLChart.OpenGL\GLChart.OpenTK.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Samples", "RLP.Chart.Client\GLChart.Samples.csproj", "{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLChart.Samples", "GLChart.Client\GLChart.Samples.csproj", "{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA0F6E6C-9CC7-419A-BB61-B188D41A69A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
