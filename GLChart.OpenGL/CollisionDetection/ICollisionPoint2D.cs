@@ -1,7 +1,7 @@
 ﻿using System;
 using GLChart.Interface.Abstraction;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// 二维点碰撞层，给每个类型的集合分配独立的碰撞检测层以最大化内存效率

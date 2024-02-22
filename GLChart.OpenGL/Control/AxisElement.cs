@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using GLChart.Interface;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     /// <summary>
     /// 绘制坐标轴的图层

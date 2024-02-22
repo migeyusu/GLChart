@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using GLChart.Interface.Abstraction;
 
-namespace GLChart.OpenTK.Interaction
+namespace GLChart.Core.Interaction
 {
     public class MouseHoverNodeData
     {

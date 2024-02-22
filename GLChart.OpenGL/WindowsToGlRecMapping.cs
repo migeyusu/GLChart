@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows;
+using GLChart.Core.Renderer;
 using GLChart.Interface;
-using GLChart.OpenTK.Renderer;
 
-namespace GLChart.OpenTK
+namespace GLChart.Core
 {
     //todo：性能优化
     /// <summary>

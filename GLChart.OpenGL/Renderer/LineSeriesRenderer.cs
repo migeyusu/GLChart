@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 线渲染集合

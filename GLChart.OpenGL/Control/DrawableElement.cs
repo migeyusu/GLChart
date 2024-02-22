@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     /// <summary>
     /// 可绘制的视觉树元素

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Interface", "GLChart.Interface\GLChart.Interface.csproj", "{D496772A-5045-4CE5-96AF-81540EBCB461}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.OpenTK", "GLChart.OpenGL\GLChart.OpenTK.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLChart.Core", "GLChart.OpenGL\GLChart.Core.csproj", "{8C0CED63-23F4-4794-A3FF-8CC850B21CC6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLChart.Samples", "GLChart.Client\GLChart.Samples.csproj", "{51749349-1FE7-4B0E-A3D6-AFEB88D19E5C}"
 EndProject

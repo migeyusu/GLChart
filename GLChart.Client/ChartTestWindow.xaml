@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:control1="clr-namespace:GLChart.OpenTK.Control;assembly=GLChart.OpenTK"
+        xmlns:control1="clr-namespace:GLChart.Core.Control;assembly=GLChart.Core"
+        xmlns:control="clr-namespace:GLChart.Core.Control;assembly=GLChart.Core"
         mc:Ignorable="d"
         Loaded="ChartTestWindow_OnLoaded"
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
-        <control1:LineChart
+        <control:LineChart
             x:Name="LineChart" />
         <Button Click="ButtonBase_OnClick"
                 Height="40"

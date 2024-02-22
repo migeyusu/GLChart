@@ -8,11 +8,11 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using GLChart.Core.CollisionDetection;
+using GLChart.Core.Interaction;
+using GLChart.Core.Renderer;
 using GLChart.Interface;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.CollisionDetection;
-using GLChart.OpenTK.Interaction;
-using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
@@ -21,7 +21,7 @@ using OpenTkWPFHost.Core;
 using MouseButtonEventArgs = System.Windows.Input.MouseButtonEventArgs;
 using MouseWheelEventArgs = System.Windows.Input.MouseWheelEventArgs;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     /// <summary>
     /// 基于2d xy坐标系的图

@@ -10,7 +10,7 @@ using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Abstraction;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /*2021.12.22：
      已知问题：不能设置零一下的Y轴起点*/
@@ -28,7 +28,7 @@ namespace GLChart.OpenTK.Renderer
         public event Action<Region2D> ActualRegionChanged;
 
         /// <summary>
-        /// 点采样函数，渲染大量点位时允许只渲染部分点
+        /// 点采样函数，渲染大量点位时允许只渲染部分点，未实现
         /// </summary>
         public Func<int, ScrollRange> SamplingFunction { get; set; }
 
@@ -131,7 +131,7 @@ namespace GLChart.OpenTK.Renderer
         /// <summary>
         /// 基于ndc的y轴投影计量缓冲
         /// </summary>
-        private int YAxisCastSSSBO;
+        private int _yAxisCastSSSBO;
 
         private readonly int[] _yAxisRaster = new int[YAxisCastSSBOLength];
 
@@ -189,11 +189,11 @@ namespace GLChart.OpenTK.Renderer
 
             if (_autoYAxisEnable)
             {
-                YAxisCastSSSBO = GL.GenBuffer();
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
+                _yAxisCastSSSBO = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
                 GL.BufferData<int>(BufferTarget.ShaderStorageBuffer, _yAxisRaster.Length * sizeof(int), _yAxisRaster,
                     BufferUsageHint.DynamicDraw);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, YAxisCastSSSBO);
+                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _yAxisCastSSSBO);
             }
 
             IsInitialized = true;
@@ -246,8 +246,8 @@ namespace GLChart.OpenTK.Renderer
         }
 
         /// <summary>
-        /// render不运行在UI线程上，所以基本思路是:当非自动Y轴时，每次设置区域都变为最终区域，更新transform；
-        /// 当为自动时，设置后指示已更新，但是不更新transform，render线程负责维护
+        /// 基本思路:当Y轴非自适应时，<see cref="TargetRegion"/>都变为<see cref="ActualRegion"/>，并更新transform；
+        /// <para>当Y轴为自适应时，<see cref="TargetRegion"/>的设置将标记更新，由render过程维护transform</para>
         /// </summary>
         /// <param name="args"></param>
         public virtual void Render(GlRenderEventArgs args)
@@ -264,7 +264,7 @@ namespace GLChart.OpenTK.Renderer
 
             if (_isHeightAutoAdapting)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
                     _emptySsboBuffer.Length * sizeof(int),
                     _emptySsboBuffer);
@@ -275,11 +275,10 @@ namespace GLChart.OpenTK.Renderer
                 seriesItem.ApplyDirective(new RenderDirective2D() { Transform = _tempTransform });
                 seriesItem.Render(args);
             }
-
-            // _renderRegionChanged = false;
+            
             if (_isHeightAutoAdapting)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, YAxisCastSSSBO);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
                 var ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
                 Marshal.Copy(ptr, _yAxisRaster, 0, _yAxisRaster.Length);
                 GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
@@ -308,7 +307,7 @@ namespace GLChart.OpenTK.Renderer
                 }
                 else
                 {
-                    /* 1. 当最高点依然在ssbo的299位置时，应用变换然后在下次渲染再次检查，直到最高点不在299
+                    /* 1. 当最高点依然在SSBO的299位置时，应用变换然后在下次渲染再次检查，直到最高点不在299
                        2. 每次都检查，当差额小于特定百分比时停止变换。*/
                     var currentHeight = regionYRange.Range;
                     var ratio = i / (double)NdcYAxisSpacialSplitCount;

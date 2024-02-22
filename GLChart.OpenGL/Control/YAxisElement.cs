@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Media;
+using GLChart.Core.Collection;
 using GLChart.Interface;
-using GLChart.OpenTK.Collection;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     public class YAxisElement : AxisElement
     {

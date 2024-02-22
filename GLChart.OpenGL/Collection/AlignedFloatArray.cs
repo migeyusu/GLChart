@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace GLChart.OpenTK.Collection
+namespace GLChart.Core.Collection
 {
     /// <summary>
     /// 内存对齐的浮点数组

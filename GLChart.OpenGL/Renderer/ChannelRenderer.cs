@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
+using GLChart.Core.Abstraction;
 using GLChart.Interface;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Abstraction;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// single channel renderer

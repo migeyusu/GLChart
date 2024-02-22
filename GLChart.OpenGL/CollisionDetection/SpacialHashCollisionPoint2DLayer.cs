@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using GLChart.Core.Collection;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Collection;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// 使用稀疏网格的碰撞算法，todo：当前只实现于大于零的情况

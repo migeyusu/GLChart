@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace GLChart.OpenTK.Interaction
+namespace GLChart.Core.Interaction
 {
     public class SelectionArgs
     {

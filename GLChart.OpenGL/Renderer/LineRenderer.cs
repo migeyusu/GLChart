@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using GLChart.Core.Abstraction;
+using GLChart.Core.CollisionDetection;
 using GLChart.Interface;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Abstraction;
-using GLChart.OpenTK.CollisionDetection;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 线条渲染，基于三角形绘制

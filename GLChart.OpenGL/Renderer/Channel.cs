@@ -1,6 +1,6 @@
 ﻿using GLChart.Interface.Abstraction;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     public struct Channel : IChannel
     {

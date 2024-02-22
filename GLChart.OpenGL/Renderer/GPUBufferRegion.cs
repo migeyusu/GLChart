@@ -1,4 +1,4 @@
-﻿namespace GLChart.OpenTK.Renderer
+﻿namespace GLChart.Core.Renderer
 {
     public class GPUBufferRegion<TK> where TK : struct
     {

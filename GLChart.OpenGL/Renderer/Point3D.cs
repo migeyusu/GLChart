@@ -1,6 +1,6 @@
 ﻿using GLChart.Interface.Abstraction;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     public readonly struct Point3D : IPoint3D
     {

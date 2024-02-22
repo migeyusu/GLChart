@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace GLChart.OpenTK.Collection
+namespace GLChart.Core.Collection
 {
     /// <summary>
     /// thread-safe,vector instruction interoperable and flexible ring render ring array

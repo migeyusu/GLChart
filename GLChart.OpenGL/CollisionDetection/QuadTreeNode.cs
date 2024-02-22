@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using GLChart.OpenTK.Renderer;
+using GLChart.Core.Renderer;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /*为了配合碰撞，四叉树可以限定精度，可以在插入时限制大小，也可以在搜索时限定大小
      后者的性能更差，但灵活度更好，当前采用后者*/

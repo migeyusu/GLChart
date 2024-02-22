@@ -1,7 +1,7 @@
-﻿using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Renderer;
+﻿using GLChart.Core.Renderer;
+using GLChart.Interface.Abstraction;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// <see cref="IPoint2D"/>的装箱

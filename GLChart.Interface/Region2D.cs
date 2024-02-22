@@ -3,7 +3,7 @@
 namespace GLChart.Interface
 {
     /// <summary>
-    /// 表示图标坐标系区域，和windows的<see cref="System.Windows.Rect"/>相反：top为高点，bottom为低点
+    /// 表示和和OpenGL一致的坐标系区域。注意：和windows的<see cref="System.Windows.Rect"/>相反
     /// </summary>
     public struct Region2D
     {

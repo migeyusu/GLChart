@@ -1,6 +1,6 @@
 ﻿using GLChart.Interface;
 
-namespace GLChart.OpenTK.Interaction
+namespace GLChart.Core.Interaction
 {
     public static class MouseWheelScaleExtension
     {

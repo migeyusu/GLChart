@@ -3,8 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
     xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
-    xmlns:local="clr-namespace:GLChart.OpenTK.Control"
-    xmlns:interaction="clr-namespace:GLChart.OpenTK.Interaction">
+    xmlns:local="clr-namespace:GLChart.Core.Control"
+    xmlns:interaction="clr-namespace:GLChart.Core.Interaction">
 
     <Style TargetType="{x:Type local:LineChart}">
         <Setter Property="Template">

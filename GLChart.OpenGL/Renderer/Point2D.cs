@@ -1,8 +1,8 @@
 ﻿using System;
+using GLChart.Core.CollisionDetection;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.CollisionDetection;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 2d 点

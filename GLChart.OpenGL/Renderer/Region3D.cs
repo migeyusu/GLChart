@@ -1,6 +1,6 @@
 ﻿using GLChart.Interface;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     public struct Region3D
     {

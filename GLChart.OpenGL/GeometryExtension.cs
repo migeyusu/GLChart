@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GLChart.Core.CollisionDetection;
+using GLChart.Core.Renderer;
 using GLChart.Interface;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.CollisionDetection;
-using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
 
-namespace GLChart.OpenTK
+namespace GLChart.Core
 {
     public static class GeometryExtension
     {

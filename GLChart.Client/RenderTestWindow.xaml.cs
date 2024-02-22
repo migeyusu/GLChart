@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
+using GLChart.Core.Renderer;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Renderer;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;

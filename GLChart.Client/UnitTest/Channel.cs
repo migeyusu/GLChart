@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using GLChart.OpenTK.Renderer;
+using GLChart.Core.Renderer;
 using Xunit;
 using Xunit.Abstractions;
 

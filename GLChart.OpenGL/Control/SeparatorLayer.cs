@@ -4,7 +4,7 @@ using System.Windows.Media;
 using GLChart.Interface;
 using Point = System.Windows.Point;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     /// <summary>
     /// 绘制划分的图层

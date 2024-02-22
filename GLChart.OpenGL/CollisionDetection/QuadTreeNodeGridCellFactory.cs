@@ -1,4 +1,4 @@
-﻿namespace GLChart.OpenTK.CollisionDetection
+﻿namespace GLChart.Core.CollisionDetection
 {
     public class QuadTreeNodeGridCellFactory : CellFactory
     {

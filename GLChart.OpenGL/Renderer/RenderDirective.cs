@@ -1,9 +1,9 @@
 ﻿using OpenTK.Mathematics;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
-    /// 绘制指令
+    /// 绘制指令，可以扩展成多种类型的指令
     /// </summary>
     public class RenderDirective
     {

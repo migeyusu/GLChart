@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GLChart.Core.Renderer;
 using GLChart.Interface.Abstraction;
-using GLChart.OpenTK.Renderer;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// 使用网格实现静态点位碰撞检测,grid的坐标系同opengl相同，既xy指向右和上为正数

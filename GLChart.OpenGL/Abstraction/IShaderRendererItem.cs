@@ -1,6 +1,6 @@
-﻿using GLChart.OpenTK.Renderer;
+﻿using GLChart.Core.Renderer;
 
-namespace GLChart.OpenTK.Abstraction
+namespace GLChart.Core.Abstraction
 {
     /// <summary>
     /// 可绑定着色器的渲染器

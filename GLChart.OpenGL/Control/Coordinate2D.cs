@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using GLChart.Interface;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     /// <summary>
     /// 基于wpf的2d坐标轴和网格绘制

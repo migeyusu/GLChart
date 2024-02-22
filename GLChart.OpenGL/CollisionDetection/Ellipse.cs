@@ -1,7 +1,7 @@
 ﻿using System;
-using GLChart.OpenTK.Renderer;
+using GLChart.Core.Renderer;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// 用于碰撞检测的椭圆形

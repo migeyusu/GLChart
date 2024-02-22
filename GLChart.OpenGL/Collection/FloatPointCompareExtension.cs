@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GLChart.OpenTK.Collection
+namespace GLChart.Core.Collection
 {
     public static class FloatPointCompareExtension
     {

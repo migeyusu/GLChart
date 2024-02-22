@@ -1,9 +1,9 @@
 ﻿using System;
-using GLChart.OpenTK.Abstraction;
+using GLChart.Core.Abstraction;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 基础渲染器
@@ -13,6 +13,7 @@ namespace GLChart.OpenTK.Renderer
         public bool IsInitialized { get; protected set; }
 
         public Guid Id { get; protected set; }
+        
         public bool RenderEnable { get; set; } = true;
 
         /// <summary>
@@ -36,6 +37,10 @@ namespace GLChart.OpenTK.Renderer
             //no implement
         }
 
+        /// <summary>
+        /// 应用绘制指令
+        /// </summary>
+        /// <param name="directive"></param>
         public abstract void ApplyDirective(RenderDirective directive);
 
         public abstract void Uninitialize();

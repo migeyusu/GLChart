@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GLChart.OpenTK.CollisionDetection
+namespace GLChart.Core.CollisionDetection
 {
     /// <summary>
     /// 碰撞网格

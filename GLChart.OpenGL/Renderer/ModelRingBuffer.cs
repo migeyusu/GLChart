@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using GLChart.Core.Collection;
 using GLChart.Interface;
-using GLChart.OpenTK.Collection;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 模型环形缓冲，允许存储指定的数据模型到环形缓冲。

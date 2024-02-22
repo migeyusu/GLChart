@@ -1,10 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Media;
+using GLChart.Core.Collection;
 using GLChart.Interface;
-using GLChart.OpenTK.Collection;
 using Point = System.Windows.Point;
 
-namespace GLChart.OpenTK.Control
+namespace GLChart.Core.Control
 {
     public class XAxisElement : AxisElement
     {

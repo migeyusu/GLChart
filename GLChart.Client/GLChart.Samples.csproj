@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.OpenTK.csproj" />
+	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.Core.csproj" />
 	</ItemGroup>
 
 </Project>

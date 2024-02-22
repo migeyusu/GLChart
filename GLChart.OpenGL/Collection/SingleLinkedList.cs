@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace GLChart.OpenTK.Collection
+namespace GLChart.Core.Collection
 {
     /// <summary>
     /// 单链表的简单实现

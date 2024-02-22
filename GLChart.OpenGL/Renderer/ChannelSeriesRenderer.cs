@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
-namespace GLChart.OpenTK.Renderer
+namespace GLChart.Core.Renderer
 {
     /// <summary>
     /// 表示颜色渐变范围
