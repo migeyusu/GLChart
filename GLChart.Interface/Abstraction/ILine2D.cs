@@ -5,7 +5,7 @@ namespace GLChart.Interface.Abstraction
     /// <summary>
     /// 表示线条
     /// </summary>
-    public interface ILine : IGeometry, IGeometryCollection<IPoint2D>
+    public interface ILine2D : IGeometry, IGeometryCollection<IPoint2D>
     {
         Color LineColor { get; set; }
      

@@ -5,16 +5,15 @@ namespace GLChart.Interface;
 public class MarginFluentPixelPitchScale : CountBasedScaleGenerator
 {
     /// <summary>
-    /// 从<paramref name="valueStart"/>值的起点
+    /// 
     /// </summary>
-    /// <param name="valueStart"></param>
     /// <param name="pixelStages"></param>
-    public MarginFluentPixelPitchScale(double valueStart, double[] pixelStages) : base(valueStart)
+    public MarginFluentPixelPitchScale(double[] pixelStages) : base()
     {
         PixelStages = pixelStages;
     }
 
-    public MarginFluentPixelPitchScale() : this(0d, new double[] { 100, 200, 400 })
+    public MarginFluentPixelPitchScale() : this(new double[] { 100, 200, 400 })
     {
     }
 

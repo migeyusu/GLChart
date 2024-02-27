@@ -17,7 +17,7 @@ namespace GLChart.Core.Renderer
     /// <summary>
     /// 线条渲染，基于三角形绘制
     /// </summary>
-    public class LineRenderer : IShaderRendererItem, ILine
+    public class Line2DRenderer : IShaderRendererItem, ILine2D
     {
         public Guid Id { get; } = Guid.NewGuid();
 
@@ -82,7 +82,7 @@ namespace GLChart.Core.Renderer
         /// <summary>
         /// 
         /// </summary>
-        internal LineRenderer(ICollisionPoint2D collisionLayer, int pointsCountLimit = 1024)
+        internal Line2DRenderer(ICollisionPoint2D collisionLayer, int pointsCountLimit = 1024)
         {
             _pointsCountLimit = pointsCountLimit;
             CollisionLayer = collisionLayer;
@@ -246,7 +246,7 @@ namespace GLChart.Core.Renderer
             IsInitialized = false;
         }
 
-        private bool Equals(LineRenderer other)
+        private bool Equals(Line2DRenderer other)
         {
             return Id.Equals(other.Id);
         }
@@ -256,7 +256,7 @@ namespace GLChart.Core.Renderer
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((LineRenderer)obj);
+            return Equals((Line2DRenderer)obj);
         }
 
         public override int GetHashCode()

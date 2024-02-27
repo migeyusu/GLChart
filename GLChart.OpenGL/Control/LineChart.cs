@@ -29,7 +29,7 @@ namespace GLChart.Core.Control
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(Coordinate2D))]
     [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
-    public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine>
+    public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine2D>
     {
         private const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
@@ -488,30 +488,30 @@ namespace GLChart.Core.Control
 
         #region collection
 
-        protected LineSeriesRenderer LineSeriesRenderer =
-            new LineSeriesRenderer(new Shader("Shaders/LineShader/shader.vert",
+        protected Line2DSeriesRenderer LineSeriesRenderer =
+            new Line2DSeriesRenderer(new Shader("Shaders/LineShader/shader.vert",
                 "Shaders/LineShader/shader.frag"));
 
-        private readonly List<LineRenderer> _items = new List<LineRenderer>(5);
+        private readonly List<Line2DRenderer> _items = new List<Line2DRenderer>(5);
 
-        public IReadOnlyList<ILine> SeriesItems =>
-            new ReadOnlyCollection<LineRenderer>(_items);
+        public IReadOnlyList<ILine2D> SeriesItems =>
+            new ReadOnlyCollection<Line2DRenderer>(_items);
 
-        public ILine NewSeries()
+        public ILine2D NewSeries()
         {
             var collisionSeed = this.CollisionSeed;
-            LineRenderer lineRenderer;
+            Line2DRenderer lineRenderer;
             switch (CollisionEnum)
             {
                 case CollisionEnum.SpacialHash:
-                    lineRenderer = new LineRenderer(new SpacialHashCollisionPoint2DLayer(collisionSeed.XSpan,
+                    lineRenderer = new Line2DRenderer(new SpacialHashCollisionPoint2DLayer(collisionSeed.XSpan,
                         SpacialHashCollisionPoint2DLayer.Algorithm.XMapping,
                         (int)InitialCollisionGridBoundary.XSpan));
                     break;
                 case CollisionEnum.UniformGrid:
                     var collisionGridLayer = new CollisionGridPoint2DLayer(InitialCollisionGridBoundary,
                         collisionSeed.XSpan, collisionSeed.YSpan, new LinkedListGridCellFactory());
-                    lineRenderer = new LineRenderer(collisionGridLayer);
+                    lineRenderer = new Line2DRenderer(collisionGridLayer);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -523,9 +523,9 @@ namespace GLChart.Core.Control
             return lineRenderer;
         }
 
-        public void Remove(ILine line)
+        public void Remove(ILine2D line)
         {
-            if (line is LineRenderer lineRenderer)
+            if (line is Line2DRenderer lineRenderer)
             {
                 this._items.Remove(lineRenderer);
                 this.LineSeriesRenderer.Remove(lineRenderer);

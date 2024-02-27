@@ -6,9 +6,9 @@ namespace GLChart.Core.Renderer
     /// <summary>
     /// 线渲染集合
     /// </summary>
-    public class LineSeriesRenderer : SeriesShaderRenderer<LineRenderer>
+    public class Line2DSeriesRenderer : SeriesShaderRenderer<Line2DRenderer>
     {
-        public LineSeriesRenderer(Shader shader) : base(shader)
+        public Line2DSeriesRenderer(Shader shader) : base(shader)
         {
         }
 

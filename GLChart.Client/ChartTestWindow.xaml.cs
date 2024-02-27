@@ -17,7 +17,7 @@ namespace GLChart.Samples
             InitializeComponent();
         }
 
-        private ILine _line;
+        private ILine2D _line;
 
         private int index = 0;
 
@@ -29,12 +29,12 @@ namespace GLChart.Samples
             LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-1000, 1000);
             LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-1000, 1000);
             var random = new Random();
-            var array = Enumerable.Range(index, 100)
+            var array = Enumerable.Range(index, 1200)
                 .Select((i => new Point2D(i, 200 + i + random.Next(-100, 100))))
                 .Cast<IPoint2D>()
                 .ToList();
             _line.AddRange(array);
-            index += 10;
+            index += 100;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

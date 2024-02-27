@@ -11,16 +11,11 @@ namespace GLChart.Interface
     public abstract class CountBasedScaleGenerator : IScaleGenerator
     {
         /// <summary>
-        /// 如果范围小于该值，从<see cref="ValueStart"/>开始产生刻度
+        /// 刻度是否可以流动。是：优先绑定到10的次方数
         /// </summary>
-        public double ValueStart { get; }
+        public bool IsFluent { get; set; } = true;
 
-        protected CountBasedScaleGenerator(double valueStart)
-        {
-            ValueStart = valueStart;
-        }
-
-        protected CountBasedScaleGenerator() : this(0)
+        protected CountBasedScaleGenerator()
         {
         }
 
@@ -28,46 +23,58 @@ namespace GLChart.Interface
 
         public IEnumerable<AxisScale> Generate(ScaleGenerationContext context)
         {
+            //获取分划数
+            var count = GetScaleCount(context);
             var valueRange = context.ValueRange;
-            var pixelStretch = context.PixelStretch;
             var valueRangeStart = valueRange.Start;
-            var pixelStart = context.PixelStart;
-            var pixelDirection = context.PixelDirection;
+            var valueRangeRange = valueRange.Range;
+            var pixelStretch = context.PixelStretch;
             double pixelStartOffset;
-            if (ValueStart <= valueRangeStart)
+            double pixelStep;
+            double firstSpan;
+            double span;
+            if (IsFluent)
             {
-                pixelStartOffset = 0; //像素度量的起始偏移量为0，表示以像素起点为真实起点
+                span = GetStickSpan(valueRangeRange, count);
+                firstSpan = ((int)Math.Floor(valueRangeStart / span) + 1) * span;
+                pixelStartOffset = (firstSpan - valueRangeStart) / valueRangeRange * pixelStretch;
+                pixelStep = span / valueRangeRange * pixelStretch;
+                count = (int)Math.Floor((pixelStretch - pixelStartOffset) / pixelStep);
             }
             else
             {
-                pixelStartOffset = (ValueStart - valueRangeStart) / valueRange.Range * pixelStretch;
-                if (context.AxisRenderOption.TextHeight < Math.Abs(pixelStartOffset) + 2)
-                {
-                    //存在明显偏移（超过偏移量）时给予一个额外的起始位刻度
-                    yield return new AxisScale() { Location = (float)pixelStart, Value = valueRangeStart };
-                }
-
-                valueRangeStart = ValueStart;
+                pixelStartOffset = 0;
+                pixelStretch -= pixelStartOffset;
+                pixelStep = pixelStretch / count;
+                span = valueRange.Range / count;
+                firstSpan = valueRangeStart;
             }
 
-            pixelStretch -= pixelStartOffset;
-            pixelStart = pixelDirection == FlowDirection.LeftToRight
-                ? pixelStart + pixelStartOffset
-                : pixelStart - pixelStartOffset;
-            var count = GetScaleCount(new ScaleGenerationContext(valueRange, pixelStart, pixelStretch,
-                pixelDirection, context.AxisRenderOption)); //创建一个虚拟的轴刻度
-            var pixelStep = pixelStretch / count;
-            if (pixelDirection != FlowDirection.LeftToRight)
+            if (context.PixelDirection != FlowDirection.LeftToRight)
             {
+                pixelStartOffset = -pixelStartOffset;
                 pixelStep = -pixelStep;
             }
 
-            var valueStep = valueRange.Range / count;
-            for (var i = 0; i < count; i++)
+            var pixelStart = context.PixelStart + pixelStartOffset;
+            for (var i = 0; i <= count; i++)
             {
                 var position = (float)(pixelStart + pixelStep * i);
-                yield return new AxisScale() { Location = position, Value = valueRangeStart + valueStep * i };
+                yield return new AxisScale { Location = position, Value = firstSpan + span * i };
             }
+        }
+
+        private static double GetStickSpan(double value, int spansCount)
+        {
+            int span = (int)Math.Floor(value / spansCount);
+            int digit = 0;
+            while (span > 10)
+            {
+                span /= 10;
+                digit++;
+            }
+
+            return span * Math.Pow(10, digit);
         }
     }
 }

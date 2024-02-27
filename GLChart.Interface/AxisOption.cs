@@ -27,7 +27,7 @@ namespace GLChart.Interface
         /// 刻度生成器
         /// </summary>
         public IScaleGenerator ScaleGenerator { get; set; }
-            = new MarginSteppedFluentPixelPitchScale(0d, 50, 100);
+            = new MarginSteppedFluentPixelPitchScale(50, 100);
 
         public AxisRenderOption RenderOption { get; set; } = AxisRenderOption.Default();
 
@@ -55,7 +55,7 @@ namespace GLChart.Interface
 
         private IList<AxisLabel> _cacheLabels;
 
-        private double _pixelStart, _pixelStretch;
+        private double _lastPixelStart, _lastPixelStretch;
 
         private ScrollRange _scrollRange;
 
@@ -64,22 +64,22 @@ namespace GLChart.Interface
         /// create labels collection on a axis
         /// 返回指定的标签
         /// </summary>
-        /// <param name="pixelStart"></param>
-        /// <param name="pixelStretch"></param>
-        /// <param name="range"></param>
-        /// <param name="flowDirection"></param>
+        /// <param name="pixelStart">像素起始点</param>
+        /// <param name="pixelStretch">像素长度</param>
+        /// <param name="range">数轴范围</param>
+        /// <param name="flowDirection">数轴方向</param>
         /// <returns></returns>
-        public IList<AxisLabel> GenerateLabels(double pixelStart,
-            double pixelStretch, ScrollRange range, FlowDirection flowDirection)
+        public IList<AxisLabel> GenerateLabels(double pixelStart, double pixelStretch, 
+            ScrollRange range, FlowDirection flowDirection)
         {
-            if (_pixelStart.Equals(pixelStart) && _pixelStretch.Equals(pixelStretch)
+            if (_lastPixelStart.Equals(pixelStart) && _lastPixelStretch.Equals(pixelStretch)
                                                && _scrollRange.Equals(range) && _cacheLabels != null)
             {
                 return _cacheLabels;
             }
 
-            _pixelStart = pixelStart;
-            _pixelStretch = pixelStretch;
+            _lastPixelStart = pixelStart;
+            _lastPixelStretch = pixelStretch;
             _scrollRange = range;
             var labelFunc = this.ScaleLabelFunc;
             _cacheLabels = this.ScaleGenerator

@@ -59,9 +59,7 @@ namespace GLChart.Samples
             };
             _channelRenderer.Add(new Channel(firstChannelPoints));
             channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("Shaders/ChannelShader/shader.vert",
-                "Shaders/ChannelShader/shader.frag"))
-            {
-            };
+                "Shaders/ChannelShader/shader.frag"));
             channelSeriesRenderer.Add(_channelRenderer);
             _coordinate3DRenderer = new Coordinate3DRenderer(new List<BaseRenderer>() { channelSeriesRenderer })
             {

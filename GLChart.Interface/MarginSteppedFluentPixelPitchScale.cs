@@ -9,17 +9,22 @@ namespace GLChart.Interface
         private readonly int _stepPixel;
         private readonly int _stepCount;
 
-        public MarginSteppedFluentPixelPitchScale(double valueStart, int startPixel, int startCount, int stepPixel,
-            int stepCount) : base(valueStart)
+        public MarginSteppedFluentPixelPitchScale(int startPixel, int startCount, int stepPixel,
+            int stepCount) : base()
         {
             this._startPixel = startPixel;
-            _startCount = startCount;
+            this._startCount = startCount;
             this._stepPixel = stepPixel;
-            _stepCount = stepCount;
+            this._stepCount = stepCount;
         }
 
-        public MarginSteppedFluentPixelPitchScale(double valueStart, int startPixel, int stepPixel) :
-            this(valueStart, startPixel, 2, stepPixel, 1)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startPixel">可以产生分划线的最小像素长度</param>
+        /// <param name="stepPixel">像素间隔</param>
+        public MarginSteppedFluentPixelPitchScale(int startPixel, int stepPixel) :
+            this(startPixel, 2, stepPixel, 1)
         {
         }
 
@@ -32,7 +37,7 @@ namespace GLChart.Interface
                 return _startCount;
             }
 
-            return (int)Math.Floor(((pixelStretch - _startPixel) / _stepPixel) * _stepCount) + _startCount;
+            return (int)Math.Floor((pixelStretch - _startPixel) / _stepPixel * _stepCount) + _startCount;
         }
     }
 }

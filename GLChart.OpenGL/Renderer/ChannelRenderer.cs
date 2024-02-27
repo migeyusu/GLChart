@@ -61,7 +61,7 @@ namespace GLChart.Core.Renderer
 
         public bool RenderEnable { get; private set; } = true;
 
-        private ModelRingBuffer<IChannel, float> _channelBuffer = new ModelRingBuffer<IChannel, float>();
+        private readonly ModelRingBuffer<IChannel, float> _channelBuffer = new ModelRingBuffer<IChannel, float>();
 
         private Shader _shader;
 
