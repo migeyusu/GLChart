@@ -27,4 +27,18 @@
     <PackageReference Include="OpenTkWPFHost" Version="4.1.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
+	<ItemGroup>
+	  <None Update="Render\Shaders\ChannelShader\shader.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Render\Shaders\ChannelShader\shader.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Render\Shaders\LineShader\shader.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Render\Shaders\LineShader\shader.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

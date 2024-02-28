@@ -28,7 +28,7 @@ namespace GLChart.WPF.UIComponent.Axis
         /// 刻度生成器
         /// </summary>
         public IScaleLineGenerator ScaleGenerator { get; set; }
-            = new MarginSteppedFluentPixelPitchScale(50, 100);
+            = new FixedPixelPitchScale(50, 100);
 
         public AxisRenderOption RenderOption { get; set; } = AxisRenderOption.Default();
 

@@ -1,12 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 using GLChart.WPF.Base;
-using GLChart.WPF.Render;
-using GLChart.WPF.Render.Allocation;
-using GLChart.WPF.UIComponent.Axis;
 using GLChart.WPF.UIComponent.Control;
 
-namespace GLChart.WPF.UIComponent
+namespace GLChart.WPF.UIComponent.Axis
 {
     public class YAxisElement : AxisElement
     {
@@ -39,7 +36,7 @@ namespace GLChart.WPF.UIComponent
 
             if (AutoSize)
             {
-                if (!maxWidth.Same(this.Width))
+                if (!maxWidth.AlmostSame(this.Width))
                 {
                     this.Width = maxWidth;
                 }

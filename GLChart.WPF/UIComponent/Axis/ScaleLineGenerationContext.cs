@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using GLChart.WPF.Base;
-using GLChart.WPF.Render;
 
 namespace GLChart.WPF.UIComponent.Axis
 {

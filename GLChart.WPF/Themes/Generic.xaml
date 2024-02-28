@@ -3,37 +3,39 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
     xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
-    xmlns:local="clr-namespace:GLChart.WPF.UIComponent"
-    xmlns:local1="clr-namespace:GLChart.WPF.UIComponent.Control"
-    xmlns:interaction="clr-namespace:GLChart.WPF.UIComponent.Interaction">
+    xmlns:local="clr-namespace:GLChart.WPF.UIComponent.Control"
+    xmlns:interaction="clr-namespace:GLChart.WPF.UIComponent.Interaction"
+    xmlns:axis="clr-namespace:GLChart.WPF.UIComponent.Axis">
 
-    <Style TargetType="{x:Type local1:LineChart}">
+    <Style TargetType="{x:Type local:LineChart}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local1:LineChart}">
+                <ControlTemplate TargetType="{x:Type local:LineChart}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid>
-                            <local1:Coordinate2D XLabelGenerationOption="{TemplateBinding AxisXOption}"
+                            <local:Coordinate2D XLabelGenerationOption="{TemplateBinding AxisXOption}"
                                                 YLabelGenerationOption="{TemplateBinding AxisYOption}"
                                                 CoordinateRegion="{TemplateBinding ActualRegion}"
                                                 VerticalContentAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch">
+                                                HorizontalContentAlignment="Stretch"
+                                                x:Name="Coordinate">
                                 <Grid VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch">
-                                    <control:BitmapOpenTkControl IsAutoAttach="True"
-                                                                 GlSettings="{TemplateBinding GLSettings}"
-                                                                 IsRenderContinuously="True"
-                                                                 LifeCycle="BoundToWindow"
-                                                                 IsShowFps="{TemplateBinding IsShowFps}"
-                                                                 x:Name="ThreadOpenTkControl">
-                                        <control:BitmapOpenTkControl.RenderSetting>
-                                            <configuration:RenderSetting RenderTactic="LatencyPriority" />
-                                        </control:BitmapOpenTkControl.RenderSetting>
-                                    </control:BitmapOpenTkControl>
+                                    <ContentPresenter Content="{TemplateBinding OpenTKControl}"
+                                                      x:Name="ContentPresenter">
+                                        <ContentPresenter.ToolTip>
+                                            <ToolTip IsOpen="False"
+                                                     Padding="0"
+                                                     x:Name="ToolTip"
+                                                     Placement="Relative"
+                                                     Background="Transparent"
+                                                     ContentTemplate="{TemplateBinding ToolTipTemplate}" />
+                                        </ContentPresenter.ToolTip>
+                                    </ContentPresenter>
                                 </Grid>
-                            </local1:Coordinate2D>
+                            </local:Coordinate2D>
                             <interaction:MouseSelect VerticalAlignment="Stretch"
                                                      HorizontalAlignment="Stretch"
                                                      x:Name="SelectScaleElement" />
@@ -47,8 +49,10 @@
         <Setter Property="ToolTipTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type interaction:MouseHoverNodeData}">
-                    <TextBlock FontSize="20">
-                        <Run Text="{Binding Title,Mode=OneWay}" />
+                    <TextBlock FontSize="20"
+                               Margin="0"
+                               Background="White">
+                        <Run Text="{Binding Title,Mode=OneWay,StringFormat=系列：{0}}" />
                         <LineBreak />
                         <Run Text="X:" />
                         <Run Text="{Binding Point.X,Mode=OneWay}" />
@@ -60,10 +64,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type local1:Coordinate2D}">
+    <Style TargetType="{x:Type local:Coordinate2D}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local1:Coordinate2D}">
+                <ControlTemplate TargetType="{x:Type local:Coordinate2D}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -85,16 +89,16 @@
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
-                            <local:XAxisElement Grid.Row="1"
-                                                Grid.Column="1"
-                                                x:Name="XAxis"
-                                                LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
-                            <local:YAxisElement Grid.Row="0"
-                                                Grid.Column="0"
-                                                x:Name="YAxis"
-                                                Margin="0,0,10,0"
-                                                LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
-                            <local1:SeparatorLayer Grid.Row="0"
+                            <axis:XAxisElement Grid.Row="1"
+                                               Grid.Column="1"
+                                               x:Name="XAxis"
+                                               LabelGenerationOption="{TemplateBinding XLabelGenerationOption}" />
+                            <axis:YAxisElement Grid.Row="0"
+                                               Grid.Column="0"
+                                               x:Name="YAxis"
+                                               Margin="0,0,10,0"
+                                               LabelGenerationOption="{TemplateBinding YLabelGenerationOption}" />
+                            <local:SeparatorLayer Grid.Row="0"
                                                   Grid.Column="1"
                                                   AxisXOption="{TemplateBinding XLabelGenerationOption}"
                                                   AxisYOption="{TemplateBinding YLabelGenerationOption}"

@@ -2,24 +2,42 @@
 
 namespace GLChart.WPF.UIComponent.Axis
 {
-    /// <summary>
-    /// 固定的像素间距，表现为无论图放大缩小在界面上都是固定间隔
-    /// </summary>
     public class FixedPixelPitchScale : CountBasedScaleGenerator
     {
+        private readonly int _startPixel;
+        private readonly int _startCount;
+        private readonly int _stepPixel;
+        private readonly int _stepCount;
+
+        public FixedPixelPitchScale(int startPixel, int startCount, int stepPixel,
+            int stepCount) : base()
+        {
+            this._startPixel = startPixel;
+            this._startCount = startCount;
+            this._stepPixel = stepPixel;
+            this._stepCount = stepCount;
+        }
+
         /// <summary>
-        /// pitch of scale,it's a virtual value, maybe any of measurement
+        /// 
         /// </summary>
-        public double Pitch { get; }
+        /// <param name="startPixel">可以产生分划线的最小像素长度</param>
+        /// <param name="stepPixel">像素间隔</param>
+        public FixedPixelPitchScale(int startPixel, int stepPixel) :
+            this(startPixel, 2, stepPixel, 1)
+        {
+        }
+
 
         protected override int GetScaleCount(ScaleLineGenerationContext context)
         {
-            return (int)Math.Floor(context.PixelStretch / this.Pitch);
-        }
+            var pixelStretch = context.PixelStretch;
+            if (pixelStretch <= _startPixel)
+            {
+                return _startCount;
+            }
 
-        public FixedPixelPitchScale(double pitch)
-        {
-            Pitch = pitch;
+            return (int)Math.Floor((pixelStretch - _startPixel) / _stepPixel * _stepCount) + _startCount;
         }
     }
 }

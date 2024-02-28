@@ -21,7 +21,7 @@ namespace GLChart.WPF.UIComponent.Axis
 
         protected abstract int GetScaleCount(ScaleLineGenerationContext context);
 
-        public IEnumerable<AxisScale> Generate(ScaleLineGenerationContext context)
+        public IEnumerable<AxisScaleLine> Generate(ScaleLineGenerationContext context)
         {
             //获取分划数
             var count = GetScaleCount(context);
@@ -37,7 +37,13 @@ namespace GLChart.WPF.UIComponent.Axis
             {
                 span = GetStickSpan(valueRangeRange, count);
                 var rangeStart = valueRangeStart / span;
-                firstSpan = ((int)Math.Floor(rangeStart) + 1) * span;
+                var floor = Math.Floor(rangeStart);
+                if (!floor.AlmostSame(rangeStart))
+                {
+                    floor++;
+                }
+
+                firstSpan = (int)floor * span;
                 pixelStartOffset = (firstSpan - valueRangeStart) / valueRangeRange * pixelStretch;
                 pixelStep = span / valueRangeRange * pixelStretch;
                 count = (int)Math.Floor((pixelStretch - pixelStartOffset) / pixelStep);
@@ -61,7 +67,7 @@ namespace GLChart.WPF.UIComponent.Axis
             for (var i = 0; i <= count; i++)
             {
                 var position = (float)(pixelStart + pixelStep * i);
-                yield return new AxisScale { Location = position, Value = firstSpan + span * i };
+                yield return new AxisScaleLine { Location = position, Value = firstSpan + span * i };
             }
         }
 

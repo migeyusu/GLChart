@@ -1,9 +1,9 @@
 ﻿namespace GLChart.WPF.UIComponent.Axis
 {
     /// <summary>
-    /// 轴刻度
+    /// 轴刻度线
     /// </summary>
-    public class AxisScale
+    public class AxisScaleLine
     {
         /// <summary>
         /// 以像素度量的位置

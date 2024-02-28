@@ -10,6 +10,7 @@
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
         <control:LineChart
+            IsShowFps="True"
             x:Name="LineChart" />
         <Button Click="ButtonBase_OnClick"
                 Height="40"

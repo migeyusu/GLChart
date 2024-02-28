@@ -1,13 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 using GLChart.WPF.Base;
-using GLChart.WPF.Render;
-using GLChart.WPF.Render.Allocation;
-using GLChart.WPF.UIComponent.Axis;
 using GLChart.WPF.UIComponent.Control;
 using Point = System.Windows.Point;
 
-namespace GLChart.WPF.UIComponent
+namespace GLChart.WPF.UIComponent.Axis
 {
     public class XAxisElement : AxisElement
     {
@@ -33,7 +30,7 @@ namespace GLChart.WPF.UIComponent
             if (AutoSize)
             {
                 var renderHeight = option.TextHeight;
-                if (!renderHeight.Same(this.Height))
+                if (!renderHeight.AlmostSame(this.Height))
                 {
                     this.Height = renderHeight;
                 }

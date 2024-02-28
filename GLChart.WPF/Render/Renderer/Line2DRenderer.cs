@@ -76,7 +76,7 @@ namespace GLChart.WPF.Render.Renderer
 
         internal ICollisionPoint2D CollisionLayer { get; }
 
-        private ModelRingBuffer<IPoint2D, float> _pointsBuffer = new ModelRingBuffer<IPoint2D, float>();
+        private readonly ModelRingBuffer<IPoint2D, float> _pointsBuffer = new ModelRingBuffer<IPoint2D, float>();
 
         /// <summary>
         /// 

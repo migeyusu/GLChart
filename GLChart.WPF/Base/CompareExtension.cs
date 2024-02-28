@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace GLChart.WPF.Render.Allocation
+namespace GLChart.WPF.Base
 {
-    public static class FloatPointCompareExtension
+    public static class CompareExtension
     {
-        public static bool Same(this double left, double right, double epsilon = double.Epsilon)
+        public static bool AlmostSame(this double left, double right, double epsilon = double.Epsilon)
         {
             if (double.IsNaN(left) || double.IsNaN(right))
             {
@@ -42,7 +42,7 @@ namespace GLChart.WPF.Render.Allocation
             return diff / (absA + absB) < epsilon;
         }
 
-        public static bool Same(this float left, float right, float epsilon = float.Epsilon)
+        public static bool AlmostSame(this float left, float right, float epsilon = float.Epsilon)
         {
             if (double.IsNaN(left) || double.IsNaN(right))
             {

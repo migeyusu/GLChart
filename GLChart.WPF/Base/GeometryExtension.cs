@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GLChart.WPF.Base;
 using GLChart.WPF.Render;
 using GLChart.WPF.Render.CollisionDetection;
 using OpenTK.Mathematics;
 
-namespace GLChart.WPF
+namespace GLChart.WPF.Base
 {
     public static class GeometryExtension
     {

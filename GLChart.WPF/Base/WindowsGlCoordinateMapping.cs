@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Windows;
-using GLChart.WPF.Base;
 using GLChart.WPF.Render;
 
-namespace GLChart.WPF
+namespace GLChart.WPF.Base
 {
     //todo：性能优化
     /// <summary>

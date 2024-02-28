@@ -27,12 +27,13 @@ namespace GLChart.WPF.UIComponent.Control
     /// <summary>
     /// 基于2d xy坐标系的图
     /// </summary>
-    [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(Coordinate2D))]
-    [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
+    [TemplatePart(Name = ToolTipName, Type = typeof(ToolTip))]
+    [TemplatePart(Name = CoordinateElementName, Type = typeof(Coordinate2D))]
+    // [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
     public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine2D>
     {
-        private const string ThreadOpenTkControl = "ThreadOpenTkControl";
+        // private const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
         private const string CoordinateElementName = "Coordinate";
 
@@ -147,19 +148,17 @@ namespace GLChart.WPF.UIComponent.Control
 
         #region render
 
-        // ReSharper disable once InconsistentNaming
-        public static readonly DependencyProperty GLSettingsProperty = DependencyProperty.Register(
-            nameof(GLSettings), typeof(GLSettings), typeof(LineChart), new PropertyMetadata(new GLSettings()
-            {
-                GraphicsContextFlags = ContextFlags.Offscreen,
-            }));
+        public static readonly DependencyProperty OpenTKControlProperty = DependencyProperty.Register(
+            nameof(OpenTKControl), typeof(OpenTkControlBase), typeof(LineChart),
+            new PropertyMetadata(default(OpenTkControlBase)));
 
-        // ReSharper disable once InconsistentNaming
-        public GLSettings GLSettings
+        public OpenTkControlBase OpenTKControl
         {
-            get => (GLSettings)GetValue(GLSettingsProperty);
-            set => SetValue(GLSettingsProperty, value);
+            get { return (OpenTkControlBase)GetValue(OpenTKControlProperty); }
+            set { SetValue(OpenTKControlProperty, value); }
         }
+
+        private OpenTkControlBase _renderControl;
 
         public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
             nameof(BackgroundColor), typeof(Color), typeof(LineChart),
@@ -198,29 +197,38 @@ namespace GLChart.WPF.UIComponent.Control
                 DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
                 TargetRegion = (Region2D)SettingRegionProperty.DefaultMetadata.DefaultValue
             };
+            _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
+            _renderControl = new BitmapOpenTkControl()
+            {
+                IsAutoAttach = true,
+                IsRenderContinuously = false,
+                LifeCycle = ControlLifeCycle.BoundToWindow,
+                RenderSetting = new RenderSetting() { RenderTactic = RenderTactic.LatencyPriority },
+                Renderer = _coordinateRenderer,
+            };
+            _renderControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
+            _renderControl.OpenGlErrorReceived += OpenTkControlOnOpenGlErrorReceived;
+            OpenTKControl = _renderControl;
         }
-
-        protected BitmapOpenTkControl OpenTkControl;
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            OpenTkControl = GetTemplateChild(ThreadOpenTkControl) as BitmapOpenTkControl;
-            _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
-            Debug.Assert(OpenTkControl != null, nameof(OpenTkControl) + " != null");
-            OpenTkControl.Renderer = _coordinateRenderer;
-            OpenTkControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
-            OpenTkControl.OpenGlErrorReceived += OpenTkControlOnOpenGlErrorReceived;
             _scaleElement = GetTemplateChild(SelectScaleElement) as MouseSelect;
             Debug.Assert(_scaleElement != null, nameof(_scaleElement) + " != null");
             _scaleElement.Selected += scaleElement_Scaled;
-            _toolTip = new ToolTip()
+            _toolTip = GetTemplateChild(ToolTipName) as ToolTip;
+            _toolTip.PlacementTarget = this;
+        }
+
+        protected override void OnTemplateChanged(ControlTemplate oldTemplate, ControlTemplate newTemplate)
+        {
+            if (_scaleElement != null)
             {
-                IsOpen = false,
-                PlacementTarget = OpenTkControl,
-                Placement = PlacementMode.Relative,
-                ContentTemplate = ToolTipTemplate
-            };
+                _scaleElement.Selected -= scaleElement_Scaled;
+            }
+
+            base.OnTemplateChanged(oldTemplate, newTemplate);
         }
 
         #region render event handler
@@ -280,12 +288,12 @@ namespace GLChart.WPF.UIComponent.Control
 
         public virtual void AttachWindow(Window hostWindow)
         {
-            this.OpenTkControl.Start(hostWindow);
+            this._renderControl.Start(hostWindow);
         }
 
         public virtual void DetachWindow()
         {
-            this.OpenTkControl.Close();
+            this._renderControl.Close();
         }
 
         #region interaction
@@ -297,7 +305,7 @@ namespace GLChart.WPF.UIComponent.Control
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-            _startMovePoint = e.GetPosition(OpenTkControl);
+            _startMovePoint = e.GetPosition(_renderControl);
             _startMoveRegion = this.ActualRegion;
         }
 
@@ -316,10 +324,10 @@ namespace GLChart.WPF.UIComponent.Control
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            var position = e.GetPosition(OpenTkControl); //像素
+            var position = e.GetPosition(_renderControl); //像素
             var coordinateRegion = this.ActualRegion;
             var winToGlMapping =
-                new WindowsGlCoordinateMapping(coordinateRegion, new Rect(OpenTkControl.RenderSize));
+                new WindowsGlCoordinateMapping(coordinateRegion, new Rect(_renderControl.RenderSize));
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 if (this._coordinateRenderer.AutoYAxisWorking)

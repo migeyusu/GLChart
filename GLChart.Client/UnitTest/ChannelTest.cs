@@ -5,11 +5,11 @@ using Xunit.Abstractions;
 
 namespace GLChart.Samples.UnitTest
 {
-    public class Channel
+    public class ChannelTest
     {
         private ITestOutputHelper _output;
 
-        public Channel(ITestOutputHelper output)
+        public ChannelTest(ITestOutputHelper output)
         {
             this._output = output;
         }

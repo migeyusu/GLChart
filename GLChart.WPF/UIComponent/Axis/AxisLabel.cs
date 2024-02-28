@@ -3,7 +3,7 @@
     /// <summary>
     /// 轴刻度标签
     /// </summary>
-    public class AxisLabel : AxisScale
+    public class AxisLabel : AxisScaleLine
     {
         public string Text { get; set; }
     }

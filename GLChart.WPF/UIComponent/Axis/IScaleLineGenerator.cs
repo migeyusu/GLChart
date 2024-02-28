@@ -7,6 +7,6 @@ namespace GLChart.WPF.UIComponent.Axis
     /// </summary>
     public interface IScaleLineGenerator
     {
-        IEnumerable<AxisScale> Generate(ScaleLineGenerationContext context);
+        IEnumerable<AxisScaleLine> Generate(ScaleLineGenerationContext context);
     }
 }
