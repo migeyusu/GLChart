@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
-using GLChart.Core.Renderer;
-using GLChart.Interface.Abstraction;
+using GLChart.WPF.Base;
+using GLChart.WPF.Render;
+using GLChart.WPF.Render.Renderer;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
@@ -58,9 +59,8 @@ namespace GLChart.Samples
                 MaxChannelCount = MaxChannelCount,
             };
             _channelRenderer.Add(new Channel(firstChannelPoints));
-            channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("Shaders/ChannelShader/shader.vert",
-                "Shaders/ChannelShader/shader.frag"));
-            channelSeriesRenderer.Add(_channelRenderer);
+            channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("RenderShaders/ChannelShader/shader.vert",
+                "Render/Shaders/ChannelShader/shader.frag")) { _channelRenderer };
             _coordinate3DRenderer = new Coordinate3DRenderer(new List<BaseRenderer>() { channelSeriesRenderer })
             {
                 BackgroundColor = Color4.DodgerBlue,

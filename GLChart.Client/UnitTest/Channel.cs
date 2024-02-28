@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using GLChart.Core.Renderer;
+using GLChart.WPF.Render.Renderer;
 using Xunit;
 using Xunit.Abstractions;
 

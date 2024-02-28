@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
-using GLChart.Core.Renderer;
-using GLChart.Interface;
-using GLChart.Interface.Abstraction;
+using GLChart.WPF.Base;
+using GLChart.WPF.Render;
 
 namespace GLChart.Samples
 {

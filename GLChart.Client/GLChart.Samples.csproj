@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.Core.csproj" />
+	  <ProjectReference Include="..\GLChart.WPF\GLChart.WPF.csproj" />
 	</ItemGroup>
 
 </Project>
