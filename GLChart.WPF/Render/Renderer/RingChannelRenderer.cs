@@ -12,9 +12,11 @@ using OpenTkWPFHost.Core;
 namespace GLChart.WPF.Render.Renderer
 {
     /// <summary>
-    /// single channel renderer
+    /// 环形3D通道渲染器
+    /// <para>使用环形缓冲以优化显存分配，不需要频繁更新显存中的数据，适合时序数据</para>
+    /// <para>不支持<see cref="IGeometryCollection{T}.Insert"/>和<see cref="IGeometryCollection{T}.Remove"/>类型的操作</para>
     /// </summary>
-    public class ChannelRenderer : IShaderRendererItem, IGeometryCollection<IChannel>
+    public class RingChannelRenderer : IShaderRendererItem, IGeometryCollection<IChannel>
     {
         private Color4 _color4 = Color4.Red;
 
@@ -64,7 +66,7 @@ namespace GLChart.WPF.Render.Renderer
 
         private Shader _shader;
 
-        public ChannelRenderer()
+        public RingChannelRenderer()
         {
         }
 
@@ -268,6 +270,21 @@ namespace GLChart.WPF.Render.Renderer
         public void AddRange(IList<IChannel> geometries)
         {
             _channelBuffer.SendChange(NotifyCollectionChangedEventArgs<IChannel>.AppendRangeArgs(geometries));
+        }
+
+        public void Remove(IChannel geometry)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void Insert(int index, IChannel geometry)
+        {
+            throw new NotSupportedException();
         }
 
         public void ResetWith(IList<IChannel> geometries)

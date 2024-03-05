@@ -202,7 +202,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             return cells;
         }
 
-        public bool TryAddNode(Node node)
+        public bool TryAddNode(Point2DNode node)
         {
             if (!node.Point.IsLocatedIn(this.Boundary))
             {
@@ -224,7 +224,7 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// <param name="node"></param>
         /// <param name="rowIndex"></param>
         /// <param name="columnIndex"></param>
-        private void AddNodeInternal(Node node, int rowIndex, int columnIndex)
+        private void AddNodeInternal(Point2DNode node, int rowIndex, int columnIndex)
         {
             var cell = Cells[rowIndex, columnIndex];
             cell.Insert(node);
@@ -270,7 +270,7 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// 得到几何体内关联的所有cell
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<ICollisionCell> GetGeometryCells(ICollisionGeometry2D geometry)
+        private IEnumerable<ICollisionCell> GetGeometryCells(MouseCollisionEllipse geometry)
         {
             return GetBoundaryCells(geometry.OrthogonalBoundary);
         }
@@ -304,7 +304,7 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// <param name="point"></param>
         public void Add(IPoint2D point)
         {
-            var node = new Node(point);
+            var node = new Point2DNode(point);
             var nodePoint = node.Point;
             if (!nodePoint.IsLocatedIn(this.Boundary))
             {
@@ -330,6 +330,21 @@ namespace GLChart.WPF.Render.CollisionDetection
             }
         }
 
+        public void Remove(IPoint2D geometry)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, IPoint2D geometry)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// 删除单元格内元素
         /// </summary>
@@ -344,7 +359,7 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// <summary>
         /// 该方法可能耗时较长
         /// </summary>
-        public void Remove(Node node)
+        public void Remove(Point2DNode node)
         {
             if (TryGetIndex(node.Point, out var rowIndex, out var columnIndex))
             {
@@ -392,9 +407,9 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// <param name="geometry"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public bool TrySearch(ICollisionGeometry2D geometry, out Node node)
+        public bool TrySearch(MouseCollisionEllipse geometry, out IGeometry2D? node)
         {
-            node = default;
+            node = null;
             var geometryOrthogonalBoundary = geometry.OrthogonalBoundary;
             if (!geometryOrthogonalBoundary.IsCrossed(this.Boundary))
             {
@@ -405,7 +420,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             var nearestNodeData = geometry.NearestNodeData(boundaryCells, out _);
             if (nearestNodeData.HasValue)
             {
-                node = nearestNodeData.Value;
+                node = nearestNodeData.Value.Data;
                 return true;
             }
 

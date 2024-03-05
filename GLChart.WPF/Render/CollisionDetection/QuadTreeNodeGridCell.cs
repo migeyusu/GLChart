@@ -18,9 +18,9 @@ namespace GLChart.WPF.Render.CollisionDetection
 
         public int RowIndex { get; set; }
         public int ColumnIndex { get; set; }
-        public IEnumerable<Node> DataCollection => PointsTree.TraverseNotEmpty().Select(node => node.Data.Value);
+        public IEnumerable<Point2DNode> DataCollection => PointsTree.TraverseNotEmpty().Select(node => node.Data.Value);
 
-        public void Insert(Node node)
+        public void Insert(Point2DNode node)
         {
             PointsTree.Insert(node);
         }
@@ -30,7 +30,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             throw new System.NotImplementedException();
         }
 
-        public void Remove(Node node)
+        public void Remove(Point2DNode node)
         {
             throw new System.NotImplementedException();
         }

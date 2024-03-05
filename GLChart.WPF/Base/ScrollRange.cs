@@ -41,6 +41,11 @@ namespace GLChart.WPF.Base
             return Range <= double.Epsilon;
         }
 
+        public ScrollRange OffsetNew(double offset)
+        {
+            return new ScrollRange(Start + offset, End + offset);
+        }
+
         public ScrollRange Merge(ScrollRange range)
         {
             var rangeStart = range.Start;

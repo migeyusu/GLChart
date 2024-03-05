@@ -64,7 +64,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             return singleLinkedNode?.Data;
         }
 
-        public void Insert(ICollisionGeometry2D geometry)
+        public void Insert(MouseCollisionEllipse geometry)
         {
             throw new NotImplementedException();
         }
@@ -81,7 +81,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             }
         }
 
-        public IEnumerable<ICollisionCell> GetCollisionCells(ICollisionGeometry2D geometry)
+        public IEnumerable<ICollisionCell> GetCollisionCells(MouseCollisionEllipse geometry)
         {
             return GetCollisionCells(geometry.OrthogonalBoundary);
         }
@@ -107,17 +107,17 @@ namespace GLChart.WPF.Render.CollisionDetection
 
         public Guid Id { get; } = Guid.NewGuid();
 
-        public bool TrySearch(ICollisionGeometry2D geometry, out Node node)
+        public bool TrySearch(MouseCollisionEllipse geometry, out IGeometry2D? node)
         {
             var collisionCells = this.GetCollisionCells(geometry);
             var nearestNodeData = geometry.NearestNodeData(collisionCells, out _);
             if (nearestNodeData.HasValue)
             {
-                node = nearestNodeData.Value;
+                node = nearestNodeData.Value.Data;
                 return true;
             }
 
-            node = default;
+            node = null;
             return false;
         }
 
@@ -147,7 +147,7 @@ namespace GLChart.WPF.Render.CollisionDetection
                 containerCell = singleLinkedNode.Data;
             }
 
-            containerCell.Insert(new Node(point));
+            containerCell.Insert(new Point2DNode(point));
         }
 
         public void AddRange(IList<IPoint2D> nodes)
@@ -156,6 +156,21 @@ namespace GLChart.WPF.Render.CollisionDetection
             {
                 Add(point);
             }
+        }
+
+        public void Remove(IPoint2D geometry)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, IPoint2D geometry)
+        {
+            throw new NotImplementedException();
         }
 
         public void ResetWith(IPoint2D node)

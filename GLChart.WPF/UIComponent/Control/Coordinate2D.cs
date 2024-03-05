@@ -20,35 +20,25 @@ namespace GLChart.WPF.UIComponent.Control
         private const string YAxisName = "YAxis";
 
         public const string SeparatorLayerName = "SeparatorLayer";
+        
+        public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
+            "AxisXOption", typeof(AxisOption), typeof(Coordinate2D),
+            new PropertyMetadata(new AxisXOption()));
 
-        public static readonly DependencyProperty CoordinateRegionProperty = DependencyProperty.Register(
-            "CoordinateRegion", typeof(Region2D), typeof(Coordinate2D),
-            new FrameworkPropertyMetadata(default(Region2D)));
-
-        public Region2D CoordinateRegion
+        public AxisOption AxisXOption
         {
-            get { return (Region2D)GetValue(CoordinateRegionProperty); }
-            set { SetValue(CoordinateRegionProperty, value); }
+            get { return (AxisOption)GetValue(AxisXOptionProperty); }
+            set { SetValue(AxisXOptionProperty, value); }
         }
 
-        public static readonly DependencyProperty XLabelGenerationOptionProperty = DependencyProperty.Register(
-            "XLabelGenerationOption", typeof(AxisOption), typeof(Coordinate2D),
-            new PropertyMetadata(new AxisOption()));
+        public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
+            "AxisYOption", typeof(AxisOption), typeof(Coordinate2D),
+            new PropertyMetadata(new AxisYOption()));
 
-        public AxisOption XLabelGenerationOption
+        public AxisOption AxisYOption
         {
-            get { return (AxisOption)GetValue(XLabelGenerationOptionProperty); }
-            set { SetValue(XLabelGenerationOptionProperty, value); }
-        }
-
-        public static readonly DependencyProperty YLabelGenerationOptionProperty = DependencyProperty.Register(
-            "YLabelGenerationOption", typeof(AxisOption), typeof(Coordinate2D),
-            new PropertyMetadata(new AxisOption()));
-
-        public AxisOption YLabelGenerationOption
-        {
-            get { return (AxisOption)GetValue(YLabelGenerationOptionProperty); }
-            set { SetValue(YLabelGenerationOptionProperty, value); }
+            get { return (AxisOption)GetValue(AxisYOptionProperty); }
+            set { SetValue(AxisYOptionProperty, value); }
         }
 
         static Coordinate2D()
@@ -68,19 +58,8 @@ namespace GLChart.WPF.UIComponent.Control
             base.OnApplyTemplate();
             XAxisElement = GetTemplateChild(XAxisName) as XAxisElement;
             YAxisElement = GetTemplateChild(YAxisName) as YAxisElement;
-            var coordinateRegion = CoordinateRegion;
-            XAxisElement.Range = coordinateRegion.XRange;
-            YAxisElement.Range = coordinateRegion.YRange;
             SeparatorLayer = GetTemplateChild(SeparatorLayerName) as SeparatorLayer;
-            DependencyPropertyDescriptor.FromProperty(CoordinateRegionProperty, typeof(Coordinate2D))
-                .AddValueChanged(this, CoordinateRegionChangedHandler);
         }
 
-        private void CoordinateRegionChangedHandler(object sender, EventArgs e)
-        {
-            var coordinateRegion = this.CoordinateRegion;
-            this.XAxisElement.Range = coordinateRegion.XRange;
-            this.YAxisElement.Range = coordinateRegion.YRange;
-        }
     }
 }

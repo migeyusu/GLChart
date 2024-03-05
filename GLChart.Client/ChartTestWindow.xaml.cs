@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using GLChart.WPF.Base;
 using GLChart.WPF.Render;
+using GLChart.WPF.Render.Renderer;
 
 namespace GLChart.Samples
 {
@@ -22,7 +23,7 @@ namespace GLChart.Samples
 
         private void ChartTestWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            _line = LineChart.NewSeries();
+            _line = LineChart.NewSeries<RingLine2DRenderer>();
             LineChart.IsAutoYAxisEnable = false;
             LineChart.SettingRegion = new Region2D(new ScrollRange(0, 200), new ScrollRange(0, 510));
             LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-1000, 1000);

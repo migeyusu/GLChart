@@ -12,42 +12,31 @@ namespace GLChart.WPF.UIComponent.Control
     /// </summary>
     public class SeparatorLayer : FrameworkElement
     {
-        public static readonly DependencyProperty RegionProperty = DependencyProperty.Register(
-            "Region", typeof(Region2D), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(default(Region2D), FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public Region2D Region
-        {
-            get { return (Region2D)GetValue(RegionProperty); }
-            set { SetValue(RegionProperty, value); }
-        }
-
         public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-            "AxisXOption", typeof(AxisOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(new AxisOption(),
+            "AxisXOption", typeof(AxisXOption), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(new AxisXOption(),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisOption AxisXOption
+        public AxisXOption AxisXOption
         {
-            get { return (AxisOption)GetValue(AxisXOptionProperty); }
+            get { return (AxisXOption)GetValue(AxisXOptionProperty); }
             set { SetValue(AxisXOptionProperty, value); }
         }
 
         public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-            "AxisYOption", typeof(AxisOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(new AxisOption(),
+            "AxisYOption", typeof(AxisYOption), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(new AxisYOption(),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisOption AxisYOption
+        public AxisYOption AxisYOption
         {
-            get { return (AxisOption)GetValue(AxisYOptionProperty); }
+            get { return (AxisYOption)GetValue(AxisYOptionProperty); }
             set { SetValue(AxisYOptionProperty, value); }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            var region = Region;
             var axisXOption = AxisXOption;
             var axisYOption = AxisYOption;
             var renderSize = this.RenderSize;
@@ -56,8 +45,7 @@ namespace GLChart.WPF.UIComponent.Control
             if (axisXOption.IsSeparatorVisible)
             {
                 var separatePen = axisXOption.SeparatorPen;
-                var xAxisLabels =
-                    axisXOption.GenerateLabels(0, width, region.XRange, FlowDirection.LeftToRight);
+                var xAxisLabels = axisXOption.GenerateLabels(0, width);
                 foreach (var xAxisLabel in xAxisLabels)
                 {
                     drawingContext.DrawLine(separatePen, new Point(xAxisLabel.Location, 0),
@@ -68,8 +56,7 @@ namespace GLChart.WPF.UIComponent.Control
             if (axisYOption.IsSeparatorVisible)
             {
                 var separatePen = axisYOption.SeparatorPen;
-                var yAxisLabels = axisYOption.GenerateLabels(height, height, region.YRange,
-                    FlowDirection.RightToLeft);
+                var yAxisLabels = axisYOption.GenerateLabels(height, height);
                 foreach (var yAxisLabel in yAxisLabels)
                 {
                     drawingContext.DrawLine(separatePen, new Point(0, yAxisLabel.Location),

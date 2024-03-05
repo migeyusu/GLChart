@@ -28,7 +28,7 @@ namespace GLChart.WPF.Render.Renderer
         public event Action<Region2D> ActualRegionChanged;
 
         /// <summary>
-        /// 点采样函数，渲染大量点位时允许只渲染部分点，未实现
+        /// 点采样函数，渲染大量点位时允许只渲染部分点，todo:未实现
         /// </summary>
         public Func<int, ScrollRange> SamplingFunction { get; set; }
 
@@ -81,6 +81,7 @@ namespace GLChart.WPF.Render.Renderer
         /// </summary>
         public Region2D TargetRegion
         {
+            get { return _targetRegion; }
             set
             {
                 if (value.Equals(_targetRegion))
@@ -269,13 +270,13 @@ namespace GLChart.WPF.Render.Renderer
                     _emptySsboBuffer.Length * sizeof(int),
                     _emptySsboBuffer);
             }
-            
+
             foreach (var seriesItem in _rendererSeriesSnapList)
             {
                 seriesItem.ApplyDirective(new RenderDirective2D() { Transform = _tempTransform });
                 seriesItem.Render(args);
             }
-            
+
             if (_isHeightAutoAdapting)
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);

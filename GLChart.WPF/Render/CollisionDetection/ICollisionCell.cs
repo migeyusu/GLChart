@@ -11,11 +11,11 @@ namespace GLChart.WPF.Render.CollisionDetection
 
         int ColumnIndex { get; set; }
 
-        IEnumerable<Node> DataCollection { get; }
+        IEnumerable<Point2DNode> DataCollection { get; }
 
-        void Insert(Node node);
+        void Insert(Point2DNode node);
 
-        void Remove(Node node);
+        void Remove(Point2DNode node);
 
         void Clear();
     }

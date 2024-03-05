@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GLChart.WPF.Base;
+using System;
 
 namespace GLChart.WPF.Render.CollisionDetection
 {
     /// <summary>
-    /// 用于碰撞检测的椭圆形
+    /// 代表鼠标的碰撞检测区域  
     /// </summary>
-    public class Ellipse : ICollisionGeometry2D
+    public class MouseCollisionEllipse : IGeometry2D
     {
         public Point2D Center { get; set; }
 
@@ -26,13 +27,13 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// <param name="point"></param>
         /// <param name="a">x轴截距</param>
         /// <param name="b">y轴截距</param>
-        public Ellipse(Point2D point, float a, float b)
+        public MouseCollisionEllipse(Point2D point, float a, float b)
         {
             this.Center = point;
             Origin = point;
             A = a;
             B = b;
-            OrthogonalBoundary = new CollisionDetection.Boundary2D(point.X - a, point.X + a, point.Y - b, point.Y + b);
+            OrthogonalBoundary = new Boundary2D(point.X - a, point.X + a, point.Y - b, point.Y + b);
         }
 
         /// <summary>

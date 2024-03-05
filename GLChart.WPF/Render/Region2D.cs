@@ -4,7 +4,7 @@ using GLChart.WPF.Base;
 namespace GLChart.WPF.Render
 {
     /// <summary>
-    /// 表示和和OpenGL一致的坐标系区域。注意：和windows的<see cref="System.Windows.Rect"/>相反
+    /// 图表标准坐标系下的区域，使用OpenGL相同的坐标系。注意：和windows的<see cref="System.Windows.Rect"/>相反
     /// </summary>
     public struct Region2D
     {

@@ -11,7 +11,7 @@ namespace GLChart.WPF.UIComponent.Interaction
         public event EventHandler<SelectionArgs> Selected;
 
         public static readonly DependencyProperty AllowDrawScaleProperty = DependencyProperty.Register(
-            "AllowDrawScale", typeof(bool), typeof(LineChart), new PropertyMetadata(true));
+            "AllowDrawScale", typeof(bool), typeof(Series2DChart), new PropertyMetadata(true));
 
         public bool AllowDrawScale
         {

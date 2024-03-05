@@ -1,18 +1,19 @@
-﻿using System.Drawing;
+﻿
+using System.Windows.Media;
 using GLChart.WPF.Base;
 
 namespace GLChart.WPF.UIComponent.Interaction
 {
     public class MouseHoverNodeData
     {
-        public MouseHoverNodeData(Color color, IPoint2D point, string title)
+        public MouseHoverNodeData(Color color, IGeometry point, string title)
         {
             Color = color;
             Point = point;
             Title = title;
         }
 
-        public IPoint2D Point { get; }
+        public IGeometry Point { get; }
 
         public string Title { get; }
 

@@ -31,7 +31,7 @@ namespace GLChart.Samples
         }
 
         private ChannelSeriesRenderer channelSeriesRenderer;
-        private ChannelRenderer _channelRenderer;
+        private RingChannelRenderer _channelRenderer;
         private int _totalChannelCount = 0;
         private const int ChannelWidth = 30;
         private const float XInterval = 100;
@@ -52,7 +52,7 @@ namespace GLChart.Samples
             }
 
             _totalChannelCount++;
-            _channelRenderer = new ChannelRenderer()
+            _channelRenderer = new RingChannelRenderer()
             {
                 ChannelColor = Color.Red,
                 ChannelWidth = ChannelWidth,

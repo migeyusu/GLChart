@@ -9,7 +9,7 @@
         Loaded="ChartTestWindow_OnLoaded"
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
-        <control:LineChart
+        <control:Series2DChart
             IsShowFps="True"
             x:Name="LineChart" />
         <Button Click="ButtonBase_OnClick"

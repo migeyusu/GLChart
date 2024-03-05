@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
+using GLChart.WPF.Base;
 
 namespace GLChart.WPF.Render.CollisionDetection
 {
-    public class CollisionGridPoint2D
+    public class CollisionGrid2D
     {
-        private readonly List<ICollisionPoint2D> _layers = new List<ICollisionPoint2D>(10);
+        private readonly List<ICollision2DLayer> _layers = new List<ICollision2DLayer>(10);
 
-        public CollisionGridPoint2D()
+        public CollisionGrid2D()
         {
         }
 
-        public void AddLayer(ICollisionPoint2D layer)
+        public void AddLayer(ICollision2DLayer layer)
         {
             _layers.Add(layer);
         }
 
-        public void Remove(ICollisionPoint2D layer)
+        public void Remove(ICollision2DLayer layer)
         {
             _layers.Remove(layer);
         }
@@ -25,7 +26,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             _layers.Clear();
         }
 
-        public bool TrySearch(ICollisionGeometry2D geometry, out Node node, out ICollisionPoint2D fromLayer)
+        public bool TrySearch(MouseCollisionEllipse geometry, out IGeometry2D? node, out ICollision2DLayer? fromLayer)
         {
             foreach (var layer in _layers)
             {
@@ -37,8 +38,8 @@ namespace GLChart.WPF.Render.CollisionDetection
             }
 
             fromLayer = null;
-            node = default;
-            return !node.Equals(default);
+            node = null;
+            return false;
         }
     }
 }

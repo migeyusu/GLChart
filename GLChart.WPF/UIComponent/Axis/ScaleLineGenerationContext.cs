@@ -17,7 +17,7 @@ namespace GLChart.WPF.UIComponent.Axis
         /// <param name="pixelDirection">if value is <see cref="FlowDirection.LeftToRight"/>,means pixel is growth,another inverse</param>
         /// <param name="axisRenderOption"></param>
         public ScaleLineGenerationContext(ScrollRange valueRange, double pixelStart, double pixelStretch,
-            FlowDirection pixelDirection, AxisRenderOption axisRenderOption)
+            FlowDirection pixelDirection, AxisLabelRenderOption axisRenderOption)
         {
             ValueRange = valueRange;
             PixelStart = pixelStart;
@@ -26,7 +26,7 @@ namespace GLChart.WPF.UIComponent.Axis
             AxisRenderOption = axisRenderOption;
         }
 
-        public AxisRenderOption AxisRenderOption { get; }
+        public AxisLabelRenderOption AxisRenderOption { get; }
 
         public ScrollRange ValueRange { get; }
 

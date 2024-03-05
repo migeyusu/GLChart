@@ -18,7 +18,7 @@ namespace GLChart.WPF.Render.Renderer
         }
     }
 
-    public class ChannelSeriesRenderer : SeriesShaderRenderer<ChannelRenderer>
+    public class ChannelSeriesRenderer : SeriesShaderRenderer<RingChannelRenderer>
     {
         public ColorRange ColorRange { get; set; } = new ColorRange() { Start = Color4.Black, End = Color4.Red };
 

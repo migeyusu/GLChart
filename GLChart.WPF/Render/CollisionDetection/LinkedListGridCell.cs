@@ -7,7 +7,7 @@ namespace GLChart.WPF.Render.CollisionDetection
 {
     public class LinkedListGridCell : ICollisionCell
     {
-        private readonly SingleLinkedList<Node> _nodesLinkedList = new SingleLinkedList<Node>();
+        private readonly SingleLinkedList<Point2DNode> _nodesLinkedList = new SingleLinkedList<Point2DNode>();
 
         public LinkedListGridCell()
         {
@@ -17,9 +17,9 @@ namespace GLChart.WPF.Render.CollisionDetection
 
         public int RowIndex { get; set; }
         public int ColumnIndex { get; set; }
-        public IEnumerable<Node> DataCollection => _nodesLinkedList;
+        public IEnumerable<Point2DNode> DataCollection => _nodesLinkedList;
 
-        public void Insert(Node node)
+        public void Insert(Point2DNode node)
         {
             _nodesLinkedList.Append(node);
         }
@@ -29,12 +29,12 @@ namespace GLChart.WPF.Render.CollisionDetection
             _nodesLinkedList.Clear();
         }
 
-        public void Remove(Node node)
+        public void Remove(Point2DNode node)
         {
             _nodesLinkedList.Remove(node);
         }
 
-        public IEnumerable<Node> AccuracyGradeSearch(Point2D point, float accuracy)
+        public IEnumerable<Point2DNode> AccuracyGradeSearch(Point2D point, float accuracy)
         {
             var distanceSquare = Math.Pow(accuracy, 2);
             return _nodesLinkedList.Where(node => node.Point.GetDistanceSquare(point) <= distanceSquare);

@@ -5,6 +5,9 @@
     /// </summary>
     public interface IGeometry
     {
-        
+    }
+
+    public interface IGeometry2D : IGeometry
+    {
     }
 }

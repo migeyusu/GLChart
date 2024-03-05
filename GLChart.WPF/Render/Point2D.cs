@@ -58,16 +58,6 @@ namespace GLChart.WPF.Render
         }
 
         /// <summary>
-        /// 创建一个半径为<see cref="radius"/>的圆的边界
-        /// </summary>
-        /// <param name="radius">半径</param>
-        /// <returns></returns>
-        public Round CreateGeometryBoundary(float radius)
-        {
-            return new Round(this, radius);
-        }
-
-        /// <summary>
         /// 得到距离的平方
         /// </summary>
         /// <param name="point"></param>

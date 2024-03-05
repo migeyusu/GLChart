@@ -17,7 +17,7 @@ namespace GLChart.Samples.UnitTest
         [Fact]
         public void CreateIndexBuffer()
         {
-            var populateIndex = ChannelRenderer.PopulateIndex(5, 3);
+            var populateIndex = RingChannelRenderer.PopulateIndex(5, 3);
             var stringBuilder = new StringBuilder();
             foreach (var s in populateIndex)
             {

@@ -1,0 +1,803 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="RLP.ICPMS.Tune.View.Concise.Themes.GenericResourceDictionary"
+    xmlns:local="clr-namespace:RLP.ICPMS.Tune.View.Concise"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:control="clr-namespace:GLChart.Samples.Charts"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:control1="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF">
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    <mah:ColorToSolidColorBrushConverter x:Key="ColorToSolidColorBrushConverter" />
+    <DrawingBrush x:Key="DottedBrush"
+                  Viewport="0,0,8,8" ViewportUnits="Absolute" TileMode="Tile">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="Black">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="0,0,50,50" />
+                            <RectangleGeometry Rect="50,50,50,50" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <SolidColorBrush x:Key="ThumbFillHoverBrush" Color="Black" />
+    <SolidColorBrush x:Key="TrackFillHoverBrush" Color="DimGray" />
+    <SolidColorBrush x:Key="TrackFillPressedBrush" Color="Gray" />
+    <SolidColorBrush x:Key="TrackFillBrush" Color="Gray" />
+    <SolidColorBrush x:Key="ThumbFillDisabledBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="ThumbFillPressedBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="TrackFillDisabledBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="TrackValueFillDisabledBrush" Color="LightGray" />
+    <Style TargetType="{x:Type control:ContentThumb}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ContentThumb}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="VerticalContentAlignment"
+                Value="Center" />
+    </Style>
+    <Style TargetType="{x:Type Border}"
+           x:Key="GroupBorderStyle">
+        <Setter Property="BorderBrush"
+                Value="LightGray" />
+        <Setter Property="BorderThickness"
+                Value="2" />
+    </Style>
+    <Style TargetType="{x:Type control:ContentRangeSlider}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="IsMoveToPointEnabled" Value="True" />
+        <Setter Property="AutoToolTipPlacement"
+                Value="TopLeft" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ContentRangeSlider}">
+                    <Grid x:Name="PART_Container" Background="{TemplateBinding Background}"
+                          Height="{TemplateBinding Height}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" MinHeight="{TemplateBinding MinHeight}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ContentPresenter Content="{TemplateBinding  Content}"
+                                          Grid.Row="1"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                        <TickBar x:Name="PART_TopTick"
+                                 Fill="{TemplateBinding Foreground}"
+                                 Height="4"
+                                 IsSelectionRangeEnabled="{TemplateBinding IsSelectionRangeEnabled}"
+                                 Maximum="{TemplateBinding Maximum}"
+                                 Minimum="{TemplateBinding Minimum}"
+                                 Placement="Top" Grid.Row="0" ReservedSpace="8"
+                                 SelectionStart="{TemplateBinding SelectionStart}"
+                                 SelectionEnd="{TemplateBinding SelectionEnd}"
+                                 Ticks="{TemplateBinding Ticks}"
+                                 TickFrequency="{TemplateBinding TickFrequency}"
+                                 Visibility="Collapsed" />
+                        <TickBar x:Name="PART_BottomTick"
+                                 Fill="{TemplateBinding Foreground}"
+                                 Height="4"
+                                 IsSelectionRangeEnabled="{TemplateBinding IsSelectionRangeEnabled}"
+                                 Maximum="{TemplateBinding Maximum}"
+                                 Minimum="{TemplateBinding Minimum}"
+                                 Placement="Bottom"
+                                 Grid.Row="2"
+                                 ReservedSpace="8"
+                                 SelectionStart="{TemplateBinding SelectionStart}"
+                                 SelectionEnd="{TemplateBinding SelectionEnd}"
+                                 Ticks="{TemplateBinding Ticks}"
+                                 TickFrequency="{TemplateBinding TickFrequency}"
+                                 Visibility="Collapsed" />
+                        <StackPanel x:Name="PART_RangeSliderContainer" Background="Transparent"
+                                    Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="3">
+                            <RepeatButton x:Name="PART_LeftEdge"
+                                          BorderThickness="0"
+                                          Background="LightGray"
+                                          Opacity="0.5"
+                                          Height="{TemplateBinding Height}" />
+                            <control:ContentThumb x:Name="PART_LeftThumb"
+                                                  Cursor="SizeWE"
+                                                  Width="5"
+                                                  Background="Gainsboro" />
+                            <control:ContentThumb x:Name="PART_MiddleThumb"
+                                                  Cursor="Hand"
+                                                  VerticalAlignment="Stretch"
+                                                  MinWidth="{TemplateBinding MinRangeWidth}"
+                                                  HorizontalContentAlignment="Stretch"
+                                                  VerticalContentAlignment="Stretch">
+                                <control:ContentThumb.Content>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.ColumnSpan="3"
+                                                Background="WhiteSmoke"
+                                                Opacity="0.1" />
+                                        <iconPacks:PackIconMaterial Kind="TransferLeft"
+                                                                    Grid.Column="0"
+                                                                    VerticalAlignment="Center" />
+                                        <iconPacks:PackIconMaterial Grid.Column="2"
+                                                                    Kind="TransferRight"
+                                                                    VerticalAlignment="Center" />
+
+                                    </Grid>
+                                </control:ContentThumb.Content>
+                            </control:ContentThumb>
+                            <control:ContentThumb x:Name="PART_RightThumb"
+                                                  Cursor="SizeWE"
+                                                  Width="5"
+                                                  Background="Gainsboro" />
+                            <RepeatButton x:Name="PART_RightEdge"
+                                          BorderThickness="0"
+                                          Background="LightGray"
+                                          Opacity="0.5"
+                                          Height="{TemplateBinding Height}" />
+                        </StackPanel>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="TickPlacement" Value="TopLeft">
+                            <Setter Property="Visibility" TargetName="PART_TopTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="BottomRight">
+                            <Setter Property="Visibility" TargetName="PART_BottomTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="Both">
+                            <Setter Property="Visibility" TargetName="PART_BottomTick" Value="Visible" />
+                            <Setter Property="Visibility" TargetName="PART_TopTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillHoverBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillHoverBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueLightBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillHoverBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillHoverBrush}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsPressed" SourceName="PART_LeftEdge" Value="True" />
+                                <Condition Property="IsMoveToPointEnabled" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsPressed" SourceName="PART_RightEdge" Value="True" />
+                                <Condition Property="IsMoveToPointEnabled" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </MultiTrigger>
+                        <Trigger Property="IsDragging" SourceName="PART_LeftThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" SourceName="PART_MiddleThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" SourceName="PART_RightThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillDisabledBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillDisabledBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{StaticResource TrackValueFillDisabledBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillDisabledBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillDisabledBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style TargetType="{x:Type control:HistoricalGlChart}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:HistoricalGlChart}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <control1:Series2DChart x:Name="ContentChart"
+                                                    IsShowFps="False"
+                                                    AxisXOption="{TemplateBinding AxisXOption}"
+                                                    AxisYOption="{TemplateBinding AxisYOption}"
+                                                    IsAutoYAxisEnable="{TemplateBinding IsAutoYAxisEnable}"
+                                                    ToolTipTemplate="{TemplateBinding ToolTipTemplate}" />
+                            <Border Grid.Row="1"
+                                    Height="50"
+                                    VerticalAlignment="Stretch"
+                                    Visibility="{TemplateBinding IsHistoryVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <control:ContentRangeSlider x:Name="RangeSlider"
+                                                            VerticalAlignment="Stretch"
+                                                            mah:SliderHelper.ChangeValueBy="SmallChange"
+                                                            mah:SliderHelper.EnableMouseWheel="MouseHover"
+                                                            AutoToolTipPlacement="None"
+                                                            LargeChange="10"
+                                                            MinRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.MinDisplayExtent,Mode=OneWay}"
+                                                            IsSnapToTickEnabled="{TemplateBinding IsSnapToTickEnabled}"
+                                                            TickFrequency="{TemplateBinding TickFrequency}"
+                                                            Orientation="Horizontal"
+                                                            VerticalContentAlignment="Stretch"
+                                                            SmallChange="{TemplateBinding TickFrequency}"
+                                                            AutoToolTipUpperValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
+                                                            AutoToolTipLowerValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
+                                                            AutoToolTipRangeValuesTemplate="{TemplateBinding RangeSliderAutoToolTipRangeValuesTemplate}">
+                                    <control:ContentRangeSlider.Content>
+                                        <control1:DrawableElement x:Name="ThumbnailElement" />
+                                    </control:ContentRangeSlider.Content>
+                                </control:ContentRangeSlider>
+                            </Border>
+                            <ItemsControl Grid.Row="0"
+                                          VerticalAlignment="Top"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="200"
+                                          Visibility="{TemplateBinding LegendVisibility}"
+                                          ItemsSource="{TemplateBinding BindingSource}"
+                                          ItemTemplate="{TemplateBinding LegendTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ToolTipTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type openGl:MouseHoverNodeData}">
+                    <TextBlock FontSize="20">
+                        <Run Text="{Binding Title,Mode=OneWay}" />
+                        <LineBreak />
+                        <Run Text="X:" />
+                        <Run Text="{Binding Point.X,Mode=OneWay}" />
+                        <Run Text="Y:" />
+                        <Run Text="{Binding Point.Y,Mode=OneWay}" />
+                    </TextBlock>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <Style TargetType="{x:Type control:AutoHidePanel}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:AutoHidePanel}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <!--<Style.Triggers>
+            <Trigger Property="Orientation"
+                     Value="Horizontal"></Trigger>
+        </Style.Triggers>-->
+    </Style>
+
+    <Style TargetType="{x:Type chart:ChartItem}"
+           x:Key="ResolutionStyle">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type chart:ChartItem}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <ContentPresenter Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              ContentStringFormat="{TemplateBinding HeaderStringFormat}"
+                                              ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center" />
+                            <wpf:CartesianChart Grid.Row="1"
+                                                DisableAnimations="True"
+                                                Zoom="X"
+                                                Series="{TemplateBinding Collection}"
+                                                Margin="5"
+                                                x:Name="CartesianChart">
+                                <wpf:CartesianChart.AxisX>
+                                    <wpf:Axis MaxRange="{TemplateBinding MaxRange}"
+                                              MinValue="{x:Static system:Double.NaN}"
+                                              MaxValue="{x:Static system:Double.NaN}">
+                                    </wpf:Axis>
+                                </wpf:CartesianChart.AxisX>
+                                <wpf:CartesianChart.AxisY>
+                                    <wpf:Axis MinValue="0"
+                                              MaxValue="{x:Static system:Double.NaN}" />
+                                </wpf:CartesianChart.AxisY>
+                            </wpf:CartesianChart>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HeaderTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type chart:ChartItem}">
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderThickness"
+                Value="0.5" />
+        <Setter Property="BorderBrush"
+                Value="DimGray" />
+        <Setter Property="Background"
+                Value="WhiteSmoke" />
+        <Setter Property="Margin"
+                Value="5" />
+    </Style>
+
+
+    <Style TargetType="{x:Type chart:ChartGroup}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type chart:ChartGroup}">
+                    <Border Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            CornerRadius="2">
+                        <UniformGrid IsItemsHost="True" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Resources>
+            <Style TargetType="{x:Type chart:ChartItem}"
+                   BasedOn="{StaticResource ResolutionStyle}" />
+        </Style.Resources>
+    </Style>
+
+    <Style TargetType="{x:Type control:NonReloadingTabControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabControl}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid Background="{TemplateBinding Background}"
+                              ClipToBounds="True"
+                              KeyboardNavigation.TabNavigation="Local"
+                              SnapsToDevicePixels="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="ColumnDefinition0" />
+                                <ColumnDefinition x:Name="ColumnDefinition1" Width="0" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="RowDefinition0" Height="Auto" />
+                                <RowDefinition x:Name="RowDefinition1" Height="*" />
+                            </Grid.RowDefinitions>
+                            <ScrollViewer VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="HeaderPanel"
+                                            Orientation="Horizontal"
+                                            Margin="0,0,0,-1"
+                                            VerticalAlignment="Bottom"
+                                            Panel.ZIndex="1"
+                                            IsItemsHost="True"
+                                            KeyboardNavigation.TabIndex="1" />
+                            </ScrollViewer>
+                            <Border x:Name="ContentPanel" Grid.Row="1" Grid.Column="0"
+                                    KeyboardNavigation.DirectionalNavigation="Contained"
+                                    KeyboardNavigation.TabIndex="2"
+                                    KeyboardNavigation.TabNavigation="Local">
+                                <Grid x:Name="PART_ItemsHolder" Margin="{TemplateBinding Padding}"
+                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background"
+                Value="White" />
+        <Setter Property="BorderThickness"
+                Value="0" />
+    </Style>
+    <Style TargetType="{x:Type control:SelectionSlider}"
+           x:Key="StandardSlider">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:SelectionSlider}">
+                    <Grid VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                          Background="White">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" MinHeight="{TemplateBinding Slider.MinHeight}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TickBar x:Name="TopTick"
+                                 Grid.Row="0"
+                                 Placement="Top"
+                                 Style="{DynamicResource MahApps.Styles.TickBar.Slider.Flat}" />
+                        <TickBar x:Name="BottomTick"
+                                 Grid.Row="2"
+                                 Placement="Bottom"
+                                 Style="{DynamicResource MahApps.Styles.TickBar.Slider.Flat}" />
+                        <Rectangle Grid.Row="1"
+                                   Fill="Red" />
+                        <Border Grid.Row="1"
+                                Background="{TemplateBinding Background}"
+                                Opacity="0.3"
+                                Width="{Binding IncreaseRepeatButton.ActualWidth, ElementName=PART_Track}"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Stretch" />
+                        <!--  Selection range must be wrapped in a Canvas for the position to be updated correctly  -->
+                        <Canvas Grid.Row="1" VerticalAlignment="Stretch">
+                            <Rectangle x:Name="PART_SelectionRange"
+                                       Height="{TemplateBinding Height}"
+                                       Fill="{TemplateBinding SelectionBrush}"
+                                       Visibility="Collapsed" />
+                        </Canvas>
+                        <Border Grid.Row="1"
+                                Background="{TemplateBinding Foreground}"
+                                Opacity="0.8"
+                                Width="{Binding DecreaseRepeatButton.ActualWidth, ElementName=PART_Track}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Stretch" />
+                        <Track x:Name="PART_Track" Grid.Row="1">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Background="Transparent"
+                                              Command="Slider.DecreaseLarge"
+                                              Style="{DynamicResource MahApps.Styles.RepeatButton.SliderTrack.Flat}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Background="Transparent"
+                                              Command="Slider.IncreaseLarge"
+                                              Style="{DynamicResource MahApps.Styles.RepeatButton.SliderTrack.Flat}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <mah:MetroThumb Width="{TemplateBinding Slider.MinHeight}"
+                                                Background="{TemplateBinding Slider.BorderBrush}"
+                                                Style="{DynamicResource MahApps.Styles.Thumb.Slider.Flat}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="TickPlacement" Value="TopLeft">
+                            <Setter TargetName="TopTick" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="BottomRight">
+                            <Setter TargetName="BottomTick" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="Both">
+                            <Setter TargetName="BottomTick" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="TopTick" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsSelectionRangeEnabled" Value="true">
+                            <Setter Property="Visibility" TargetName="PART_SelectionRange" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.SliderTrack.Normal}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Maximum" Value="100" />
+        <Setter Property="Minimum" Value="0" />
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Value" Value="0" />
+        <Setter Property="IsSelectionRangeEnabled"
+                Value="True" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.SliderTrack.Disabled}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.SliderThumb.Disabled}" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.SliderValue.Disabled}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.SliderTrack.Hover}" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent2}" />
+            </Trigger>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="MinHeight" Value="{DynamicResource MahApps.Sizes.Slider.Flat.Horizontal.MinHeight}" />
+                <Setter Property="MinWidth" Value="0" />
+                <!-- <Setter Property="Template" Value="{DynamicResource MahApps.Templates.Slider.Horizontal.Flat}" /> -->
+            </Trigger>
+            <Trigger Property="Orientation" Value="Vertical">
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="MinWidth" Value="{DynamicResource MahApps.Sizes.Slider.Flat.Vertical.MinWidth}" />
+                <Setter Property="Template" Value="{DynamicResource MahApps.Templates.Slider.Vertical.Flat}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
+    <Style TargetType="{x:Type control:SearchBox}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:SearchBox}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <materialDesign:ColorZone Mode="Standard"
+                                                  Padding="8 4 8 4"
+                                                  CornerRadius="2"
+                                                  Panel.ZIndex="1"
+                                                  Margin="16,3"
+                                                  materialDesign:ShadowAssist.ShadowDepth="Depth1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Button Style="{DynamicResource MaterialDesignToolButton}"
+                                        Command="{TemplateBinding SearchCommand}"
+                                        CommandParameter="{Binding ElementName=SearchTextBox,Path=Text}">
+                                    <materialDesign:PackIcon Kind="Search"
+                                                             Opacity=".56" />
+                                </Button>
+                                <TextBox Grid.Column="1"
+                                         Margin="8 0 0 0"
+                                         x:Name="SearchTextBox"
+                                         Text="{Binding RelativeSource={RelativeSource TemplatedParent},Path=SearchString,UpdateSourceTrigger=PropertyChanged}"
+                                         materialDesign:HintAssist.Hint="Search"
+                                         materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+                                         BorderThickness="0"
+                                         MinWidth="200"
+                                         VerticalAlignment="Center" />
+                            </Grid>
+                        </materialDesign:ColorZone>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type control:ListBoxItemEx}"
+           x:Key="ListBoxItemExStyle"
+           BasedOn="{StaticResource MaterialDesignListBoxItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ListBoxItemEx}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Height="{TemplateBinding Height}"
+                            Width="{TemplateBinding Width}"
+                            Margin="{TemplateBinding Margin}"
+                            VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                            ClipToBounds="{TemplateBinding ClipToBounds}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.3" To="Normal">
+                                        <VisualTransition.GeneratedEasingFunction>
+                                            <CircleEase EasingMode="EaseOut" />
+                                        </VisualTransition.GeneratedEasingFunction>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState Name="Normal" />
+                                <VisualState Name="MouseOver">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="CloseButton"
+                                                         Storyboard.TargetProperty="(FrameworkElement.Width)"
+                                                         From="0"
+                                                         To="50"
+                                                         Duration="0:0:0.3" />
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="CloseButton"
+                                                                       Storyboard.TargetProperty="(UIElement.Visibility)">
+                                            <DiscreteObjectKeyFrame KeyTime="0"
+                                                                    Value="{x:Static Visibility.Visible}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <DoubleAnimation Storyboard.TargetName="MouseOverBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.1" Duration="0" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState Name="Disabled" />
+                            </VisualStateGroup>
+                            <VisualStateGroup Name="SelectionStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0:0:0.6" />
+                                </VisualStateGroup.Transitions>
+                                <VisualState Name="Selected">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="SelectedBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.18" Duration="0" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState Name="Unselected" />
+                                <VisualState Name="SelectedUnfocused">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="SelectedBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.03" Duration="0" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button Content="{materialDesign:PackIcon Kind=Close}"
+                                    Width="50"
+                                    Command="Delete"
+                                    CommandParameter="{Binding}"
+                                    Visibility="Collapsed"
+                                    x:Name="CloseButton"
+                                    Style="{StaticResource MaterialDesignFlatButton}" />
+                            <Border x:Name="MouseOverBorder"
+                                    Grid.Column="1"
+                                    Opacity="0"
+                                    Background="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}" />
+                            <Border x:Name="SelectedBorder" Opacity="0"
+                                    Grid.Column="1"
+                                    Background="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}" />
+                            <materialDesign:Ripple Grid.Column="1"
+                                                   Feedback="{TemplateBinding Foreground, Converter={StaticResource BrushRoundConverter}}"
+                                                   Focusable="False"
+                                                   Content="{TemplateBinding Content}"
+                                                   ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                   ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Stretch"
+                                                   HorizontalContentAlignment="Stretch"
+                                                   VerticalContentAlignment="Stretch"
+                                                   Padding="{TemplateBinding Padding}"
+                                                   RecognizesAccessKey="False" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".56" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type control:ListBoxEx}"
+           BasedOn="{StaticResource MaterialDesignListBox}">
+        <Setter Property="ItemContainerStyle"
+                Value="{StaticResource ListBoxItemExStyle}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="control:ListBoxEx">
+                    <Border Name="Border"
+                            Opacity="{TemplateBinding Opacity}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{TemplateBinding Background}">
+                        <ScrollViewer Focusable="false"
+                                      Padding="{TemplateBinding Padding}">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsGrouping"
+                                 Value="True">
+                            <Setter Property="ScrollViewer.CanContentScroll"
+                                    Value="False" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <!--<Style.Triggers>
+            <Trigger Property="IsEnabled"
+                     Value="False">
+                <Setter Property="Opacity"
+                        Value="0.5" />
+            </Trigger>
+        </Style.Triggers>-->
+    </Style>
+
+    <Style TargetType="{x:Type control:StretchMenuItem}"
+           BasedOn="{StaticResource MaterialDesignExpander}">
+        <Setter Property="Padding"
+                Value="0" />
+        <Setter Property="Background"
+                Value="White" />
+    </Style>
+    <Style TargetType="{x:Type control:StretchMenuList}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:StretchMenuList}">
+                    <Border Name="Border"
+                            Opacity="{TemplateBinding Opacity}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Background="{TemplateBinding Background}">
+                        <ScrollViewer Focusable="false"
+                                      Padding="{TemplateBinding Padding}"
+                                      VerticalScrollBarVisibility="Disabled">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

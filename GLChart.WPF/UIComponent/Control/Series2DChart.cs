@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using GLChart.WPF.Base;
@@ -15,7 +15,6 @@ using GLChart.WPF.Render.Renderer;
 using GLChart.WPF.UIComponent.Axis;
 using GLChart.WPF.UIComponent.Interaction;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
 using OpenTkWPFHost.Configuration;
 using OpenTkWPFHost.Control;
 using OpenTkWPFHost.Core;
@@ -31,7 +30,7 @@ namespace GLChart.WPF.UIComponent.Control
     [TemplatePart(Name = CoordinateElementName, Type = typeof(Coordinate2D))]
     // [TemplatePart(Name = ThreadOpenTkControl, Type = typeof(BitmapOpenTkControl))]
     [TemplatePart(Name = SelectScaleElement, Type = typeof(MouseSelect))]
-    public class LineChart : System.Windows.Controls.Control, ISeriesChart<ILine2D>
+    public class Series2DChart : System.Windows.Controls.Control, ISeries2DChart
     {
         // private const string ThreadOpenTkControl = "ThreadOpenTkControl";
 
@@ -41,14 +40,14 @@ namespace GLChart.WPF.UIComponent.Control
 
         private const string ToolTipName = "ToolTip";
 
-        static LineChart()
+        static Series2DChart()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(LineChart),
-                new FrameworkPropertyMetadata(typeof(LineChart)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(Series2DChart),
+                new FrameworkPropertyMetadata(typeof(Series2DChart)));
         }
 
         public static readonly DependencyProperty ToolTipTemplateProperty = DependencyProperty.Register(
-            nameof(ToolTipTemplate), typeof(DataTemplate), typeof(LineChart),
+            nameof(ToolTipTemplate), typeof(DataTemplate), typeof(Series2DChart),
             new PropertyMetadata(default(DataTemplate)));
 
         public DataTemplate ToolTipTemplate
@@ -76,40 +75,95 @@ namespace GLChart.WPF.UIComponent.Control
         #region coordinate
 
         public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-            nameof(AxisXOption), typeof(AxisOption), typeof(LineChart),
-            new PropertyMetadata(new AxisOption()));
+            nameof(AxisXOption), typeof(AxisXOption), typeof(Series2DChart),
+            new PropertyMetadata(new AxisXOption(), AxisXPropertyChangedCallback));
 
-        public AxisOption AxisXOption
+        private static void AxisXPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get => (AxisOption)GetValue(AxisXOptionProperty);
+            var series2DChart = d as Series2DChart;
+            if (series2DChart == null)
+            {
+                return;
+            }
+
+            series2DChart.ChangeAxisXOption(e);
+        }
+
+        private void OnAxisXViewChangedHandler(object? sender, EventArgs e)
+        {
+            this._coordinateRenderer.TargetRegion =
+                this._coordinateRenderer.TargetRegion.ChangeXRange(AxisXOption.CurrentViewRange);
+        }
+
+        private void ChangeAxisXOption(DependencyPropertyChangedEventArgs e)
+        {
+            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.CurrentViewRangeProperty,
+                typeof(AxisOption));
+            if (e.OldValue is AxisXOption oldValue)
+            {
+                pd.RemoveValueChanged(oldValue, OnAxisXViewChangedHandler);
+            }
+
+            if (e.NewValue is AxisXOption newValue)
+            {
+                pd.AddValueChanged(newValue, OnAxisXViewChangedHandler);
+                var targetRegion = this._coordinateRenderer.TargetRegion;
+                this._coordinateRenderer.TargetRegion = targetRegion.ChangeXRange(newValue.CurrentViewRange);
+            }
+        }
+
+        public AxisXOption AxisXOption
+        {
+            get => (AxisXOption)GetValue(AxisXOptionProperty);
             set => SetValue(AxisXOptionProperty, value);
         }
 
         public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-            nameof(AxisYOption), typeof(AxisOption), typeof(LineChart),
-            new PropertyMetadata(new AxisOption()));
+            nameof(AxisYOption), typeof(AxisYOption), typeof(Series2DChart),
+            new PropertyMetadata(new AxisYOption(), AxisYPropertyChangedCallback));
 
-        public AxisOption AxisYOption
+        private static void AxisYPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get => (AxisOption)GetValue(AxisYOptionProperty);
+            var series2DChart = d as Series2DChart;
+            if (series2DChart == null)
+            {
+                return;
+            }
+
+            series2DChart.ChangeAxisYOption(e);
+        }
+
+        private void ChangeAxisYOption(DependencyPropertyChangedEventArgs e)
+        {
+            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.CurrentViewRangeProperty,
+                typeof(AxisOption));
+            if (e.OldValue is AxisYOption oldValue)
+            {
+                pd.RemoveValueChanged(oldValue, OnAxisYViewChangedHandler);
+            }
+
+            if (e.NewValue is AxisYOption newValue)
+            {
+                pd.AddValueChanged(newValue, OnAxisYViewChangedHandler);
+                var targetRegion = this._coordinateRenderer.TargetRegion;
+                this._coordinateRenderer.TargetRegion = targetRegion.ChangeYRange(newValue.CurrentViewRange);
+            }
+        }
+
+        private void OnAxisYViewChangedHandler(object? sender, EventArgs e)
+        {
+            this._coordinateRenderer.TargetRegion =
+                this._coordinateRenderer.TargetRegion.ChangeYRange(AxisYOption.CurrentViewRange);
+        }
+
+        public AxisYOption AxisYOption
+        {
+            get => (AxisYOption)GetValue(AxisYOptionProperty);
             set => SetValue(AxisYOptionProperty, value);
         }
 
-        public static readonly DependencyProperty SettingRegionProperty = DependencyProperty.Register(
-            nameof(SettingRegion), typeof(Region2D), typeof(LineChart),
-            new PropertyMetadata(default(Region2D), SettingRegionChangedCallback));
-
-        /// <summary>
-        /// 设置的视域
-        /// </summary>
-        public Region2D SettingRegion
-        {
-            get => (Region2D)GetValue(SettingRegionProperty);
-            set => SetValue(SettingRegionProperty, value);
-        }
-
         public static readonly DependencyProperty ActualRegionProperty = DependencyProperty.Register(
-            nameof(ActualRegion), typeof(Region2D), typeof(LineChart),
+            nameof(ActualRegion), typeof(Region2D), typeof(Series2DChart),
             new PropertyMetadata(default(Region2D)));
 
         /// <summary>
@@ -122,9 +176,10 @@ namespace GLChart.WPF.UIComponent.Control
         }
 
         public static readonly DependencyProperty DefaultYRangeProperty = DependencyProperty.Register(
-            nameof(DefaultYRange), typeof(ScrollRange), typeof(LineChart),
+            nameof(DefaultYRange), typeof(ScrollRange), typeof(Series2DChart),
             new PropertyMetadata(new ScrollRange(0, 100), (DefaultYRangeChangedCallback)));
 
+        //todo: remove
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
         /// </summary>
@@ -135,9 +190,10 @@ namespace GLChart.WPF.UIComponent.Control
         }
 
         public static readonly DependencyProperty IsAutoYAxisEnableProperty = DependencyProperty.Register(
-            nameof(IsAutoYAxisEnable), typeof(bool), typeof(LineChart),
+            nameof(IsAutoYAxisEnable), typeof(bool), typeof(Series2DChart),
             new PropertyMetadata(true, AutoYAxisChangedCallback));
 
+        //todo:remove
         public virtual bool IsAutoYAxisEnable
         {
             get => (bool)GetValue(IsAutoYAxisEnableProperty);
@@ -149,7 +205,7 @@ namespace GLChart.WPF.UIComponent.Control
         #region render
 
         public static readonly DependencyProperty OpenTKControlProperty = DependencyProperty.Register(
-            nameof(OpenTKControl), typeof(OpenTkControlBase), typeof(LineChart),
+            nameof(OpenTKControl), typeof(OpenTkControlBase), typeof(Series2DChart),
             new PropertyMetadata(default(OpenTkControlBase)));
 
         public OpenTkControlBase OpenTKControl
@@ -161,7 +217,7 @@ namespace GLChart.WPF.UIComponent.Control
         private OpenTkControlBase _renderControl;
 
         public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
-            nameof(BackgroundColor), typeof(Color), typeof(LineChart),
+            nameof(BackgroundColor), typeof(Color), typeof(Series2DChart),
             new PropertyMetadata(Colors.White, BackgroundColorChangedCallback));
 
         public Color BackgroundColor
@@ -171,7 +227,7 @@ namespace GLChart.WPF.UIComponent.Control
         }
 
         public static readonly DependencyProperty IsShowFpsProperty = DependencyProperty.Register(
-            nameof(IsShowFps), typeof(bool), typeof(LineChart), new PropertyMetadata(default(bool)));
+            nameof(IsShowFps), typeof(bool), typeof(Series2DChart), new PropertyMetadata(default(bool)));
 
         public bool IsShowFps
         {
@@ -185,25 +241,26 @@ namespace GLChart.WPF.UIComponent.Control
 
         private MouseSelect _scaleElement;
 
-        private Node _popupNode;
-
-        public LineChart()
+        public Series2DChart()
         {
             var color = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
-            _coordinateRenderer = new Coordinate2DRenderer(new BaseRenderer[] { LineSeriesRenderer })
+            var defaultRange = (ScrollRange)AxisOption.CurrentViewRangeProperty.DefaultMetadata.DefaultValue;
+            _coordinateRenderer = new Coordinate2DRenderer(new BaseRenderer[]
+                { LineSeriesRenderer })
             {
                 BackgroundColor = new Color4(color.A, color.R, color.G, color.B),
                 AutoYAxisWorking = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue,
                 DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
-                TargetRegion = (Region2D)SettingRegionProperty.DefaultMetadata.DefaultValue
+                TargetRegion = (Region2D)new Region2D(defaultRange, defaultRange),
             };
             _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
             _renderControl = new BitmapOpenTkControl()
             {
                 IsAutoAttach = true,
-                IsRenderContinuously = false,
+                IsRenderContinuously = true,
+                IsShowFps = true,
                 LifeCycle = ControlLifeCycle.BoundToWindow,
-                RenderSetting = new RenderSetting() { RenderTactic = RenderTactic.LatencyPriority },
+                RenderSetting = new RenderSetting() { RenderTactic = RenderTactic.Default },
                 Renderer = _coordinateRenderer,
             };
             _renderControl.RenderErrorReceived += OpenTkControlOnRenderErrorReceived;
@@ -235,7 +292,7 @@ namespace GLChart.WPF.UIComponent.Control
 
         private static void DefaultYRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is LineChart lineChart)
+            if (d is Series2DChart lineChart)
             {
                 lineChart._coordinateRenderer.DefaultAxisYRange = (ScrollRange)e.NewValue;
             }
@@ -244,26 +301,16 @@ namespace GLChart.WPF.UIComponent.Control
         private static void BackgroundColorChangedCallback(DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            if (d is LineChart lineChart)
+            if (d is Series2DChart lineChart)
             {
                 var color = (Color)e.NewValue;
                 lineChart._coordinateRenderer.BackgroundColor = new Color4(color.A, color.R, color.G, color.B);
             }
         }
 
-        private static void SettingRegionChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is LineChart lineChart)
-            {
-                var region = (Region2D)e.NewValue;
-                lineChart._coordinateRenderer.TargetRegion = region;
-                lineChart.ActualRegion = region;
-            }
-        }
-
         private static void AutoYAxisChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is LineChart lineChart)
+            if (d is Series2DChart lineChart)
             {
                 lineChart._coordinateRenderer.AutoYAxisWorking = (bool)e.NewValue;
             }
@@ -300,13 +347,16 @@ namespace GLChart.WPF.UIComponent.Control
 
         private Point _startMovePoint;
 
-        private Region2D _startMoveRegion;
+        private ScrollRange _startMoveAxisXView;
+
+        private ScrollRange _startMoveAxisYView;
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
             _startMovePoint = e.GetPosition(_renderControl);
-            _startMoveRegion = this.ActualRegion;
+            _startMoveAxisXView = this.AxisXOption.CurrentViewRange;
+            _startMoveAxisYView = this.AxisYOption.CurrentViewRange;
         }
 
         private ToolTip _toolTip;
@@ -320,7 +370,9 @@ namespace GLChart.WPF.UIComponent.Control
             }
         }
 
-        private readonly CollisionGridPoint2D _nodeGrid = new CollisionGridPoint2D();
+        private readonly CollisionGrid2D _nodeGrid = new CollisionGrid2D();
+
+        private IGeometry? _toolTipNode;
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
@@ -337,63 +389,32 @@ namespace GLChart.WPF.UIComponent.Control
 
                 var xPixel = _startMovePoint.X - position.X;
                 var xOffset = winToGlMapping.GetXOffset(xPixel);
+                var @newX = _startMoveAxisXView.OffsetNew(xOffset);
+                AxisXOption.TryMoveView(@newX);
+
                 var yPixel = _startMovePoint.Y - position.Y;
                 var yOffset = winToGlMapping.GetYOffset(-yPixel);
-                var newRegion = _startMoveRegion.OffsetNew(xOffset, yOffset);
-                var xZoomBoundary = AxisXOption.ZoomBoundary;
-                var right = xZoomBoundary.End;
-                var start = xZoomBoundary.Start;
-                var xExtend = newRegion.XExtend;
-                if (newRegion.Right > right)
-                {
-                    var xStart = right - xExtend;
-                    newRegion.SetLeft(xStart);
-                    newRegion.SetRight(right);
-                }
-                else if (newRegion.Left < start)
-                {
-                    var xEnd = start + xExtend;
-                    newRegion.SetLeft(start);
-                    newRegion.SetRight(xEnd);
-                }
-
-                var yZoomBoundary = AxisYOption.ZoomBoundary;
-                var end = yZoomBoundary.End;
-                var bottom = yZoomBoundary.Start;
-                var yExtend = newRegion.YExtend;
-                if (newRegion.Top > end)
-                {
-                    var yStart = end - yExtend;
-                    newRegion.SetTop(end);
-                    newRegion.SetBottom(yStart);
-                }
-                else if (newRegion.Bottom < bottom)
-                {
-                    var yEnd = bottom + yExtend;
-                    newRegion.SetBottom(bottom);
-                    newRegion.SetTop(yEnd);
-                }
-
-                this.SettingRegion = newRegion;
+                var @newY = _startMoveAxisYView.OffsetNew(yOffset);
+                AxisYOption.TryMoveView(@newY);
             }
             else
             {
                 var mapGlPoint = winToGlMapping.GetGlPointByWindowsPoint(position);
                 var xDistance = winToGlMapping.XScaleRatio * 10;
                 var yDistance = winToGlMapping.YScaleRatio * 10;
-                var ellipse = new Ellipse(mapGlPoint, (float)xDistance, (float)yDistance);
-                if (_nodeGrid.TrySearch(ellipse, out var point, out var layer))
+                var ellipse = new MouseCollisionEllipse(mapGlPoint, (float)xDistance, (float)yDistance);
+                if (_nodeGrid.TrySearch(ellipse, out var geometry, out var layer))
                 {
-                    if (!_popupNode.Equals(point))
+                    if (_toolTipNode?.Equals(geometry) != true && geometry != null)
                     {
-                        _popupNode = point;
-                        var winPoint = winToGlMapping.GetWindowsPointByGlPoint(point.Point);
-                        var seriesItem = _items.First((item => item.CollisionLayer.Equals(layer)));
-                        _toolTip.HorizontalOffset = winPoint.X + 10;
-                        _toolTip.VerticalOffset = winPoint.Y + 10;
-                        _toolTip.Content =
-                            new MouseHoverNodeData(seriesItem.LineColor, point.Data,
-                                seriesItem.Title);
+                        _toolTipNode = geometry;
+                        // var winPoint = winToGlMapping.GetWindowsPointByGlPoint(geometry.Point);
+                        var seriesItem = _items.First(item =>
+                            item.CollisionLayer.Equals(layer));
+                        _toolTip.HorizontalOffset = position.X + 10;
+                        _toolTip.VerticalOffset = position.Y + 10;
+                        _toolTip.Content = new MouseHoverNodeData(seriesItem.Color, geometry,
+                            seriesItem.Title);
                     }
 
                     if (!_toolTip.IsOpen)
@@ -416,26 +437,13 @@ namespace GLChart.WPF.UIComponent.Control
             var oldRegion = this.ActualRegion;
             var scale = new WindowsGlCoordinateMapping(oldRegion, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
-            var newRegion = new Region2D(xRange, yRange);
             if (this._coordinateRenderer.AutoYAxisWorking)
             {
                 this.IsAutoYAxisEnable = false;
             }
 
-            if (newRegion.Height < AxisYOption.MinDisplayExtent)
-            {
-                newRegion.ChangeYRange(oldRegion.YRange);
-            }
-
-            if (newRegion.Width < AxisXOption.MinDisplayExtent)
-            {
-                newRegion.ChangeXRange(oldRegion.XRange);
-            }
-
-            if (!newRegion.Equals(oldRegion))
-            {
-                this.SettingRegion = newRegion;
-            }
+            AxisXOption.TryMoveView(xRange);
+            AxisYOption.TryMoveView(yRange);
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -448,48 +456,14 @@ namespace GLChart.WPF.UIComponent.Control
             if (axisXOption.ZoomEnable)
             {
                 newXRange = e.Scale(newXRange);
-                if (newXRange.Range < axisXOption.MinDisplayExtent)
-                {
-                    return;
-                }
-
-                var zoomBoundary = axisXOption.ZoomBoundary;
-                if (newXRange.Start < zoomBoundary.Start)
-                {
-                    newXRange = newXRange.WithStart(zoomBoundary.Start);
-                }
-
-                if (newXRange.End > zoomBoundary.End)
-                {
-                    newXRange = newXRange.WithEnd(zoomBoundary.End);
-                }
+                axisXOption.TryMoveView(newXRange);
             }
 
             var axisYOption = AxisYOption;
             if (axisYOption.ZoomEnable)
             {
                 newYRange = e.Scale(newYRange);
-                if (newYRange.Range < axisYOption.MinDisplayExtent)
-                {
-                    return;
-                }
-
-                var zoomBoundary = axisYOption.ZoomBoundary;
-                if (newYRange.Start < zoomBoundary.Start)
-                {
-                    newYRange = newYRange.WithStart(zoomBoundary.Start);
-                }
-
-                if (newYRange.End > zoomBoundary.End)
-                {
-                    newYRange = newYRange.WithEnd(zoomBoundary.End);
-                }
-            }
-
-            var newRegion = new Region2D(newXRange, newYRange);
-            if (!newRegion.Equals(this.ActualRegion))
-            {
-                this.SettingRegion = newRegion;
+                axisXOption.TryMoveView(newYRange);
             }
         }
 
@@ -501,40 +475,46 @@ namespace GLChart.WPF.UIComponent.Control
             new Line2DSeriesRenderer(new Shader("Render/Shaders/LineShader/shader.vert",
                 "Render/Shaders/LineShader/shader.frag"));
 
-        private readonly List<Line2DRenderer> _items = new List<Line2DRenderer>(5);
+        private readonly List<ISeries2D> _items = new List<ISeries2D>(5);
 
-        public IReadOnlyList<ILine2D> SeriesItems =>
-            new ReadOnlyCollection<Line2DRenderer>(_items);
+        public IReadOnlyList<ISeries2D> SeriesItems =>
+            new ReadOnlyCollection<ISeries2D>(_items);
 
-        public ILine2D NewSeries()
+        public T NewSeries<T>() where T : ISeries2D
         {
             var collisionSeed = this.CollisionSeed;
-            Line2DRenderer lineRenderer;
+            ICollisionPoint2D collisionPoint2D;
             switch (CollisionEnum)
             {
                 case CollisionEnum.SpacialHash:
-                    lineRenderer = new Line2DRenderer(new SpacialHashCollisionPoint2DLayer(collisionSeed.XSpan,
+                    collisionPoint2D = new SpacialHashCollisionPoint2DLayer(collisionSeed.XSpan,
                         SpacialHashCollisionPoint2DLayer.Algorithm.XMapping,
-                        (int)InitialCollisionGridBoundary.XSpan));
+                        (int)InitialCollisionGridBoundary.XSpan);
                     break;
                 case CollisionEnum.UniformGrid:
-                    var collisionGridLayer = new CollisionGridPoint2DLayer(InitialCollisionGridBoundary,
+                    collisionPoint2D = new CollisionGridPoint2DLayer(InitialCollisionGridBoundary,
                         collisionSeed.XSpan, collisionSeed.YSpan, new LinkedListGridCellFactory());
-                    lineRenderer = new Line2DRenderer(collisionGridLayer);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            this._nodeGrid.AddLayer(lineRenderer.CollisionLayer);
-            this.LineSeriesRenderer.Add(lineRenderer);
-            this._items.Add(lineRenderer);
-            return lineRenderer;
+            var type = typeof(T);
+            if (type == typeof(RingLine2DRenderer))
+            {
+                var lineRenderer = new RingLine2DRenderer(collisionPoint2D);
+                this._nodeGrid.AddLayer(lineRenderer.CollisionLayer);
+                this.LineSeriesRenderer.Add(lineRenderer);
+                this._items.Add(lineRenderer);
+                return (T)(ISeries2D)lineRenderer;
+            }
+
+            throw new NotSupportedException();
         }
 
-        public void Remove(ILine2D line)
+        public void Remove(ISeries2D series)
         {
-            if (line is Line2DRenderer lineRenderer)
+            if (series is RingLine2DRenderer lineRenderer)
             {
                 this._items.Remove(lineRenderer);
                 this.LineSeriesRenderer.Remove(lineRenderer);

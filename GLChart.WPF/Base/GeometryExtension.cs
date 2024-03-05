@@ -34,13 +34,13 @@ namespace GLChart.WPF.Base
         /// <param name="geometry"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public static float GetDistanceSquare(this ICollisionGeometry2D geometry, Point2D point)
+        public static float GetDistanceSquare(this MouseCollisionEllipse geometry, Point2D point)
         {
             var centerPoint = geometry.Center;
             return centerPoint.GetDistanceSquare(point);
         }
 
-        public static Node? NearestNodeData(this ICollisionGeometry2D geometry, IEnumerable<ICollisionCell> cells,
+        public static Point2DNode? NearestNodeData(this MouseCollisionEllipse geometry, IEnumerable<ICollisionCell> cells,
             out float squareDistance)
         {
 #if priority
@@ -58,10 +58,10 @@ namespace GLChart.WPF.Base
             return NearestNodeData(geometry, cells.SelectMany((cell => cell.DataCollection)), out squareDistance);
         }
 
-        public static Node? NearestNodeData(this ICollisionGeometry2D geometry, IEnumerable<Node> nodeDataCollection,
+        public static Point2DNode? NearestNodeData(this MouseCollisionEllipse geometry, IEnumerable<Point2DNode> nodeDataCollection,
             out float squareDistance)
         {
-            Node? node = null;
+            Point2DNode? node = null;
             squareDistance = float.MaxValue;
             var centerPoint = geometry.Center;
             foreach (var data in nodeDataCollection)

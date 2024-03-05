@@ -13,7 +13,7 @@ namespace GLChart.WPF.Render.CollisionDetection
     public class QuadTreeNode
     {
         public Boundary2D Boundary { get; }
-        public Node? Data { get; private set; }
+        public Point2DNode? Data { get; private set; }
         public QuadTreeNode NorthWest { get; private set; }
         public QuadTreeNode NorthEast { get; private set; }
         public QuadTreeNode SouthWest { get; private set; }
@@ -30,7 +30,7 @@ namespace GLChart.WPF.Render.CollisionDetection
         /// 最终实现每个节点分配一个数据
         /// </summary>
         /// <param name="node"></param>
-        public void Insert(Node node)
+        public void Insert(Point2DNode node)
         {
             if (!node.Point.IsLocatedIn(this.Boundary))
             {
@@ -82,11 +82,11 @@ namespace GLChart.WPF.Render.CollisionDetection
             this.Data = null;
         }
 
-        public bool TrySearch(Point2D point, out Node data)
+        public bool TrySearch(Point2D point, out Point2DNode data)
         {
             if (!point.IsLocatedIn(Boundary))
             {
-                data = default(Node);
+                data = default(Point2DNode);
                 return false;
             }
 
@@ -105,7 +105,7 @@ namespace GLChart.WPF.Render.CollisionDetection
             }
 
             //理论上不会出现的情况
-            data = default(Node);
+            data = default(Point2DNode);
             return false;
         }
 
