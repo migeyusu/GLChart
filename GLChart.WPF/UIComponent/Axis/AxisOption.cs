@@ -13,12 +13,17 @@ namespace GLChart.WPF.UIComponent.Axis
         protected override FlowDirection NumberDirection { get; } = FlowDirection.LeftToRight;
     }
 
-    //todo: add autoY
     public class AxisYOption : AxisOption
     {
+        /// <summary>
+        /// 是否自适应高度
+        /// </summary>
         public static readonly DependencyProperty IsAutoSizeProperty = DependencyProperty.Register(
             nameof(IsAutoSize), typeof(bool), typeof(AxisYOption), new PropertyMetadata(default(bool)));
 
+        /// <summary>
+        /// 是否自适应高度
+        /// </summary>
         public bool IsAutoSize
         {
             get { return (bool)GetValue(IsAutoSizeProperty); }

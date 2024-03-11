@@ -137,17 +137,26 @@ namespace GLChart.WPF.UIComponent.Control
         {
             var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.CurrentViewRangeProperty,
                 typeof(AxisOption));
+            var descriptor = DependencyPropertyDescriptor.FromProperty(AxisYOption.IsAutoSizeProperty,typeof(AxisYOption));
             if (e.OldValue is AxisYOption oldValue)
             {
                 pd.RemoveValueChanged(oldValue, OnAxisYViewChangedHandler);
+                descriptor.RemoveValueChanged(oldValue, OnAxisYAutoSizeChangedHandler);
             }
 
             if (e.NewValue is AxisYOption newValue)
             {
                 pd.AddValueChanged(newValue, OnAxisYViewChangedHandler);
+                descriptor.AddValueChanged(newValue, OnAxisYAutoSizeChangedHandler);
                 var targetRegion = this._coordinateRenderer.TargetRegion;
                 this._coordinateRenderer.TargetRegion = targetRegion.ChangeYRange(newValue.CurrentViewRange);
+                this._coordinateRenderer.AutoYAxisEnable = newValue.IsAutoSize;
             }
+        }
+
+        private void OnAxisYAutoSizeChangedHandler(object? sender, EventArgs e)
+        {
+            this._coordinateRenderer.AutoYAxisEnable = this.AxisYOption.IsAutoSize;
         }
 
         private void OnAxisYViewChangedHandler(object? sender, EventArgs e)
@@ -155,6 +164,8 @@ namespace GLChart.WPF.UIComponent.Control
             this._coordinateRenderer.TargetRegion =
                 this._coordinateRenderer.TargetRegion.ChangeYRange(AxisYOption.CurrentViewRange);
         }
+        
+        
 
         public AxisYOption AxisYOption
         {
@@ -187,17 +198,6 @@ namespace GLChart.WPF.UIComponent.Control
         {
             get => (ScrollRange)GetValue(DefaultYRangeProperty);
             set => SetValue(DefaultYRangeProperty, value);
-        }
-
-        public static readonly DependencyProperty IsAutoYAxisEnableProperty = DependencyProperty.Register(
-            nameof(IsAutoYAxisEnable), typeof(bool), typeof(Series2DChart),
-            new PropertyMetadata(true, AutoYAxisChangedCallback));
-
-        //todo:remove
-        public virtual bool IsAutoYAxisEnable
-        {
-            get => (bool)GetValue(IsAutoYAxisEnableProperty);
-            set => SetValue(IsAutoYAxisEnableProperty, value);
         }
 
         #endregion
@@ -249,9 +249,9 @@ namespace GLChart.WPF.UIComponent.Control
                 { LineSeriesRenderer })
             {
                 BackgroundColor = new Color4(color.A, color.R, color.G, color.B),
-                AutoYAxisWorking = (bool)IsAutoYAxisEnableProperty.DefaultMetadata.DefaultValue,
+                AutoYAxisEnable = (bool)AxisYOption.IsAutoSizeProperty.DefaultMetadata.DefaultValue,
                 DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
-                TargetRegion = (Region2D)new Region2D(defaultRange, defaultRange),
+                TargetRegion = new Region2D(defaultRange, defaultRange),
             };
             _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
             _renderControl = new BitmapOpenTkControl()
@@ -308,14 +308,6 @@ namespace GLChart.WPF.UIComponent.Control
             }
         }
 
-        private static void AutoYAxisChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is Series2DChart lineChart)
-            {
-                lineChart._coordinateRenderer.AutoYAxisWorking = (bool)e.NewValue;
-            }
-        }
-
         protected virtual void OnRendererHostAutoAxisYCompleted(Region2D region)
         {
             this.Dispatcher.InvokeAsync(() => { this.ActualRegion = region; });
@@ -354,9 +346,16 @@ namespace GLChart.WPF.UIComponent.Control
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
+            _coordinateRenderer.AutoYAxisEnable = false;
             _startMovePoint = e.GetPosition(_renderControl);
             _startMoveAxisXView = this.AxisXOption.CurrentViewRange;
             _startMoveAxisYView = this.AxisYOption.CurrentViewRange;
+        }
+
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonUp(e);
+            _coordinateRenderer.AutoYAxisEnable = AxisYOption.IsAutoSize;
         }
 
         private ToolTip _toolTip;
@@ -382,11 +381,6 @@ namespace GLChart.WPF.UIComponent.Control
                 new WindowsGlCoordinateMapping(coordinateRegion, new Rect(_renderControl.RenderSize));
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (this._coordinateRenderer.AutoYAxisWorking)
-                {
-                    this.IsAutoYAxisEnable = false;
-                }
-
                 var xPixel = _startMovePoint.X - position.X;
                 var xOffset = winToGlMapping.GetXOffset(xPixel);
                 var @newX = _startMoveAxisXView.OffsetNew(xOffset);
@@ -437,9 +431,9 @@ namespace GLChart.WPF.UIComponent.Control
             var oldRegion = this.ActualRegion;
             var scale = new WindowsGlCoordinateMapping(oldRegion, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
-            if (this._coordinateRenderer.AutoYAxisWorking)
+            if (this._coordinateRenderer.AutoYAxisEnable)
             {
-                this.IsAutoYAxisEnable = false;
+                this._coordinateRenderer.AutoYAxisEnable = false;
             }
 
             AxisXOption.TryMoveView(xRange);

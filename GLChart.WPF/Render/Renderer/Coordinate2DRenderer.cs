@@ -32,24 +32,7 @@ namespace GLChart.WPF.Render.Renderer
         /// </summary>
         public Func<int, ScrollRange> SamplingFunction { get; set; }
 
-        /// <summary>
-        /// 是否适配Y轴顶点正在执行
-        /// </summary>
-        public bool AutoYAxisWorking
-        {
-            get => _autoYAxisWorking;
-            set
-            {
-                if (_autoYAxisEnable)
-                {
-                    _autoYAxisWorking = value;
-                }
-                else
-                {
-                    throw new Exception($"Cannot set {nameof(AutoYAxisWorking)} property.");
-                }
-            }
-        }
+        public bool AutoYAxisEnable { get; set; }
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
@@ -127,12 +110,12 @@ namespace GLChart.WPF.Render.Renderer
         /// <summary>
         /// 指示是否正在自适应地调整高度
         /// </summary>
-        private volatile bool _isHeightAutoAdapting;
+        private volatile bool _isHeightAdapting;
 
         /// <summary>
         /// 基于ndc的y轴投影计量缓冲
         /// </summary>
-        private int _yAxisCastSSSBO;
+        private int _yAxisCastSSBO;
 
         private readonly int[] _yAxisRaster = new int[YAxisCastSSBOLength];
 
@@ -150,13 +133,10 @@ namespace GLChart.WPF.Render.Renderer
             new ReadOnlyCollection<BaseRenderer>(RenderSeriesCollection);
 
         protected readonly IList<BaseRenderer> RenderSeriesCollection;
-        private readonly bool _autoYAxisEnable;
 
-        public Coordinate2DRenderer(IList<BaseRenderer> renderSeriesCollection, bool autoYAxisEnable = true)
+        public Coordinate2DRenderer(IList<BaseRenderer> renderSeriesCollection)
         {
             RenderSeriesCollection = renderSeriesCollection;
-            _autoYAxisEnable = autoYAxisEnable;
-            _autoYAxisWorking = autoYAxisEnable;
         }
 
         private static Matrix4 GetTransform(Region2D value)
@@ -188,20 +168,16 @@ namespace GLChart.WPF.Render.Renderer
                 coordinateRendererSeries.Initialize(context);
             }
 
-            if (_autoYAxisEnable)
-            {
-                _yAxisCastSSSBO = GL.GenBuffer();
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
-                GL.BufferData<int>(BufferTarget.ShaderStorageBuffer, _yAxisRaster.Length * sizeof(int), _yAxisRaster,
-                    BufferUsageHint.DynamicDraw);
-                GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _yAxisCastSSSBO);
-            }
-
+            //不管是否自动Y轴都要自动创建ssbo
+            _yAxisCastSSBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
+            GL.BufferData<int>(BufferTarget.ShaderStorageBuffer, _yAxisRaster.Length * sizeof(int), _yAxisRaster,
+                BufferUsageHint.DynamicDraw);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 0, _yAxisCastSSBO);
             IsInitialized = true;
         }
 
         private Region2D _lastTargetRegion;
-        private bool _autoYAxisWorking;
 
         /// <summary>
         /// 渲染的准备阶段，初始化、检查渲染快照变更和刷新缓冲区
@@ -215,11 +191,9 @@ namespace GLChart.WPF.Render.Renderer
                 regionChanged = true;
                 _lastTargetRegion = _targetRegion;
                 RenderingRegion = _targetRegion;
-                _isHeightAutoAdapting = AutoYAxisWorking;
             }
 
-            var renderEnable = _isHeightAutoAdapting || regionChanged;
-
+            var renderEnable = _isHeightAdapting || regionChanged;
             //检查未初始化，当预渲染ok且渲染可用时表示渲染可用
             foreach (var renderSeries in RenderSeriesCollection)
             {
@@ -235,7 +209,8 @@ namespace GLChart.WPF.Render.Renderer
             }
 
             //对比渲染快照
-            var rendererSeries = RenderSeriesCollection.Where(series => series.RenderEnable)
+            var rendererSeries = RenderSeriesCollection
+                .Where(series => series.RenderEnable)
                 .ToArray();
             if (!_rendererSeriesSnapList.SequenceEqual(rendererSeries))
             {
@@ -257,15 +232,15 @@ namespace GLChart.WPF.Render.Renderer
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
-                _isHeightAutoAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
+                _isHeightAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
                 return;
             }
 
             #region transform
 
-            if (_isHeightAutoAdapting)
+            if (_isHeightAdapting)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
                     _emptySsboBuffer.Length * sizeof(int),
                     _emptySsboBuffer);
@@ -277,9 +252,11 @@ namespace GLChart.WPF.Render.Renderer
                 seriesItem.Render(args);
             }
 
-            if (_isHeightAutoAdapting)
+            //自适应高度检查
+            if (AutoYAxisEnable)
             {
-                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSSBO);
+                _isHeightAdapting = true;
+                GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
                 var ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
                 Marshal.Copy(ptr, _yAxisRaster, 0, _yAxisRaster.Length);
                 GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
@@ -300,7 +277,7 @@ namespace GLChart.WPF.Render.Renderer
                 {
                     if (regionYRange.Equals(this.DefaultAxisYRange))
                     {
-                        _isHeightAutoAdapting = false;
+                        _isHeightAdapting = false;
                         return;
                     }
 
@@ -318,7 +295,7 @@ namespace GLChart.WPF.Render.Renderer
                     // Debug.WriteLine($"{abs:F2},{precisionValue:F2},{currentHeight:F2},{theoreticalHeight:F2}");
                     if (abs < precisionValue)
                     {
-                        _isHeightAutoAdapting = false;
+                        _isHeightAdapting = false;
                         return;
                     }
 
