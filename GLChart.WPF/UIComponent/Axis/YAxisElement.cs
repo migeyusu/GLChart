@@ -8,8 +8,8 @@ namespace GLChart.WPF.UIComponent.Axis
     public class YAxisElement : AxisElement
     {
         public static readonly DependencyProperty OptionProperty = DependencyProperty.Register(
-            "Option", typeof(AxisOption), typeof(AxisElement),
-            new FrameworkPropertyMetadata(new AxisYOption(),
+            "Option", typeof(AxisOption), typeof(YAxisElement),
+            new FrameworkPropertyMetadata(default,
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
         public override AxisOption Option
@@ -17,6 +17,8 @@ namespace GLChart.WPF.UIComponent.Axis
             get { return (AxisOption)GetValue(OptionProperty); }
             set { SetValue(OptionProperty, value); }
         }
+
+        private const FlowDirection Direction = FlowDirection.LeftToRight;
 
         protected override void RenderAxis(AxisOption labelGenerationOption,
             DrawingContext context)
@@ -30,10 +32,10 @@ namespace GLChart.WPF.UIComponent.Axis
             var cultureInfo = option.CultureInfo;
             var foreground = option.Foreground;
             double maxWidth = 0;
-            var direction = FlowDirection.LeftToRight;
+
             foreach (var label in labels)
             {
-                var text = new FormattedText(label.Text, cultureInfo, direction, typeface, fontSize,
+                var text = new FormattedText(label.Text, cultureInfo, Direction, typeface, fontSize,
                     foreground, 1);
                 var textHeight = text.Height;
                 var textWidth = text.Width;

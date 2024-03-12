@@ -20,10 +20,10 @@ namespace GLChart.WPF.UIComponent.Control
         private const string YAxisName = "YAxis";
 
         public const string SeparatorLayerName = "SeparatorLayer";
-        
+
         public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
             "AxisXOption", typeof(AxisOption), typeof(Coordinate2D),
-            new PropertyMetadata(new AxisXOption()));
+            new FrameworkPropertyMetadata(default, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public AxisOption AxisXOption
         {
@@ -33,7 +33,7 @@ namespace GLChart.WPF.UIComponent.Control
 
         public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
             "AxisYOption", typeof(AxisOption), typeof(Coordinate2D),
-            new PropertyMetadata(new AxisYOption()));
+            new FrameworkPropertyMetadata(default, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public AxisOption AxisYOption
         {
@@ -60,6 +60,5 @@ namespace GLChart.WPF.UIComponent.Control
             YAxisElement = GetTemplateChild(YAxisName) as YAxisElement;
             SeparatorLayer = GetTemplateChild(SeparatorLayerName) as SeparatorLayer;
         }
-
     }
 }

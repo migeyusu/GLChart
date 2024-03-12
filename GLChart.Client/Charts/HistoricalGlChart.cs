@@ -82,7 +82,7 @@ public class HistoricalGlChart : Control
     /// 设置点位的x轴范围
     /// </summary>
     /// <param name="range"></param>
-    private void SetPointsAxisXRange(ScrollRange range)
+    /* private void SetPointsAxisXRange(ScrollRange range)
     {
         ReSetByInteractMode(this.InteractMode, range);
     }
@@ -96,7 +96,7 @@ public class HistoricalGlChart : Control
     }
 
     //todo：适配dp属性
-    public void ReSetByInteractMode(ChartInteractMode mode, ScrollRange pointRange)
+   public void ReSetByInteractMode(ChartInteractMode mode, ScrollRange pointRange)
     {
         var pointEqual = _pointRange.Equals(pointRange);
         if (pointEqual && mode.Equals(this.InteractMode))
@@ -104,13 +104,11 @@ public class HistoricalGlChart : Control
             return;
         }
 
-        this.InteractMode = mode;
         if (!pointEqual)
         {
             _pointRange = pointRange;
         }
 
-        this.InteractMode = mode;
         if (mode == ChartInteractMode.Manual)
         {
             //手动模式下不对点位区间响应
@@ -171,7 +169,7 @@ public class HistoricalGlChart : Control
     public void ResetAxisX()
     {
         ReSetByInteractMode(ChartInteractMode.AutoAll, this.AxisXOption.ZoomBoundary);
-    }
+    }*/
 
     #endregion
 
@@ -210,7 +208,7 @@ public class HistoricalGlChart : Control
 
     #region Axis
 
-    private ScrollRange _axisXBoundary;
+    /*private ScrollRange _axisXBoundary;
 
     /// <summary>
     /// X 轴位置
@@ -231,7 +229,8 @@ public class HistoricalGlChart : Control
             this._rangeSlider.Minimum = value.Start;
             this._rangeSlider.Maximum = value.End;
         }
-    }
+    }*/
+
 
     public static readonly DependencyProperty ScrollWindowProperty = DependencyProperty.Register(
         "ScrollWindow", typeof(double), typeof(HistoricalGlChart), new PropertyMetadata(default(double)));
@@ -324,7 +323,7 @@ public class HistoricalGlChart : Control
     }
 
     public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-        nameof(AxisXOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(new AxisOption()));
+        nameof(AxisXOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(new AxisXOption()));
 
     public AxisOption AxisXOption
     {
@@ -333,7 +332,7 @@ public class HistoricalGlChart : Control
     }
 
     public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-        nameof(AxisYOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(new AxisOption()));
+        nameof(AxisYOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(new AxisYOption()));
 
     public AxisOption AxisYOption
     {
@@ -341,27 +340,18 @@ public class HistoricalGlChart : Control
         set { SetValue(AxisYOptionProperty, value); }
     }
 
-    public static readonly DependencyProperty IsAutoYAxisEnableProperty = DependencyProperty.Register(
-        nameof(IsAutoYAxisEnable), typeof(bool), typeof(HistoricalGlChart), new PropertyMetadata(default(bool)));
-
-    public bool IsAutoYAxisEnable
-    {
-        get { return (bool)GetValue(IsAutoYAxisEnableProperty); }
-        set { SetValue(IsAutoYAxisEnableProperty, value); }
-    }
-
     #endregion
 
     #region label
 
-    public static readonly DependencyProperty XYMapperProperty = DependencyProperty.Register(
+    /*public static readonly DependencyProperty XYMapperProperty = DependencyProperty.Register(
         "XYMapper", typeof(IMapper), typeof(HistoricalGlChart), new PropertyMetadata(default(IMapper)));
 
     public IMapper XYMapper
     {
         get { return (IMapper)GetValue(XYMapperProperty); }
         set { SetValue(XYMapperProperty, value); }
-    }
+    }*/
 
     public static readonly DependencyProperty LegendVisibilityProperty = DependencyProperty.Register(
         "LegendVisibility", typeof(Visibility), typeof(HistoricalGlChart),
@@ -421,41 +411,26 @@ public class HistoricalGlChart : Control
 
     private Series2DChart _contentChart;
 
+    private DrawableElement _historicalChart;
+
     public override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
         _rangeSlider = GetTemplateChild(SliderName) as ContentRangeSlider;
-        _rangeSlider.RangeSelectionChanged += RangeSlider_RangeSelectionChanged;
-        _contentChart = GetTemplateChild(ContentChart) as CoordinateChart;
-        _contentChart.ChangeRegionRequest += _contentChart_ScaleRequest;
-        var axisY = BindingSource.AxisY;
-        var axisX = BindingSource.AxisX;
-        var axisXDisplayRange = axisX.DisplayRange;
-        var axisYDisplayRange = axisY.DisplayRange;
-        var displayRegion = new CoordinateRegion(axisXDisplayRange, axisYDisplayRange);
-        if (displayRegion.IsEmpty())
-        {
-            displayRegion = new CoordinateRegion(100, 0, 0, 100);
-        }
-
-        _contentChart.DisplayRegion = displayRegion;
-        _historicalChart = GetTemplateChild(ThumbnailElementName) as CoordinateChartLight;
-        _historicalChart.DisplayRegion = displayRegion;
-        this.AxisXBoundary = axisX.Boundary;
-        this.ScrollBarViewRange = axisXDisplayRange;
-        BindingSourcePropertyChangedCallback = BindingSourceChangedCallbackMethod;
-        BindingSourceChangedCallbackMethod(this,
-            new DependencyPropertyChangedEventArgs(BindingSourceProperty, null, this.BindingSource));
-        OnTemplateApplied();
+        // _rangeSlider.RangeSelectionChanged += RangeSlider_RangeSelectionChanged;
+        _contentChart = GetTemplateChild(ContentChart) as Series2DChart;
+        // _contentChart.ChangeRegionRequest += _contentChart_ScaleRequest;
+        _historicalChart = GetTemplateChild(ThumbnailElementName) as DrawableElement;
     }
 
-    private void _contentChart_ScaleRequest(CoordinateRegion obj)
+    //todo:
+    /*private void _contentChart_ScaleRequest(CoordinateRegion obj)
     {
         this.InteractMode = ChartInteractMode.Manual;
         this.ScrollBarViewRange = obj.XRange;
-    }
+    }*/
 
-    private void RangeSlider_RangeSelectionChanged(object sender,
+    /*private void RangeSlider_RangeSelectionChanged(object sender,
         MahApps.Metro.Controls.RangeSelectionChangedEventArgs<double> e)
     {
         //直接同步以减少调用开销
@@ -469,238 +444,15 @@ public class HistoricalGlChart : Control
         _contentChart.DisplayRegion =
             displayRegion.ChangeXRange(_scrollBarView);
         InteractMode = ChartInteractMode.Manual;
-    }
+    }*/
 
     public void AttachWindow(Window window)
     {
-        this._historicalChart.AttachWindow(window);
         this._contentChart.AttachWindow(window);
     }
 
     public void DetachWindow()
     {
-        this._historicalChart.DetachWindow();
         this._contentChart.DetachWindow();
-    }
-
-    protected virtual void OnTemplateApplied()
-    {
-        TemplateApplied?.Invoke(this, EventArgs.Empty);
-    }
-
-    public class OpenGlChartAdapter<T> : ChartAdapter<HistoricalGlChart, T>
-    {
-        private readonly ConcurrentDictionary<BindingEntry<T>, Tuple<ILineChartSeriesItem, ILineChartSeriesItem>>
-            _itemsDictionary =
-                new ConcurrentDictionary<BindingEntry<T>, Tuple<ILineChartSeriesItem, ILineChartSeriesItem>>();
-
-        private readonly Lazy<bool> _isChildTypeLazy =
-            new Lazy<bool>(() => typeof(IPoint).IsAssignableFrom(typeof(T)),
-                LazyThreadSafetyMode.ExecutionAndPublication);
-
-        public OpenGlChartAdapter(HistoricalGlChart chartControl, BindingSource<T> source)
-            : base(chartControl, source)
-        {
-            var axisX = source.AxisX;
-            var axisY = source.AxisY;
-            axisY.PropertyChanged += AxisY_PropertyChanged;
-            axisX.PropertyChanged += AxisX_PropertyChanged;
-        }
-
-        private void AxisY_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var chartContentChart = Chart._contentChart;
-            var sourceAxisY = Source.AxisY;
-            switch (e.PropertyName)
-            {
-                case nameof(AxisOption.IsAutoSize):
-                    chartContentChart.AutoYAxis = sourceAxisY.IsAutoSize;
-                    break;
-                case nameof(AxisOption.DisplayRange):
-                    chartContentChart.DisplayRegion =
-                        chartContentChart.DisplayRegion.ChangeYRange(sourceAxisY.DisplayRange);
-                    break;
-                case nameof(AxisOption.ScrollMinRange):
-                    chartContentChart.MinYRange = (float)sourceAxisY.ScrollMinRange;
-                    break;
-            }
-        }
-
-        private void AxisX_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            var axisX = Source.AxisX;
-            switch (e.PropertyName)
-            {
-                case nameof(AxisOption.DisplayRange):
-                    Chart.ScrollBarView = axisX.DisplayRange;
-                    break;
-                case nameof(AxisOption.ScrollMinRange):
-                    Chart._contentChart.MinXRange = (float)axisX.ScrollMinRange;
-                    break;
-                case nameof(AxisOption.Boundary):
-                    var axisXBoundary = axisX.Boundary;
-                    switch (Chart.ChartMode)
-                    {
-                        case ChartType.TimelineTendency:
-                            Chart.SetPointsAxisXRange(axisXBoundary);
-                            break;
-                        case ChartType.Direct:
-                            Chart.ReSetByInteractMode(ChartInteractMode.Manual, axisXBoundary);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    break;
-            }
-        }
-
-        protected override void BindingSource_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-        }
-
-        protected override CombineDisposal AddNewSourceEntryCore(BindingEntry<T> entry)
-        {
-            var contentChart = this.Chart._contentChart;
-            var seriesItem = contentChart.NewSeries();
-            var contentDisposable = AddNewPointsSources(seriesItem, entry);
-            contentChart.Add(seriesItem);
-            if (Chart.ChartMode == ChartType.TimelineTendency) //如果为趋势图会创建一个副本表示历史
-            {
-                var historicalChart = this.Chart._historicalChart;
-                var historyItem = historicalChart.NewSeries();
-                var historyDisposable = AddNewPointsSources(historyItem, entry);
-                historicalChart.Add(historyItem);
-                _itemsDictionary.TryAdd(entry,
-                    new Tuple<ILineChartSeriesItem, ILineChartSeriesItem>(seriesItem, historyItem));
-                return new CombineDisposal(contentDisposable, historyDisposable);
-            }
-
-            _itemsDictionary.TryAdd(entry, new Tuple<ILineChartSeriesItem, ILineChartSeriesItem>(seriesItem, null));
-            return new CombineDisposal(contentDisposable);
-        }
-
-        private IDisposable AddNewPointsSources(ILineChartSeriesItem seriesItem, BindingEntry<T> bindingEntry)
-        {
-            var color = bindingEntry.Color;
-            seriesItem.LineColor = Color.FromArgb(color.A, color.R, color.G,
-                color.B);
-            seriesItem.PointCountLimit = Chart.MaxPointLimit;
-            seriesItem.Title = bindingEntry.Name;
-            seriesItem.Visible = bindingEntry.Visible;
-            var mapper = Chart.XYMapper;
-            if (mapper == null && !_isChildTypeLazy.Value)
-            {
-                throw new NotSupportedException($"Can't convert point to interface {nameof(IPoint)}");
-            }
-
-            var rawSource = bindingEntry.RawSource;
-            var array = rawSource.ToArray();
-            //todo:线程安全
-            seriesItem.AddGeometries(mapper != null
-                ? array.Select(mapper.Map<T, IPoint>).ToArray()
-                : array.Cast<IPoint>().ToArray());
-            /*if (array.Any())
-            {
-
-            }*/
-            rawSource.Subscribe(args => OnSubscribe(seriesItem, args, mapper));
-            return new SeriesItemBindingEntryBinding(bindingEntry, seriesItem);
-        }
-
-        protected override void RemoveSourceEntryCore(BindingEntry<T> sourceEntry)
-        {
-            if (_itemsDictionary.TryRemove(sourceEntry, out var value))
-            {
-                this.Chart._contentChart.Remove(value.Item1);
-                var item = value.Item2;
-                if (item != null)
-                {
-                    this.Chart._historicalChart.Remove(item);
-                }
-            }
-        }
-
-        protected override void ClearBindingSourceEntries()
-        {
-            base.ClearBindingSourceEntries();
-            this._itemsDictionary.Clear();
-            this.Chart._contentChart.Clear();
-            this.Chart._historicalChart.Clear();
-        }
-
-
-        private void OnSubscribe(ILineChartSeriesItem seriesItem, NotifyCollectionChangedEventArgs<T> args,
-            IMapper mapper)
-        {
-            var changedAction = args.Action;
-            var argsNewItems = args.NewItems;
-            switch (changedAction)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    seriesItem.AddGeometries(mapper != null
-                        ? argsNewItems.Select(mapper.Map<T, IPoint>).ToArray()
-                        : argsNewItems.Cast<IPoint>().ToArray());
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    if (argsNewItems == null)
-                    {
-                        seriesItem.Clear();
-                    }
-                    else
-                    {
-                        seriesItem.ResetWith(mapper != null
-                            ? argsNewItems.Select(mapper.Map<T, IPoint>).ToArray()
-                            : argsNewItems.Cast<IPoint>().ToArray());
-                    }
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public override void Dispose()
-        {
-            Source.AxisX.PropertyChanged -= AxisX_PropertyChanged;
-            Source.AxisY.PropertyChanged -= AxisY_PropertyChanged;
-            base.Dispose();
-        }
-
-        public class SeriesItemBindingEntryBinding : IDisposable
-        {
-            private readonly BindingEntry<T> _entry;
-            private readonly ILineChartSeriesItem _item;
-
-            private const string VisibleName = nameof(BindingEntry<int>.Visible);
-
-            private const string ColorName = nameof(BindingEntry<int>.Color);
-
-            public SeriesItemBindingEntryBinding(BindingEntry<T> entry, ILineChartSeriesItem item)
-            {
-                this._entry = entry;
-                this._item = item;
-                entry.PropertyChanged += Entry_PropertyChanged;
-            }
-
-            private void Entry_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
-                switch (e.PropertyName)
-                {
-                    case VisibleName:
-                        _item.Visible = _entry.Visible;
-                        break;
-                    case ColorName:
-                        var entryColor = _entry.Color;
-                        _item.LineColor = Color.FromArgb(entryColor.R, entryColor.G, entryColor.B);
-                        break;
-                }
-            }
-
-            public void Dispose()
-            {
-                _entry.PropertyChanged -= Entry_PropertyChanged;
-            }
-        }
     }
 }

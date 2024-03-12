@@ -14,7 +14,7 @@ namespace GLChart.WPF.UIComponent.Control
     {
         public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
             "AxisXOption", typeof(AxisXOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(new AxisXOption(),
+            new FrameworkPropertyMetadata(default,
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
         public AxisXOption AxisXOption
@@ -25,7 +25,7 @@ namespace GLChart.WPF.UIComponent.Control
 
         public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
             "AxisYOption", typeof(AxisYOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(new AxisYOption(),
+            new FrameworkPropertyMetadata(default,
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
         public AxisYOption AxisYOption
@@ -42,7 +42,7 @@ namespace GLChart.WPF.UIComponent.Control
             var renderSize = this.RenderSize;
             var height = renderSize.Height;
             var width = renderSize.Width;
-            if (axisXOption.IsSeparatorVisible)
+            if (axisXOption?.IsSeparatorVisible == true)
             {
                 var separatePen = axisXOption.SeparatorPen;
                 var xAxisLabels = axisXOption.GenerateLabels(0, width);
@@ -53,7 +53,7 @@ namespace GLChart.WPF.UIComponent.Control
                 }
             }
 
-            if (axisYOption.IsSeparatorVisible)
+            if (axisYOption?.IsSeparatorVisible == true)
             {
                 var separatePen = axisYOption.SeparatorPen;
                 var yAxisLabels = axisYOption.GenerateLabels(height, height);
