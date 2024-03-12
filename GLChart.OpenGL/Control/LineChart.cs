@@ -241,14 +241,13 @@ namespace GLChart.Core.Control
                 lineChart._coordinateRenderer.BackgroundColor = new Color4(color.A, color.R, color.G, color.B);
             }
         }
-
+        
         private static void SettingRegionChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is LineChart lineChart)
             {
                 var region = (Region2D)e.NewValue;
                 lineChart._coordinateRenderer.TargetRegion = region;
-                lineChart.ActualRegion = region;
             }
         }
 
