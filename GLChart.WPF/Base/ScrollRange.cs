@@ -60,7 +60,7 @@ namespace GLChart.WPF.Base
             return Start.Equals(other.Start) && End.Equals(other.End);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ScrollRange other && Equals(other);
         }

@@ -284,7 +284,7 @@
                                                             mah:SliderHelper.EnableMouseWheel="MouseHover"
                                                             AutoToolTipPlacement="None"
                                                             LargeChange="10"
-                                                            UpperValue="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.CurrentViewRange,Mode=OneWay,Converter={StaticResource RangeToScalarConverter}}"
+                                                            UpperValue="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay,Converter={StaticResource RangeToScalarConverter}}"
                                                             MinRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.MinDisplayExtent,Mode=OneWay}"
                                                             IsSnapToTickEnabled="{TemplateBinding IsSnapToTickEnabled}"
                                                             TickFrequency="{TemplateBinding TickFrequency}"

@@ -12,69 +12,103 @@ namespace GLChart.WPF.UIComponent.Control
     /// </summary>
     public class SeparatorLayer : FrameworkElement
     {
-        public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-            "AxisXOption", typeof(AxisXOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(default,
+        public static readonly DependencyProperty AxisXLabelsProperty = DependencyProperty.Register(
+            nameof(AxisXLabels), typeof(IEnumerable<AxisLabel>), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(default(IEnumerable<AxisLabel>?),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisXOption AxisXOption
+        public IEnumerable<AxisLabel>? AxisXLabels
         {
-            get { return (AxisXOption)GetValue(AxisXOptionProperty); }
-            set { SetValue(AxisXOptionProperty, value); }
+            get { return (IEnumerable<AxisLabel>?)GetValue(AxisXLabelsProperty); }
+            set { SetValue(AxisXLabelsProperty, value); }
         }
 
-        public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-            "AxisYOption", typeof(AxisYOption), typeof(SeparatorLayer),
-            new FrameworkPropertyMetadata(default,
+        public static readonly DependencyProperty AxisYLabelsProperty = DependencyProperty.Register(
+            nameof(AxisYLabels), typeof(IEnumerable<AxisLabel>), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(default(IEnumerable<AxisLabel>?),
                 FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisYOption AxisYOption
+        public IEnumerable<AxisLabel>? AxisYLabels
         {
-            get { return (AxisYOption)GetValue(AxisYOptionProperty); }
-            set { SetValue(AxisYOptionProperty, value); }
+            get { return (IEnumerable<AxisLabel>?)GetValue(AxisYLabelsProperty); }
+            set { SetValue(AxisYLabelsProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsXSeparatorVisibleProperty = DependencyProperty.Register(
+            nameof(IsXSeparatorVisible), typeof(bool), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsXSeparatorVisible
+        {
+            get { return (bool)GetValue(IsXSeparatorVisibleProperty); }
+            set { SetValue(IsXSeparatorVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsYSeparatorVisibleProperty = DependencyProperty.Register(
+            nameof(IsYSeparatorVisible), typeof(bool), typeof(SeparatorLayer),
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public bool IsYSeparatorVisible
+        {
+            get { return (bool)GetValue(IsYSeparatorVisibleProperty); }
+            set { SetValue(IsYSeparatorVisibleProperty, value); }
+        }
+
+        public static readonly DependencyProperty XSeparatorPenProperty = DependencyProperty.Register(
+            nameof(XSeparatorPen), typeof(Pen), typeof(SeparatorLayer), new FrameworkPropertyMetadata(
+                new Pen(Brushes.Gray, 0.5d)
+                    { DashStyle = DashStyles.DashDotDot }, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public Pen XSeparatorPen
+        {
+            get { return (Pen)GetValue(XSeparatorPenProperty); }
+            set { SetValue(XSeparatorPenProperty, value); }
+        }
+
+        public static readonly DependencyProperty YSeparatorPenProperty = DependencyProperty.Register(
+            nameof(YSeparatorPen), typeof(Pen), typeof(SeparatorLayer), new FrameworkPropertyMetadata(
+                new Pen(Brushes.Gray, 0.5d)
+                    { DashStyle = DashStyles.DashDotDot }, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public Pen YSeparatorPen
+        {
+            get { return (Pen)GetValue(YSeparatorPenProperty); }
+            set { SetValue(YSeparatorPenProperty, value); }
         }
 
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            var axisXOption = AxisXOption;
-            var axisYOption = AxisYOption;
             var renderSize = this.RenderSize;
             var height = renderSize.Height;
             var width = renderSize.Width;
-            if (axisXOption?.IsSeparatorVisible == true)
+            if (IsXSeparatorVisible)
             {
-                var separatePen = axisXOption.SeparatorPen;
-                var xAxisLabels = axisXOption.GenerateLabels(0, width);
-                foreach (var xAxisLabel in xAxisLabels)
+                var xAxisLabels = AxisXLabels;
+                if (xAxisLabels != null)
                 {
-                    drawingContext.DrawLine(separatePen, new Point(xAxisLabel.Location, 0),
-                        new Point(xAxisLabel.Location, height));
+                    var separatePen = XSeparatorPen;
+                    foreach (var xAxisLabel in xAxisLabels)
+                    {
+                        drawingContext.DrawLine(separatePen, new Point(xAxisLabel.Location, 0),
+                            new Point(xAxisLabel.Location, height));
+                    }
                 }
             }
 
-            if (axisYOption?.IsSeparatorVisible == true)
+            if (IsYSeparatorVisible)
             {
-                var separatePen = axisYOption.SeparatorPen;
-                var yAxisLabels = axisYOption.GenerateLabels(height, height);
-                foreach (var yAxisLabel in yAxisLabels)
+                var yAxisLabels = AxisYLabels;
+                if (yAxisLabels != null)
                 {
-                    drawingContext.DrawLine(separatePen, new Point(0, yAxisLabel.Location),
-                        new Point(width, yAxisLabel.Location));
+                    var separatePen = YSeparatorPen;
+                    foreach (var yAxisLabel in yAxisLabels)
+                    {
+                        drawingContext.DrawLine(separatePen, new Point(0, yAxisLabel.Location),
+                            new Point(width, yAxisLabel.Location));
+                    }
                 }
             }
         }
-    }
-
-    public class SquareAxisLabels
-    {
-        public SquareAxisLabels(IEnumerable<AxisLabel> xLabels, IEnumerable<AxisLabel> yLabels)
-        {
-            YLabels = yLabels;
-            XLabels = xLabels;
-        }
-
-        public IEnumerable<AxisLabel> XLabels { get; }
-        public IEnumerable<AxisLabel> YLabels { get; }
     }
 }

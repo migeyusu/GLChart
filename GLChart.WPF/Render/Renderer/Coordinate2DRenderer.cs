@@ -23,9 +23,8 @@ namespace GLChart.WPF.Render.Renderer
     {
         /// <summary>
         /// 事件在非UI线程上被调用,actual region变化时触发。
-        /// <para>而不是‘自动适配Y轴过程的完成’，因为如果x轴变化不足以让y轴变化时不会发出事件，这显然与该事件的名称不符</para>
         /// </summary>
-        public event Action<Region2D> ActualRegionChanged;
+        public event Action<ScrollRange> ActualYRangeChanged;
 
         /// <summary>
         /// 点采样函数，渲染大量点位时允许只渲染部分点，todo:未实现
@@ -39,55 +38,82 @@ namespace GLChart.WPF.Render.Renderer
         /// </summary>
         public ScrollRange DefaultAxisYRange { get; set; } = new ScrollRange(0, 100);
 
+        private ScrollRange _actualYRange;
+
         /// <summary>
-        /// 当前渲染器的实际坐标，如果自动高度，<see cref="ActualRegion"/>和<see cref="TargetRegion"/>会不同
+        /// 当前渲染器的实际坐标，如果自动高度，<see cref="ActualYRange"/>和<see cref="TargetYRange"/>会不同
         /// </summary>
-        public Region2D ActualRegion
+        public ScrollRange ActualYRange
         {
-            get => _actualRegion;
+            get => _actualYRange;
             protected set
             {
-                if (_actualRegion.Equals(value))
+                if (_actualYRange.Equals(value))
                 {
                     return;
                 }
 
-                _actualRegion = value;
-                OnActualRegionChanged(value);
+                _actualYRange = value;
+                OnActualYRangeChanged(value);
             }
         }
 
-        private Region2D _targetRegion;
+        public ScrollRange TargetXRange
+        {
+            get => _targetXRange;
+
+            set
+            {
+                if (value.Equals(_targetXRange))
+                {
+                    return;
+                }
+
+                _targetXRange = value;
+                _targetRegion2D = _targetRegion2D.ChangeXRange(value);
+            }
+        }
+
+        public ScrollRange TargetYRange
+        {
+            get => _targetYRange;
+
+            set
+            {
+                if (value.Equals(_targetYRange))
+                {
+                    return;
+                }
+
+                _targetYRange = value;
+                _targetRegion2D = _targetRegion2D.ChangeYRange(value);
+            }
+        }
+
+        private Region2D _targetRegion2D;
 
         /// <summary>
         /// 当前渲染器的设定坐标
         /// </summary>
         public Region2D TargetRegion
         {
-            get { return _targetRegion; }
-            set
-            {
-                if (value.Equals(_targetRegion))
-                {
-                    return;
-                }
-
-                this.ActualRegion = value; //拷贝一份数据到actual，表示刚设置时的当前值的立即更改，但不触发计算变换
-                this._targetRegion = value;
-            }
+            get { return _targetRegion2D; }
         }
 
         private Matrix4 _tempTransform = Matrix4.Identity;
 
         private Region2D _renderingRegion = default;
 
+        /// <summary>
+        /// 实际渲染区域
+        /// </summary>
         private Region2D RenderingRegion
         {
             get => _renderingRegion;
             set
             {
                 this._renderingRegion = value;
-                this.ActualRegion = value;
+                this.ActualYRange = value.YRange;
                 this._tempTransform = GetTransform(value);
             }
         }
@@ -124,8 +150,6 @@ namespace GLChart.WPF.Render.Renderer
         public const float AutoAxisYContentRatio = 0.8f;
 
         public const float AutoAxisYContentRatioAccuracy = 0.05f;
-
-        private Region2D _actualRegion;
 
         public Color4 BackgroundColor { get; set; } = Color4.White;
 
@@ -178,6 +202,8 @@ namespace GLChart.WPF.Render.Renderer
         }
 
         private Region2D _lastTargetRegion;
+        private ScrollRange _targetXRange;
+        private ScrollRange _targetYRange;
 
         /// <summary>
         /// 渲染的准备阶段，初始化、检查渲染快照变更和刷新缓冲区
@@ -185,15 +211,20 @@ namespace GLChart.WPF.Render.Renderer
         /// <returns></returns>
         public virtual bool PreviewRender()
         {
-            var regionChanged = false;
-            if (!_lastTargetRegion.Equals(_targetRegion))
+            if (TargetRegion.IsEmpty())
             {
-                regionChanged = true;
-                _lastTargetRegion = _targetRegion;
-                RenderingRegion = _targetRegion;
+                return false;
             }
 
-            var renderEnable = _isHeightAdapting || regionChanged;
+            var renderEnable = false;
+            if (!_lastTargetRegion.Equals(TargetRegion))
+            {
+                renderEnable = true;
+                _lastTargetRegion = TargetRegion;
+                RenderingRegion = TargetRegion;
+            }
+
+            renderEnable = _isHeightAdapting || renderEnable;
             //检查未初始化，当预渲染ok且渲染可用时表示渲染可用
             foreach (var renderSeries in RenderSeriesCollection)
             {
@@ -232,10 +263,9 @@ namespace GLChart.WPF.Render.Renderer
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
-                _isHeightAdapting = false; //注意，当实际没有任何线条参与渲染时终止自适应高度
                 return;
             }
-
+            
             #region transform
 
             if (_isHeightAdapting)
@@ -324,9 +354,9 @@ namespace GLChart.WPF.Render.Renderer
 
         public bool IsInitialized { get; protected set; }
 
-        protected virtual void OnActualRegionChanged(Region2D obj)
+        protected virtual void OnActualYRangeChanged(ScrollRange obj)
         {
-            ActualRegionChanged?.Invoke(obj);
+            ActualYRangeChanged?.Invoke(obj);
         }
     }
 }

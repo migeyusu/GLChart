@@ -27,14 +27,14 @@ namespace GLChart.Samples
             _line = LineChart.NewSeries<RingLine2DRenderer>();
             var axisYOption = new AxisYOption
             {
-                IsAutoSize = false,
-                CurrentViewRange = new ScrollRange(0, 500),
-                ZoomBoundary = new ScrollRange(-1000, 1000)
+                IsAutoSize = true,
+                ViewRange = new ScrollRange(0, 500),
+                ZoomBoundary = new ScrollRange(-5000, 5000)
             };
             var axisXOption = new AxisXOption
             {
-                CurrentViewRange = new ScrollRange(0, 200),
-                ZoomBoundary = new ScrollRange(-1000, 1000)
+                ViewRange = new ScrollRange(0, 1000),
+                ZoomBoundary = new ScrollRange(-5000, 5000)
             };
             LineChart.AxisXOption = axisXOption;
             LineChart.AxisYOption = axisYOption;

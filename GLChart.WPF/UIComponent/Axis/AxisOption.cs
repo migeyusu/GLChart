@@ -8,38 +8,13 @@ using GLChart.WPF.Base;
 
 namespace GLChart.WPF.UIComponent.Axis
 {
-    public class AxisXOption : AxisOption
-    {
-        protected override FlowDirection NumberDirection { get; } = FlowDirection.LeftToRight;
-    }
-
-    public class AxisYOption : AxisOption
-    {
-        /// <summary>
-        /// 是否自适应高度
-        /// </summary>
-        public static readonly DependencyProperty IsAutoSizeProperty = DependencyProperty.Register(
-            nameof(IsAutoSize), typeof(bool), typeof(AxisYOption), new PropertyMetadata(default(bool)));
-
-        /// <summary>
-        /// 是否自适应高度
-        /// </summary>
-        public bool IsAutoSize
-        {
-            get { return (bool)GetValue(IsAutoSizeProperty); }
-            set { SetValue(IsAutoSizeProperty, value); }
-        }
-
-        protected override FlowDirection NumberDirection { get; } = FlowDirection.RightToLeft;
-    }
-
-    public abstract class AxisOption : DependencyObject
+    public abstract class AxisOption : FrameworkElement
     {
         #region user custom
 
         public static readonly DependencyProperty IsSeparatorVisibleProperty = DependencyProperty.Register(
             nameof(IsSeparatorVisible), typeof(bool), typeof(AxisOption),
-            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+            new FrameworkPropertyMetadata(true));
 
         public bool IsSeparatorVisible
         {
@@ -50,7 +25,7 @@ namespace GLChart.WPF.UIComponent.Axis
         public static readonly DependencyProperty SeparatorPenProperty = DependencyProperty.Register(
             nameof(SeparatorPen), typeof(Pen), typeof(AxisOption), new FrameworkPropertyMetadata(
                 new Pen(Brushes.Gray, 0.5d)
-                    { DashStyle = DashStyles.DashDotDot }, FrameworkPropertyMetadataOptions.AffectsRender));
+                    { DashStyle = DashStyles.DashDotDot }));
 
         public Pen SeparatorPen
         {
@@ -59,10 +34,47 @@ namespace GLChart.WPF.UIComponent.Axis
         }
 
         /// <summary>
+        /// 刻度标签
+        /// </summary>
+        public static readonly DependencyProperty AxisLabelsProperty = DependencyProperty.Register(
+            nameof(AxisLabels), typeof(IEnumerable<AxisLabel>), typeof(AxisOption),
+            new FrameworkPropertyMetadata(
+                default(IEnumerable<AxisLabel>), FrameworkPropertyMetadataOptions.AffectsRender));
+
+        /// <summary>
+        /// 刻度标签
+        /// </summary>
+        public IEnumerable<AxisLabel> AxisLabels
+        {
+            get { return (IEnumerable<AxisLabel>)GetValue(AxisLabelsProperty); }
+            set { SetValue(AxisLabelsProperty, value); }
+        }
+
+        /// <summary>
         /// 标签convert函数
         /// </summary>
-        public Func<double, string> ScaleLabelFunc { get; set; } =
-            f => ((float)f).ToString(CultureInfo.InvariantCulture);
+        public static readonly DependencyProperty ScaleLabelFuncProperty = DependencyProperty.Register(
+            nameof(ScaleLabelFunc), typeof(Func<double, string>), typeof(AxisOption),
+            typeMetadata: new PropertyMetadata(new Func<double, string>(f =>
+                ((float)f).ToString(CultureInfo.InvariantCulture)), RefreshLabelsPropertyChangedCallback));
+
+        protected static void RefreshLabelsPropertyChangedCallback(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (d is AxisOption option)
+            {
+                option.RefreshLabels(option.RenderSize);
+            }
+        }
+
+        /// <summary>
+        /// 标签convert函数
+        /// </summary>
+        public Func<double, string> ScaleLabelFunc
+        {
+            get { return (Func<double, string>)GetValue(ScaleLabelFuncProperty); }
+            set { SetValue(ScaleLabelFuncProperty, value); }
+        }
 
         /// <summary>
         /// 刻度生成器
@@ -70,14 +82,14 @@ namespace GLChart.WPF.UIComponent.Axis
         public IScaleLineGenerator ScaleGenerator { get; set; }
             = new FixedPixelPitchScale(50, 100);
 
-        public static readonly DependencyProperty RenderOptionProperty = DependencyProperty.Register(
-            nameof(RenderOption), typeof(AxisLabelRenderOption), typeof(AxisOption),
-            new FrameworkPropertyMetadata(new AxisLabelRenderOption(), FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty LabelRenderOptionProperty = DependencyProperty.Register(
+            nameof(LabelRenderOption), typeof(AxisLabelRenderOption), typeof(AxisOption),
+            new FrameworkPropertyMetadata(new AxisLabelRenderOption(), RefreshLabelsPropertyChangedCallback));
 
-        public AxisLabelRenderOption RenderOption
+        public AxisLabelRenderOption LabelRenderOption
         {
-            get { return (AxisLabelRenderOption)GetValue(RenderOptionProperty); }
-            set { SetValue(RenderOptionProperty, value); }
+            get { return (AxisLabelRenderOption)GetValue(LabelRenderOptionProperty); }
+            set { SetValue(LabelRenderOptionProperty, value); }
         }
 
         /// <summary>
@@ -134,24 +146,20 @@ namespace GLChart.WPF.UIComponent.Axis
             set { SetValue(ZoomBoundaryProperty, value); }
         }
 
-        public static readonly DependencyProperty CurrentViewRangeProperty = DependencyProperty.Register(
-            nameof(CurrentViewRange), typeof(ScrollRange), typeof(AxisOption),
-            new PropertyMetadata(default(ScrollRange)));
+        public static readonly DependencyProperty ViewRangeProperty = DependencyProperty.Register(
+            nameof(ViewRange), typeof(ScrollRange), typeof(AxisOption),
+            new PropertyMetadata(default(ScrollRange), RefreshLabelsPropertyChangedCallback));
 
         /// <summary>
         /// 当前视图区域
         /// </summary>
-        public ScrollRange CurrentViewRange
+        public ScrollRange ViewRange
         {
-            get { return (ScrollRange)GetValue(CurrentViewRangeProperty); }
-            set { SetValue(CurrentViewRangeProperty, value); }
+            get { return (ScrollRange)GetValue(ViewRangeProperty); }
+            set { SetValue(ViewRangeProperty, value); }
         }
 
         #endregion
-
-        private IList<AxisLabel>? _cacheLabels;
-
-        private double _lastPixelStart, _lastPixelStretch;
 
         /// <summary>
         /// 对视图区域执行偏移
@@ -159,11 +167,6 @@ namespace GLChart.WPF.UIComponent.Axis
         /// <param name="newRange">新视图区域</param>
         public void TryMoveView(ScrollRange newRange)
         {
-            if (newRange.Range < this.MinDisplayExtent)
-            {
-                return;
-            }
-
             var xZoomBoundary = this.ZoomBoundary;
             if (xZoomBoundary != null)
             {
@@ -182,42 +185,51 @@ namespace GLChart.WPF.UIComponent.Axis
                 }
             }
 
-            this.CurrentViewRange = newRange;
+            this.ViewRange = newRange;
         }
+
+        public void TryScaleView(ScrollRange newRange)
+        {
+            if (newRange.Range < this.MinDisplayExtent)
+            {
+                return;
+            }
+
+            var boundary = this.ZoomBoundary;
+            if (boundary != null)
+            {
+                var end = boundary.Value.End;
+                var start = boundary.Value.Start;
+                end = newRange.End > end ? end : newRange.End;
+                start = newRange.Start < start ? start : newRange.Start;
+                newRange = new ScrollRange(start, end);
+            }
+
+            this.ViewRange = newRange;
+        }
+        
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+            RenderScale(drawingContext);
+        }
+
+        /// <summary>
+        /// 渲染坐标刻度
+        /// </summary>
+        /// <param name="context"></param>
+        protected abstract void RenderScale(DrawingContext context);
 
         /// <summary>
         /// create labels collection on a axis
         /// 返回指定的标签
         /// </summary>
-        /// <param name="pixelStart">像素起始点</param>
-        /// <param name="pixelStretch">像素长度</param>
-        /// <returns></returns>
-        public IList<AxisLabel> GenerateLabels(double pixelStart, double pixelStretch)
-        {
-            if (_lastPixelStart.Equals(pixelStart) && _lastPixelStretch.Equals(pixelStretch)
-                                                   && _cacheLabels != null)
-            {
-                return _cacheLabels;
-            }
+        protected abstract void RefreshLabels(Size size);
 
-            _lastPixelStart = pixelStart;
-            _lastPixelStretch = pixelStretch;
-            var labelFunc = this.ScaleLabelFunc;
-            _cacheLabels = this.ScaleGenerator
-                .Generate(new ScaleLineGenerationContext(this.CurrentViewRange, pixelStart, pixelStretch,
-                    this.NumberDirection,
-                    this.RenderOption))
-                .Select(scale =>
-                {
-                    var round = Math.Round(scale.Value, this.RoundDigit);
-                    return new AxisLabel()
-                    {
-                        Location = scale.Location,
-                        Value = round,
-                        Text = labelFunc.Invoke(round),
-                    };
-                }).ToList();
-            return _cacheLabels;
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            RefreshLabels(sizeInfo.NewSize);
         }
     }
 }

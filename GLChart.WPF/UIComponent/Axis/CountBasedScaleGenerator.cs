@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using GLChart.WPF.Base;
 
@@ -73,7 +74,8 @@ namespace GLChart.WPF.UIComponent.Axis
 
         private static double GetStickSpan(double value, int spansCount)
         {
-            int span = (int)Math.Floor(value / spansCount);
+            var round = Math.Round(value);
+            int span = (int)Math.Floor(round / spansCount);
             int digit = 0;
             while (span > 10)
             {

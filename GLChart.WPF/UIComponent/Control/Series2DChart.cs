@@ -92,13 +92,12 @@ namespace GLChart.WPF.UIComponent.Control
 
         private void OnAxisXViewChangedHandler(object? sender, EventArgs e)
         {
-            this._coordinateRenderer.TargetRegion =
-                this._coordinateRenderer.TargetRegion.ChangeXRange(AxisXOption.CurrentViewRange);
+            this._coordinateRenderer.TargetXRange = AxisXOption.ViewRange;
         }
 
         private void ChangeAxisXOption(DependencyPropertyChangedEventArgs e)
         {
-            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.CurrentViewRangeProperty,
+            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.ViewRangeProperty,
                 typeof(AxisOption));
             if (e.OldValue is AxisXOption oldValue)
             {
@@ -108,8 +107,7 @@ namespace GLChart.WPF.UIComponent.Control
             if (e.NewValue is AxisXOption newValue)
             {
                 pd.AddValueChanged(newValue, OnAxisXViewChangedHandler);
-                var targetRegion = this._coordinateRenderer.TargetRegion;
-                this._coordinateRenderer.TargetRegion = targetRegion.ChangeXRange(newValue.CurrentViewRange);
+                this._coordinateRenderer.TargetXRange = newValue.ViewRange;
             }
         }
 
@@ -137,7 +135,7 @@ namespace GLChart.WPF.UIComponent.Control
 
         private void ChangeAxisYOption(DependencyPropertyChangedEventArgs e)
         {
-            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.CurrentViewRangeProperty,
+            var pd = DependencyPropertyDescriptor.FromProperty(AxisOption.ViewRangeProperty,
                 typeof(AxisOption));
             var descriptor =
                 DependencyPropertyDescriptor.FromProperty(AxisYOption.IsAutoSizeProperty, typeof(AxisYOption));
@@ -152,7 +150,7 @@ namespace GLChart.WPF.UIComponent.Control
                 pd.AddValueChanged(newValue, OnAxisYViewChangedHandler);
                 descriptor.AddValueChanged(newValue, OnAxisYAutoSizeChangedHandler);
                 var targetRegion = this._coordinateRenderer.TargetRegion;
-                this._coordinateRenderer.TargetRegion = targetRegion.ChangeYRange(newValue.CurrentViewRange);
+                this._coordinateRenderer.TargetYRange = newValue.ViewRange;
                 this._coordinateRenderer.AutoYAxisEnable = newValue.IsAutoSize;
             }
         }
@@ -164,8 +162,7 @@ namespace GLChart.WPF.UIComponent.Control
 
         private void OnAxisYViewChangedHandler(object? sender, EventArgs e)
         {
-            this._coordinateRenderer.TargetRegion =
-                this._coordinateRenderer.TargetRegion.ChangeYRange(AxisYOption.CurrentViewRange);
+            this._coordinateRenderer.TargetYRange = AxisYOption.ViewRange;
         }
 
         public AxisYOption AxisYOption
@@ -174,17 +171,12 @@ namespace GLChart.WPF.UIComponent.Control
             set => SetValue(AxisYOptionProperty, value);
         }
 
-        public static readonly DependencyProperty ActualRegionProperty = DependencyProperty.Register(
-            nameof(ActualRegion), typeof(Region2D), typeof(Series2DChart),
-            new PropertyMetadata(default(Region2D)));
-
         /// <summary>
         /// 当前实际视域
         /// </summary>
         public Region2D ActualRegion
         {
-            get => (Region2D)GetValue(ActualRegionProperty);
-            set => SetValue(ActualRegionProperty, value);
+            get { return new Region2D(AxisXOption.ViewRange, AxisYOption.ActualViewRange); }
         }
 
         public static readonly DependencyProperty DefaultYRangeProperty = DependencyProperty.Register(
@@ -245,16 +237,17 @@ namespace GLChart.WPF.UIComponent.Control
         public Series2DChart()
         {
             var color = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
-            var defaultRange = (ScrollRange)AxisOption.CurrentViewRangeProperty.DefaultMetadata.DefaultValue;
+            var defaultRange = (ScrollRange)AxisOption.ViewRangeProperty.DefaultMetadata.DefaultValue;
             _coordinateRenderer = new Coordinate2DRenderer(new BaseRenderer[]
                 { LineSeriesRenderer })
             {
                 BackgroundColor = new Color4(color.A, color.R, color.G, color.B),
                 AutoYAxisEnable = (bool)AxisYOption.IsAutoSizeProperty.DefaultMetadata.DefaultValue,
                 DefaultAxisYRange = (ScrollRange)DefaultYRangeProperty.DefaultMetadata.DefaultValue,
-                TargetRegion = new Region2D(defaultRange, defaultRange),
+                TargetXRange = defaultRange,
+                TargetYRange = defaultRange,
             };
-            _coordinateRenderer.ActualRegionChanged += OnRendererHostAutoAxisYCompleted;
+            _coordinateRenderer.ActualYRangeChanged += OnRendererHostAutoAxisYCompleted;
             _renderControl = new BitmapOpenTkControl()
             {
                 IsAutoAttach = true,
@@ -309,9 +302,9 @@ namespace GLChart.WPF.UIComponent.Control
             }
         }
 
-        protected virtual void OnRendererHostAutoAxisYCompleted(Region2D region)
+        protected virtual void OnRendererHostAutoAxisYCompleted(ScrollRange region)
         {
-            this.Dispatcher.InvokeAsync(() => { this.ActualRegion = region; });
+            this.Dispatcher.InvokeAsync(() => { this.AxisYOption.ActualViewRange = region; });
         }
 
         private static void OpenTkControlOnOpenGlErrorReceived(object? sender, OpenGlErrorArgs e)
@@ -340,23 +333,28 @@ namespace GLChart.WPF.UIComponent.Control
 
         private Point _startMovePoint;
 
-        private ScrollRange _startMoveAxisXView;
+        private Region2D _startMoveView;
 
-        private ScrollRange _startMoveAxisYView;
+        private bool _isAutoSizeEnableCache;
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
+            _isAutoSizeEnableCache = _coordinateRenderer.AutoYAxisEnable;
             _coordinateRenderer.AutoYAxisEnable = false;
             _startMovePoint = e.GetPosition(_renderControl);
-            _startMoveAxisXView = this.AxisXOption.CurrentViewRange;
-            _startMoveAxisYView = this.AxisYOption.CurrentViewRange;
+            _startMoveView = this.ActualRegion;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonUp(e);
-            _coordinateRenderer.AutoYAxisEnable = AxisYOption.IsAutoSize;
+            if (_startMovePoint.Equals(e.GetPosition(_renderControl)))
+            {
+                _coordinateRenderer.AutoYAxisEnable = _isAutoSizeEnableCache;
+            }
+
+            AxisYOption.IsAutoSize = _coordinateRenderer.AutoYAxisEnable;
         }
 
         private ToolTip? _toolTip;
@@ -384,13 +382,11 @@ namespace GLChart.WPF.UIComponent.Control
             {
                 var xPixel = _startMovePoint.X - position.X;
                 var xOffset = winToGlMapping.GetXOffset(xPixel);
-                var @newX = _startMoveAxisXView.OffsetNew(xOffset);
-                AxisXOption.TryMoveView(@newX);
-
                 var yPixel = _startMovePoint.Y - position.Y;
                 var yOffset = winToGlMapping.GetYOffset(-yPixel);
-                var @newY = _startMoveAxisYView.OffsetNew(yOffset);
-                AxisYOption.TryMoveView(@newY);
+                var @new = _startMoveView.OffsetNew(xOffset, yOffset);
+                AxisXOption.TryMoveView(@new.XRange);
+                AxisYOption.TryMoveView(@new.YRange);
             }
             else
             {
@@ -437,12 +433,14 @@ namespace GLChart.WPF.UIComponent.Control
             var oldRegion = this.ActualRegion;
             var scale = new WindowsGlCoordinateMapping(oldRegion, e.FullRect);
             scale.ScaleByRect(e.SelectRect, out var xRange, out var yRange);
-            AxisXOption.TryMoveView(xRange);
-            AxisYOption.TryMoveView(yRange);
+            AxisXOption.TryScaleView(xRange);
+            AxisYOption.TryScaleView(yRange);
+            AxisYOption.IsAutoSize = false;
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
+            AxisYOption.IsAutoSize = false;
             base.OnMouseWheel(e);
             var axisXOption = AxisXOption;
             var region = this.ActualRegion;
@@ -451,14 +449,14 @@ namespace GLChart.WPF.UIComponent.Control
             if (axisXOption.ZoomEnable)
             {
                 newXRange = e.Scale(newXRange);
-                axisXOption.TryMoveView(newXRange);
+                axisXOption.TryScaleView(newXRange);
             }
 
             var axisYOption = AxisYOption;
             if (axisYOption.ZoomEnable)
             {
                 newYRange = e.Scale(newYRange);
-                axisXOption.TryMoveView(newYRange);
+                axisYOption.TryScaleView(newYRange);
             }
         }
 

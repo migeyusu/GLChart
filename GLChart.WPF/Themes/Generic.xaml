@@ -85,19 +85,23 @@
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               ContentStringFormat="{TemplateBinding ContentStringFormat}"
                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
-                            <axis:XAxisElement Grid.Row="1"
-                                               Grid.Column="1"
-                                               x:Name="XAxis"
-                                               Option="{TemplateBinding AxisXOption}" />
-                            <axis:YAxisElement Grid.Row="0"
-                                               Grid.Column="0"
-                                               x:Name="YAxis"
-                                               Margin="0,0,10,0"
-                                               Option="{TemplateBinding AxisYOption}" />
+                            <ContentPresenter Grid.Row="1" Grid.Column="1"
+                                              x:Name="XAxis"
+                                              Content="{TemplateBinding AxisXOption}" 
+                                              VerticalAlignment="Stretch"/>
+                            <ContentPresenter Grid.Row="0"
+                                              Grid.Column="0"
+                                              x:Name="YAxis"
+                                              Margin="0,0,10,0"
+                                              Content="{TemplateBinding AxisYOption}" />
                             <local:SeparatorLayer Grid.Row="0"
                                                   Grid.Column="1"
-                                                  AxisXOption="{TemplateBinding AxisXOption}"
-                                                  AxisYOption="{TemplateBinding AxisYOption}"
+                                                  AxisXLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.AxisLabels,Mode=OneWay}"
+                                                  AxisYLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.AxisLabels,Mode=OneWay}"
+                                                  IsXSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.IsSeparatorVisible,Mode=OneWay}"
+                                                  IsYSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsSeparatorVisible,Mode=OneWay}"
+                                                  XSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.SeparatorPen,Mode=OneWay}"
+                                                  YSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.SeparatorPen,Mode=OneWay}"
                                                   x:Name="SeparatorLayer" />
                         </Grid>
                     </Border>

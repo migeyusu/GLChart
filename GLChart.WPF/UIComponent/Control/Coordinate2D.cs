@@ -10,8 +10,8 @@ namespace GLChart.WPF.UIComponent.Control
     /// <summary>
     /// 基于wpf的2d坐标轴和网格绘制
     /// </summary>
-    [TemplatePart(Name = XAxisName, Type = typeof(XAxisElement))]
-    [TemplatePart(Name = YAxisName, Type = typeof(YAxisElement))]
+    [TemplatePart(Name = XAxisName, Type = typeof(AxisXOption))]
+    [TemplatePart(Name = YAxisName, Type = typeof(AxisYOption))]
     [TemplatePart(Name = SeparatorLayerName, Type = typeof(SeparatorLayer))]
     public class Coordinate2D : ContentControl
     {
@@ -46,19 +46,10 @@ namespace GLChart.WPF.UIComponent.Control
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Coordinate2D),
                 new FrameworkPropertyMetadata(typeof(Coordinate2D)));
         }
-
-        protected SeparatorLayer SeparatorLayer;
-
-        protected XAxisElement XAxisElement;
-
-        protected YAxisElement YAxisElement;
-
+        
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            XAxisElement = GetTemplateChild(XAxisName) as XAxisElement;
-            YAxisElement = GetTemplateChild(YAxisName) as YAxisElement;
-            SeparatorLayer = GetTemplateChild(SeparatorLayerName) as SeparatorLayer;
         }
     }
 }
