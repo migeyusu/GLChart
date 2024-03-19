@@ -11,7 +11,6 @@
         Width="800">
     <Grid>
         <control:BitmapOpenTkControl IsAutoAttach="True"
-                                     IsRenderContinuously="True"
                                      IsShowFps="True"
                                      x:Name="ThreadOpenTkControl"/>
         <StackPanel VerticalAlignment="Bottom"

@@ -6,9 +6,9 @@ namespace GLChart.WPF.Render.Renderer
     /// <summary>
     /// 线渲染集合
     /// </summary>
-    public class Line2DSeriesRenderer : SeriesShaderRenderer<RingLine2DRenderer>
+    public class RingLine2DSeriesRenderer : SeriesShaderRenderer<RingLine2DRenderer>
     {
-        public Line2DSeriesRenderer(Shader shader) : base(shader)
+        public RingLine2DSeriesRenderer(Shader shader) : base(shader)
         {
         }
 

@@ -15,7 +15,7 @@ namespace GLChart.WPF.Render.Renderer
     /// 着色器渲染集合，管理同类渲染器
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SeriesShaderRenderer<T> : BaseRenderer, IEnumerable<T>
+    public abstract class SeriesShaderRenderer<T> : ISeriesRenderer, IEnumerable<T>
         where T : IShaderRendererItem
     {
         protected readonly ConcurrentDictionary<Guid, T> LineRendererDictionary
@@ -47,12 +47,12 @@ namespace GLChart.WPF.Render.Renderer
 
         protected IGraphicsContext Context;
 
-        public override bool AnyReadyRenders()
+        public bool AnyReadyRenders()
         {
             return RenderWorkingList.Any();
         }
 
-        public override void Initialize(IGraphicsContext context)
+        public void Initialize(IGraphicsContext context)
         {
             if (IsInitialized)
             {
@@ -77,7 +77,7 @@ namespace GLChart.WPF.Render.Renderer
         /// </summary>
         /// <returns>true：上次渲染项目和本次渲染项不同，或任一可用渲染项提交了渲染请求(该渲染项的<see cref="PreviewRender"/>也为true；
         /// <para>false：两次渲染的项目相同</para></returns>
-        public override bool PreviewRender()
+        public bool PreviewRender()
         {
             var renderEnable = false;
             while (DeInitializeRendererCollection.TryTake(out var renderer))
@@ -113,7 +113,7 @@ namespace GLChart.WPF.Render.Renderer
             return renderEnable;
         }
 
-        public override void Render(GlRenderEventArgs args)
+        public void Render(GlRenderEventArgs args)
         {
             if (RenderWorkingList.Count == 0)
             {
@@ -127,6 +127,11 @@ namespace GLChart.WPF.Render.Renderer
             }
         }
 
+        public void Resize(PixelSize size)
+        {
+            //do nothing.
+        }
+
         /// <summary>
         /// 在系列实际渲染前，应用shader参数
         /// </summary>
@@ -138,12 +143,16 @@ namespace GLChart.WPF.Render.Renderer
 
         private RenderDirective _directive;
 
-        public override void ApplyDirective(RenderDirective directive)
+        public Guid Id { get; protected set; }
+
+        public bool RenderEnable { get; set; } = true;
+
+        public virtual void ApplyDirective(RenderDirective directive)
         {
             this._directive = directive;
         }
 
-        public override void Uninitialize()
+        public void Uninitialize()
         {
             if (!IsInitialized)
             {
@@ -167,6 +176,8 @@ namespace GLChart.WPF.Render.Renderer
             GL.DeleteProgram(this.Shader.Handle);
             IsInitialized = false;
         }
+
+        public bool IsInitialized { get; protected set; }
 
         public void Add(T renderer)
         {

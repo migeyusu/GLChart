@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using OpenTkWPFHost.Core;
 
 namespace GLChart.WPF.Render.Renderer
@@ -45,7 +46,7 @@ namespace GLChart.WPF.Render.Renderer
             var colorRangeStart = ColorRange.Start;
             Shader.SetVector3("basecolor", new Vector3(colorRangeStart.R, colorRangeStart.G, colorRangeStart.B));
         }
-
+        
         public override void ApplyDirective(RenderDirective directive)
         {
             base.ApplyDirective(directive);

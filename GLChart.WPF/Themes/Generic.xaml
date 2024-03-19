@@ -3,11 +3,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:GLChart.WPF.UIComponent.Control"
     xmlns:interaction="clr-namespace:GLChart.WPF.UIComponent.Interaction"
-    xmlns:axis="clr-namespace:GLChart.WPF.UIComponent.Axis">
-    <Style TargetType="{x:Type local:Series2DChart}">
+    xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
+    xmlns:renderer="clr-namespace:GLChart.WPF.Render.Renderer"
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost">
+    <Style TargetType="{x:Type local:Chart2DCore}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:Series2DChart}">
+                <ControlTemplate TargetType="{x:Type local:Chart2DCore}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -17,20 +19,30 @@
                                                 VerticalContentAlignment="Stretch"
                                                 HorizontalContentAlignment="Stretch"
                                                 x:Name="Coordinate">
-                                <Grid VerticalAlignment="Stretch"
-                                      HorizontalAlignment="Stretch">
-                                    <ContentPresenter Content="{TemplateBinding OpenTKControl}"
-                                                      x:Name="ContentPresenter">
-                                        <ContentPresenter.ToolTip>
-                                            <ToolTip IsOpen="False"
-                                                     Padding="0"
-                                                     x:Name="ToolTip"
-                                                     Placement="Relative"
-                                                     Background="Transparent"
-                                                     ContentTemplate="{TemplateBinding ToolTipTemplate}" />
-                                        </ContentPresenter.ToolTip>
-                                    </ContentPresenter>
-                                </Grid>
+                                <control:BitmapOpenTkControl x:Name="OpenTkControl"
+                                                             IsAutoAttach="True"
+                                                             IsShowFps="True"
+                                                             LifeCycle="BoundToWindow">
+                                    <control:BitmapOpenTkControl.RenderSetting>
+                                        <configuration:RenderSetting RenderTactic="LatencyPriority" />
+                                    </control:BitmapOpenTkControl.RenderSetting>
+                                    <control:BitmapOpenTkControl.Renderer>
+                                        <renderer:Coordinate2DRenderer x:Name="Coordinate2DRenderer"
+                                                                       BackgroundColor="{TemplateBinding BackgroundColor}"
+                                                                       DefaultAxisYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.DefaultViewRange,Mode=OneWay}"
+                                                                       AutoYAxisEnable="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsAutoSize,Mode=OneWay}"
+                                                                       TargetXRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay}" 
+                                                                       TargetYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ViewRange,Mode=OneWay}"/>
+                                    </control:BitmapOpenTkControl.Renderer>
+                                    <ContentPresenter.ToolTip>
+                                        <ToolTip IsOpen="False"
+                                                 Padding="0"
+                                                 x:Name="ToolTip"
+                                                 Placement="Relative"
+                                                 Background="Transparent"
+                                                 ContentTemplate="{TemplateBinding ToolTipTemplate}" />
+                                    </ContentPresenter.ToolTip>
+                                </control:BitmapOpenTkControl>
                             </local:Coordinate2D>
                             <interaction:MouseSelect VerticalAlignment="Stretch"
                                                      HorizontalAlignment="Stretch"
@@ -87,8 +99,8 @@
                                               ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
                             <ContentPresenter Grid.Row="1" Grid.Column="1"
                                               x:Name="XAxis"
-                                              Content="{TemplateBinding AxisXOption}" 
-                                              VerticalAlignment="Stretch"/>
+                                              Content="{TemplateBinding AxisXOption}"
+                                              VerticalAlignment="Stretch" />
                             <ContentPresenter Grid.Row="0"
                                               Grid.Column="0"
                                               x:Name="YAxis"

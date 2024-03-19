@@ -27,6 +27,19 @@ public class AxisYOption : AxisOption
         nameof(ActualViewRange), typeof(ScrollRange), typeof(AxisYOption),
         new FrameworkPropertyMetadata(default(ScrollRange), RefreshLabelsPropertyChangedCallback));
 
+    public static readonly DependencyProperty DefaultViewRangeProperty = DependencyProperty.Register(
+        nameof(DefaultViewRange), typeof(ScrollRange), typeof(AxisYOption),
+        new PropertyMetadata(new ScrollRange(0, 100)));
+
+    /// <summary>
+    /// 当<see cref="IsAutoSize"/>时，如果没有任何物体时的显示范围
+    /// </summary>
+    public ScrollRange DefaultViewRange
+    {
+        get { return (ScrollRange)GetValue(DefaultViewRangeProperty); }
+        set { SetValue(DefaultViewRangeProperty, value); }
+    }
+
     /// <summary>
     /// 实际视图区域，当启用<see cref="IsAutoSize"/>时，该值将不同于<see cref="AxisOption.ViewRange"/>
     /// </summary>

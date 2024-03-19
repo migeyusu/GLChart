@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
 using GLChart.WPF.Base;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -19,86 +21,106 @@ namespace GLChart.WPF.Render.Renderer
     /// 基于2d 坐标轴的渲染器；
     /// 能够自适应内容高度
     /// </summary>
-    public class Coordinate2DRenderer : IRenderer
+    public class Coordinate2DRenderer : DependencyObject, IRenderer
     {
-        /// <summary>
-        /// 事件在非UI线程上被调用,actual region变化时触发。
-        /// </summary>
-        public event Action<ScrollRange> ActualYRangeChanged;
-
         /// <summary>
         /// 点采样函数，渲染大量点位时允许只渲染部分点，todo:未实现
         /// </summary>
-        public Func<int, ScrollRange> SamplingFunction { get; set; }
+        public Func<int, ScrollRange>? SamplingFunction { get; set; }
 
-        public bool AutoYAxisEnable { get; set; }
+
+        public static readonly DependencyProperty AutoYAxisEnableProperty = DependencyProperty.Register(
+            nameof(AutoYAxisEnable), typeof(bool), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(true, (AutoYAxisEnableChangedCallback)));
+
+        private static void AutoYAxisEnableChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Coordinate2DRenderer coordinate2DRenderer)
+            {
+                coordinate2DRenderer._autoYAxisEnableValue = (bool)e.NewValue;
+            }
+        }
+
+        public bool AutoYAxisEnable
+        {
+            get { return (bool)GetValue(AutoYAxisEnableProperty); }
+            set { SetValue(AutoYAxisEnableProperty, value); }
+        }
+
+        private bool _autoYAxisEnableValue;
+
+        public static readonly DependencyProperty DefaultAxisYRangeProperty = DependencyProperty.Register(
+            nameof(DefaultAxisYRange), typeof(ScrollRange), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(new ScrollRange(0, 100), (DefaultAxisYRangeChangedCallback)));
+
+        private static void DefaultAxisYRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Coordinate2DRenderer renderer)
+            {
+                renderer._defaultAxisYRangeValue = (ScrollRange)e.NewValue;
+            }
+        }
+
+        public ScrollRange DefaultAxisYRange
+        {
+            get { return (ScrollRange)GetValue(DefaultAxisYRangeProperty); }
+            set { SetValue(DefaultAxisYRangeProperty, value); }
+        }
 
         /// <summary>
         /// 自适应Y轴的默认区间，当界面内没有元素时显示该区间
         /// </summary>
-        public ScrollRange DefaultAxisYRange { get; set; } = new ScrollRange(0, 100);
+        private ScrollRange _defaultAxisYRangeValue;
 
-        private ScrollRange _actualYRange;
+        public static readonly DependencyProperty ActualYRangeProperty = DependencyProperty.Register(
+            nameof(ActualYRange), typeof(ScrollRange), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(default(ScrollRange)));
 
-        /// <summary>
-        /// 当前渲染器的实际坐标，如果自动高度，<see cref="ActualYRange"/>和<see cref="TargetYRange"/>会不同
-        /// </summary>
         public ScrollRange ActualYRange
         {
-            get => _actualYRange;
-            protected set
-            {
-                if (_actualYRange.Equals(value))
-                {
-                    return;
-                }
+            get { return (ScrollRange)GetValue(ActualYRangeProperty); }
+            set { SetValue(ActualYRangeProperty, value); }
+        }
 
-                _actualYRange = value;
-                OnActualYRangeChanged(value);
+        public static readonly DependencyProperty TargetXRangeProperty = DependencyProperty.Register(
+            nameof(TargetXRange), typeof(ScrollRange), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(default(ScrollRange), (TargetXRangeChangedCallback)));
+
+        private static void TargetXRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Coordinate2DRenderer renderer)
+            {
+                var scrollRange = (ScrollRange)e.NewValue;
+                renderer._targetRegion2D = renderer._targetRegion2D.ChangeXRange(scrollRange);
             }
         }
 
         public ScrollRange TargetXRange
         {
-            get => _targetXRange;
+            get { return (ScrollRange)GetValue(TargetXRangeProperty); }
+            set { SetValue(TargetXRangeProperty, value); }
+        }
 
-            set
+        public static readonly DependencyProperty TargetYRangeProperty = DependencyProperty.Register(
+            nameof(TargetYRange), typeof(ScrollRange), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(default(ScrollRange), (TargetYRangeChangedCallback)));
+
+        private static void TargetYRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Coordinate2DRenderer renderer)
             {
-                if (value.Equals(_targetXRange))
-                {
-                    return;
-                }
-
-                _targetXRange = value;
-                _targetRegion2D = _targetRegion2D.ChangeXRange(value);
+                var scrollRange = (ScrollRange)e.NewValue;
+                renderer._targetRegion2D = renderer._targetRegion2D.ChangeYRange(scrollRange);
             }
         }
 
         public ScrollRange TargetYRange
         {
-            get => _targetYRange;
-
-            set
-            {
-                if (value.Equals(_targetYRange))
-                {
-                    return;
-                }
-
-                _targetYRange = value;
-                _targetRegion2D = _targetRegion2D.ChangeYRange(value);
-            }
+            get { return (ScrollRange)GetValue(TargetYRangeProperty); }
+            set { SetValue(TargetYRangeProperty, value); }
         }
 
         private Region2D _targetRegion2D;
-
-        /// <summary>
-        /// 当前渲染器的设定坐标
-        /// </summary>
-        public Region2D TargetRegion
-        {
-            get { return _targetRegion2D; }
-        }
 
         private Matrix4 _tempTransform = Matrix4.Identity;
 
@@ -113,7 +135,7 @@ namespace GLChart.WPF.Render.Renderer
             set
             {
                 this._renderingRegion = value;
-                this.ActualYRange = value.YRange;
+                Dispatcher.InvokeAsync(() => { this.ActualYRange = value.YRange; });
                 this._tempTransform = GetTransform(value);
             }
         }
@@ -121,7 +143,7 @@ namespace GLChart.WPF.Render.Renderer
         /// <summary>
         /// 渲染快照
         /// </summary>
-        private IList<BaseRenderer> _rendererSeriesSnapList = new List<BaseRenderer>();
+        private IList<ISeriesRenderer> _rendererSeriesSnapList = new List<ISeriesRenderer>();
 
         /// <summary>
         /// 基于ndc的Y轴（-1-1）进行划分的块数量
@@ -151,16 +173,38 @@ namespace GLChart.WPF.Render.Renderer
 
         public const float AutoAxisYContentRatioAccuracy = 0.05f;
 
-        public Color4 BackgroundColor { get; set; } = Color4.White;
+        public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
+            nameof(BackgroundColor), typeof(Color), typeof(Coordinate2DRenderer),
+            new PropertyMetadata(Colors.White, (ColorChangedCallback)));
 
-        public IReadOnlyCollection<BaseRenderer> Series =>
-            new ReadOnlyCollection<BaseRenderer>(RenderSeriesCollection);
-
-        protected readonly IList<BaseRenderer> RenderSeriesCollection;
-
-        public Coordinate2DRenderer(IList<BaseRenderer> renderSeriesCollection)
+        private static void ColorChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            RenderSeriesCollection = renderSeriesCollection;
+            if (d is Coordinate2DRenderer renderer)
+            {
+                var value = (Color)e.NewValue;
+                renderer._backgroundColor4 = new Color4(value.R, value.G, value.B, value.A);
+            }
+        }
+
+        public Color BackgroundColor
+        {
+            get { return (Color)GetValue(BackgroundColorProperty); }
+            set { SetValue(BackgroundColorProperty, value); }
+        }
+
+        private Color4 _backgroundColor4;
+
+        public IReadOnlyCollection<ISeriesRenderer> Series =>
+            new ReadOnlyCollection<ISeriesRenderer>(RenderSeriesCollection);
+
+        protected readonly IList<ISeriesRenderer> RenderSeriesCollection = new List<ISeriesRenderer>();
+
+        public Coordinate2DRenderer()
+        {
+            this._autoYAxisEnableValue = (bool)AutoYAxisEnableProperty.DefaultMetadata.DefaultValue;
+            this._defaultAxisYRangeValue = (ScrollRange)DefaultAxisYRangeProperty.DefaultMetadata.DefaultValue;
+            var value = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
+            this._backgroundColor4 = new Color4(value.R, value.G, value.B, value.A);
         }
 
         private static Matrix4 GetTransform(Region2D value)
@@ -176,7 +220,7 @@ namespace GLChart.WPF.Render.Renderer
             return transform;
         }
 
-        protected IGraphicsContext Context;
+        protected IGraphicsContext? Context;
 
         public virtual void Initialize(IGraphicsContext context)
         {
@@ -202,8 +246,6 @@ namespace GLChart.WPF.Render.Renderer
         }
 
         private Region2D _lastTargetRegion;
-        private ScrollRange _targetXRange;
-        private ScrollRange _targetYRange;
 
         /// <summary>
         /// 渲染的准备阶段，初始化、检查渲染快照变更和刷新缓冲区
@@ -211,17 +253,17 @@ namespace GLChart.WPF.Render.Renderer
         /// <returns></returns>
         public virtual bool PreviewRender()
         {
-            if (TargetRegion.IsEmpty())
+            if (_targetRegion2D.IsEmpty())
             {
                 return false;
             }
 
             var renderEnable = false;
-            if (!_lastTargetRegion.Equals(TargetRegion))
+            if (!_lastTargetRegion.Equals(_targetRegion2D))
             {
                 renderEnable = true;
-                _lastTargetRegion = TargetRegion;
-                RenderingRegion = TargetRegion;
+                _lastTargetRegion = _targetRegion2D;
+                RenderingRegion = _targetRegion2D;
             }
 
             renderEnable = _isHeightAdapting || renderEnable;
@@ -253,19 +295,17 @@ namespace GLChart.WPF.Render.Renderer
         }
 
         /// <summary>
-        /// 基本思路:当Y轴非自适应时，<see cref="TargetRegion"/>都变为<see cref="ActualRegion"/>，并更新transform；
-        /// <para>当Y轴为自适应时，<see cref="TargetRegion"/>的设置将标记更新，由render过程维护transform</para>
         /// </summary>
         /// <param name="args"></param>
         public virtual void Render(GlRenderEventArgs args)
         {
-            GL.ClearColor(BackgroundColor);
+            GL.ClearColor(_backgroundColor4);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
                 return;
             }
-            
+
             #region transform
 
             if (_isHeightAdapting)
@@ -282,8 +322,8 @@ namespace GLChart.WPF.Render.Renderer
                 seriesItem.Render(args);
             }
 
-            //自适应高度检查
-            if (AutoYAxisEnable)
+            //自适应高度检查，每次都执行
+            if (_autoYAxisEnableValue)
             {
                 _isHeightAdapting = true;
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
@@ -305,13 +345,13 @@ namespace GLChart.WPF.Render.Renderer
                 var regionYRange = renderingRegion.YRange;
                 if (i == 0) //表示界面内已没有任何元素，不需要适配
                 {
-                    if (regionYRange.Equals(this.DefaultAxisYRange))
+                    if (regionYRange.Equals(this._defaultAxisYRangeValue))
                     {
                         _isHeightAdapting = false;
                         return;
                     }
 
-                    newRegion = renderingRegion.ChangeYRange(this.DefaultAxisYRange);
+                    newRegion = renderingRegion.ChangeYRange(this._defaultAxisYRangeValue);
                 }
                 else
                 {
@@ -353,10 +393,5 @@ namespace GLChart.WPF.Render.Renderer
         }
 
         public bool IsInitialized { get; protected set; }
-
-        protected virtual void OnActualYRangeChanged(ScrollRange obj)
-        {
-            ActualYRangeChanged?.Invoke(obj);
-        }
     }
 }

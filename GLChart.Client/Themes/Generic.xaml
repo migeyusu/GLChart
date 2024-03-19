@@ -1,19 +1,15 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Class="RLP.ICPMS.Tune.View.Concise.Themes.GenericResourceDictionary"
-    xmlns:local="clr-namespace:RLP.ICPMS.Tune.View.Concise"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:system="clr-namespace:System;assembly=mscorlib"
     xmlns:control="clr-namespace:GLChart.Samples.Charts"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:control1="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF"
-    xmlns:openGl="clr-namespace:GLChart.WPF.UIComponent.Interaction;assembly=GLChart.WPF">
+    xmlns:openGl="clr-namespace:GLChart.WPF.UIComponent.Interaction;assembly=GLChart.WPF"
+    xmlns:local="clr-namespace:GLChart.Samples"
+    xmlns:control2="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost">
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <mah:ColorToSolidColorBrushConverter x:Key="ColorToSolidColorBrushConverter" />
-    <control:ScrollRangeToScalarConverter x:Key="RangeToScalarConverter"></control:ScrollRangeToScalarConverter>
     <DrawingBrush x:Key="DottedBrush"
                   Viewport="0,0,8,8" ViewportUnits="Absolute" TileMode="Tile">
         <DrawingBrush.Drawing>
@@ -268,12 +264,11 @@
                                 <RowDefinition />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <control1:Series2DChart x:Name="ContentChart"
+                            <control1:Chart2DCore x:Name="ContentChart"
                                                     IsShowFps="False"
                                                     AxisXOption="{TemplateBinding AxisXOption}"
                                                     AxisYOption="{TemplateBinding AxisYOption}"
                                                     ToolTipTemplate="{TemplateBinding ToolTipTemplate}" />
-                            <!--todo:scrollrange converter的设计-->
                             <Border Grid.Row="1"
                                     Height="50"
                                     VerticalAlignment="Stretch"
@@ -284,7 +279,8 @@
                                                             mah:SliderHelper.EnableMouseWheel="MouseHover"
                                                             AutoToolTipPlacement="None"
                                                             LargeChange="10"
-                                                            UpperValue="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay,Converter={StaticResource RangeToScalarConverter}}"
+                                                            WholeRange="{Binding  RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ZoomBoundary,Mode=OneWay}"
+                                                            ActualRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=TwoWay}"
                                                             MinRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.MinDisplayExtent,Mode=OneWay}"
                                                             IsSnapToTickEnabled="{TemplateBinding IsSnapToTickEnabled}"
                                                             TickFrequency="{TemplateBinding TickFrequency}"
@@ -294,8 +290,14 @@
                                                             AutoToolTipUpperValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
                                                             AutoToolTipLowerValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
                                                             AutoToolTipRangeValuesTemplate="{TemplateBinding RangeSliderAutoToolTipRangeValuesTemplate}">
+                                    <!--todo:tooltip-->
                                     <control:ContentRangeSlider.Content>
-                                        <control1:DrawableElement x:Name="ThumbnailElement" />
+                                        <control2:OpenTKSubControl x:Name="ThumbnailElement"
+                                                                   control2:BitmapOpenTkControl.BindView="{Binding ElementName=ContentChart,Path=OpenTKControl}">
+                                            <control2:OpenTKSubControl.Renderer>
+                                                <control:Coordinate2DRendererView/>
+                                            </control2:OpenTKSubControl.Renderer>
+                                        </control2:OpenTKSubControl>
                                     </control:ContentRangeSlider.Content>
                                 </control:ContentRangeSlider>
                             </Border>
@@ -331,6 +333,5 @@
             </Setter.Value>
         </Setter>
     </Style>
-
 
 </ResourceDictionary>

@@ -24,7 +24,7 @@ namespace GLChart.Samples
 
         private void ChartTestWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            _line = LineChart.NewSeries<RingLine2DRenderer>();
+            /*_line = LineChart.NewSeries<RingLine2DRenderer>();
             var axisYOption = new AxisYOption
             {
                 IsAutoSize = true,
@@ -44,7 +44,20 @@ namespace GLChart.Samples
                 .Cast<IPoint2D>()
                 .ToList();
             _line.AddRange(array);
-            index += 100;
+            index += 100;*/
+            var axisYOption = new AxisYOption
+            {
+                IsAutoSize = true,
+                ViewRange = new ScrollRange(0, 500),
+                ZoomBoundary = new ScrollRange(-5000, 5000)
+            };
+            var axisXOption = new AxisXOption
+            {
+                ViewRange = new ScrollRange(0, 1000),
+                ZoomBoundary = new ScrollRange(-5000, 5000)
+            };
+            HistoricalGlChart.AxisXOption = axisXOption;
+            HistoricalGlChart.AxisYOption = axisYOption;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

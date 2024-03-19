@@ -8,7 +8,7 @@ namespace GLChart.Samples
         [STAThread]
         static void Main(string[] args)
         {
-            var application = new Application();
+            var application = new App();
             application.Run(new ChartTestWindow());
             application.Shutdown();
         }

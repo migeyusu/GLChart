@@ -34,10 +34,10 @@ namespace GLChart.WPF.Render.Renderer
         /// </summary>
         public Matrix4 Projection { get; set; } = Matrix4.Identity;
 
-        public IReadOnlyCollection<BaseRenderer> Series =>
-            new ReadOnlyCollection<BaseRenderer>(_renderSeriesCollection);
+        public IReadOnlyCollection<ISeriesRenderer> Series =>
+            new ReadOnlyCollection<ISeriesRenderer>(_renderSeriesCollection);
 
-        private readonly IList<BaseRenderer> _renderSeriesCollection;
+        private readonly IList<ISeriesRenderer> _renderSeriesCollection;
 
         private IGraphicsContext _context;
 
@@ -74,7 +74,7 @@ namespace GLChart.WPF.Render.Renderer
             return true;
         }
 
-        public Coordinate3DRenderer(IList<BaseRenderer> renderSeriesCollection)
+        public Coordinate3DRenderer(IList<ISeriesRenderer> renderSeriesCollection)
         {
             _renderSeriesCollection = renderSeriesCollection;
         }

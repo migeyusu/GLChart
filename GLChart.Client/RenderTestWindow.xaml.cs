@@ -61,7 +61,7 @@ namespace GLChart.Samples
             _channelRenderer.Add(new Channel(firstChannelPoints));
             channelSeriesRenderer = new ChannelSeriesRenderer(new Shader("RenderShaders/ChannelShader/shader.vert",
                 "Render/Shaders/ChannelShader/shader.frag")) { _channelRenderer };
-            _coordinate3DRenderer = new Coordinate3DRenderer(new List<BaseRenderer>() { channelSeriesRenderer })
+            _coordinate3DRenderer = new Coordinate3DRenderer(new List<ISeriesRenderer>() { channelSeriesRenderer })
             {
                 BackgroundColor = Color4.DodgerBlue,
                 View = rotationY * rotationX,
