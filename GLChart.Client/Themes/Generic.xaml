@@ -1,0 +1,378 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:control="clr-namespace:GLChart.Samples.Charts"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:corecontrol="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF"
+    xmlns:openGl="clr-namespace:GLChart.WPF.UIComponent.Interaction;assembly=GLChart.WPF"
+    xmlns:local="clr-namespace:GLChart.Samples"
+    xmlns:opentkControl="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
+    xmlns:renderer="clr-namespace:GLChart.WPF.Render.Renderer;assembly=GLChart.WPF">
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    <mah:ColorToSolidColorBrushConverter x:Key="ColorToSolidColorBrushConverter" />
+    <DrawingBrush x:Key="DottedBrush"
+                  Viewport="0,0,8,8" ViewportUnits="Absolute" TileMode="Tile">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="Black">
+                    <GeometryDrawing.Geometry>
+                        <GeometryGroup>
+                            <RectangleGeometry Rect="0,0,50,50" />
+                            <RectangleGeometry Rect="50,50,50,50" />
+                        </GeometryGroup>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <SolidColorBrush x:Key="ThumbFillHoverBrush" Color="Black" />
+    <SolidColorBrush x:Key="TrackFillHoverBrush" Color="DimGray" />
+    <SolidColorBrush x:Key="TrackFillPressedBrush" Color="Gray" />
+    <SolidColorBrush x:Key="TrackFillBrush" Color="Gray" />
+    <SolidColorBrush x:Key="ThumbFillDisabledBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="ThumbFillPressedBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="TrackFillDisabledBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="TrackValueFillDisabledBrush" Color="LightGray" />
+    <Style TargetType="{x:Type control:ContentThumb}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ContentThumb}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="HorizontalContentAlignment"
+                Value="Center" />
+        <Setter Property="VerticalContentAlignment"
+                Value="Center" />
+    </Style>
+    <Style TargetType="{x:Type Border}"
+           x:Key="GroupBorderStyle">
+        <Setter Property="BorderBrush"
+                Value="LightGray" />
+        <Setter Property="BorderThickness"
+                Value="2" />
+    </Style>
+    <Style TargetType="{x:Type control:ContentRangeSlider}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="DimGray" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="IsMoveToPointEnabled" Value="True" />
+        <Setter Property="AutoToolTipPlacement"
+                Value="TopLeft" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:ContentRangeSlider}">
+                    <Grid x:Name="PART_Container" Background="{TemplateBinding Background}"
+                          Height="{TemplateBinding Height}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" MinHeight="{TemplateBinding MinHeight}" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ContentPresenter Content="{TemplateBinding  Content}"
+                                          Grid.Row="1"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                        <TickBar x:Name="PART_TopTick"
+                                 Fill="{TemplateBinding Foreground}"
+                                 Height="4"
+                                 IsSelectionRangeEnabled="{TemplateBinding IsSelectionRangeEnabled}"
+                                 Maximum="{TemplateBinding Maximum}"
+                                 Minimum="{TemplateBinding Minimum}"
+                                 Placement="Top" Grid.Row="0" ReservedSpace="8"
+                                 SelectionStart="{TemplateBinding SelectionStart}"
+                                 SelectionEnd="{TemplateBinding SelectionEnd}"
+                                 Ticks="{TemplateBinding Ticks}"
+                                 TickFrequency="{TemplateBinding TickFrequency}"
+                                 Visibility="Collapsed" />
+                        <TickBar x:Name="PART_BottomTick"
+                                 Fill="{TemplateBinding Foreground}"
+                                 Height="4"
+                                 IsSelectionRangeEnabled="{TemplateBinding IsSelectionRangeEnabled}"
+                                 Maximum="{TemplateBinding Maximum}"
+                                 Minimum="{TemplateBinding Minimum}"
+                                 Placement="Bottom"
+                                 Grid.Row="2"
+                                 ReservedSpace="8"
+                                 SelectionStart="{TemplateBinding SelectionStart}"
+                                 SelectionEnd="{TemplateBinding SelectionEnd}"
+                                 Ticks="{TemplateBinding Ticks}"
+                                 TickFrequency="{TemplateBinding TickFrequency}"
+                                 Visibility="Collapsed" />
+                        <StackPanel x:Name="PART_RangeSliderContainer" Background="Transparent"
+                                    Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="3">
+                            <RepeatButton x:Name="PART_LeftEdge"
+                                          BorderThickness="0"
+                                          Background="LightGray"
+                                          Opacity="0.5"
+                                          Height="{TemplateBinding Height}" />
+                            <control:ContentThumb x:Name="PART_LeftThumb"
+                                                  Cursor="SizeWE"
+                                                  Width="5"
+                                                  Background="Gainsboro" />
+                            <control:ContentThumb x:Name="PART_MiddleThumb"
+                                                  Cursor="Hand"
+                                                  VerticalAlignment="Stretch"
+                                                  MinWidth="{TemplateBinding MinRangeWidth}"
+                                                  HorizontalContentAlignment="Stretch"
+                                                  VerticalContentAlignment="Stretch">
+                                <control:ContentThumb.Content>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.ColumnSpan="3"
+                                                Background="WhiteSmoke"
+                                                Opacity="0.1" />
+                                        <iconPacks:PackIconMaterial Kind="TransferLeft"
+                                                                    Grid.Column="0"
+                                                                    VerticalAlignment="Center" />
+                                        <iconPacks:PackIconMaterial Grid.Column="2"
+                                                                    Kind="TransferRight"
+                                                                    VerticalAlignment="Center" />
+
+                                    </Grid>
+                                </control:ContentThumb.Content>
+                            </control:ContentThumb>
+                            <control:ContentThumb x:Name="PART_RightThumb"
+                                                  Cursor="SizeWE"
+                                                  Width="5"
+                                                  Background="Gainsboro" />
+                            <RepeatButton x:Name="PART_RightEdge"
+                                          BorderThickness="0"
+                                          Background="LightGray"
+                                          Opacity="0.5"
+                                          Height="{TemplateBinding Height}" />
+                        </StackPanel>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="TickPlacement" Value="TopLeft">
+                            <Setter Property="Visibility" TargetName="PART_TopTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="BottomRight">
+                            <Setter Property="Visibility" TargetName="PART_BottomTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="TickPlacement" Value="Both">
+                            <Setter Property="Visibility" TargetName="PART_BottomTick" Value="Visible" />
+                            <Setter Property="Visibility" TargetName="PART_TopTick" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillHoverBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillHoverBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueLightBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillHoverBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillHoverBrush}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsPressed" SourceName="PART_LeftEdge" Value="True" />
+                                <Condition Property="IsMoveToPointEnabled" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsPressed" SourceName="PART_RightEdge" Value="True" />
+                                <Condition Property="IsMoveToPointEnabled" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </MultiTrigger>
+                        <Trigger Property="IsDragging" SourceName="PART_LeftThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" SourceName="PART_MiddleThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" SourceName="PART_RightThumb" Value="True">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{DynamicResource PrimaryHueDarkBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillPressedBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillPressedBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" TargetName="PART_LeftEdge"
+                                    Value="{StaticResource TrackFillDisabledBrush}" />
+                            <Setter Property="Background" TargetName="PART_LeftThumb"
+                                    Value="{StaticResource ThumbFillDisabledBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_MiddleThumb"
+                                    Value="{StaticResource TrackValueFillDisabledBrush}" />
+                            <Setter Property="Foreground" TargetName="PART_RightEdge"
+                                    Value="{StaticResource TrackFillDisabledBrush}" />
+                            <Setter Property="Background" TargetName="PART_RightThumb"
+                                    Value="{StaticResource ThumbFillDisabledBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style TargetType="{x:Type control:HistoricalChart}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type control:HistoricalChart}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <corecontrol:Coordinate2D AxisXOption="{TemplateBinding AxisXOption}"
+                                                          AxisYOption="{TemplateBinding AxisYOption}"
+                                                          VerticalContentAlignment="Stretch"
+                                                          HorizontalContentAlignment="Stretch"
+                                                          x:Name="Coordinate">
+                                    <opentkControl:BitmapOpenTkControl x:Name="OpenTkControl"
+                                                                       IsAutoAttach="True"
+                                                                       IsShowFps="True"
+                                                                       LifeCycle="BoundToWindow">
+                                        <opentkControl:BitmapOpenTkControl.RenderSetting>
+                                            <configuration:RenderSetting RenderTactic="LatencyPriority" />
+                                        </opentkControl:BitmapOpenTkControl.RenderSetting>
+                                        <opentkControl:BitmapOpenTkControl.Renderer>
+                                            <renderer:Coordinate2DRenderer x:Name="Coordinate2DRenderer"
+                                                                           BackgroundColor="{TemplateBinding BackgroundColor}"
+                                                                           DefaultAxisYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.DefaultViewRange,Mode=OneWay}"
+                                                                           AutoYAxisEnable="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsAutoSize,Mode=OneWay}"
+                                                                           TargetXRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay}"
+                                                                           TargetYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ViewRange,Mode=OneWay}"
+                                                                           ActualYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ActualViewRange,Mode=OneWayToSource}" />
+                                        </opentkControl:BitmapOpenTkControl.Renderer>
+                                        <opentkControl:BitmapOpenTkControl.ToolTip>
+                                            <ToolTip IsOpen="False"
+                                                     Padding="0"
+                                                     PlacementTarget="{Binding ElementName=OpenTkControl}"
+                                                     Placement="Relative"
+                                                     Background="Transparent"
+                                                     ContentTemplate="{TemplateBinding ToolTipTemplate}" />
+                                        </opentkControl:BitmapOpenTkControl.ToolTip>
+                                    </opentkControl:BitmapOpenTkControl>
+                                </corecontrol:Coordinate2D>
+                                <openGl:MouseInteractionElement VerticalAlignment="Stretch"
+                                                                HorizontalAlignment="Stretch"
+                                                                AxisYOption="{TemplateBinding AxisYOption}"
+                                                                AxisXOption="{TemplateBinding AxisXOption}"
+                                                                x:Name="SelectScaleElement" />
+                            </Grid>
+                            <Border Grid.Row="1"
+                                    Height="50"
+                                    VerticalAlignment="Stretch"
+                                    Visibility="{TemplateBinding IsHistoryVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <control:ContentRangeSlider x:Name="RangeSlider"
+                                                            VerticalAlignment="Stretch"
+                                                            mah:SliderHelper.ChangeValueBy="SmallChange"
+                                                            mah:SliderHelper.EnableMouseWheel="MouseHover"
+                                                            AutoToolTipPlacement="None"
+                                                            LargeChange="10"
+                                                            WholeRange="{Binding  RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ZoomBoundary,Mode=OneWay}"
+                                                            ActualRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=TwoWay}"
+                                                            MinRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.MinDisplayExtent,Mode=OneWay}"
+                                                            IsSnapToTickEnabled="{TemplateBinding IsSnapToTickEnabled}"
+                                                            TickFrequency="{TemplateBinding TickFrequency}"
+                                                            Orientation="Horizontal"
+                                                            VerticalContentAlignment="Stretch"
+                                                            SmallChange="{TemplateBinding TickFrequency}"
+                                                            AutoToolTipUpperValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
+                                                            AutoToolTipLowerValueTemplate="{TemplateBinding RangeSliderAutoToolTipValueTemplate}"
+                                                            AutoToolTipRangeValuesTemplate="{TemplateBinding RangeSliderAutoToolTipRangeValuesTemplate}">
+                                    <!--todo:tooltip-->
+                                    <control:ContentRangeSlider.Content>
+                                        <opentkControl:OpenTKSubControl x:Name="ThumbnailElement"
+                                                                        opentkControl:BitmapOpenTkControl.BindView="{Binding ElementName=OpenTkControl}">
+                                            <opentkControl:OpenTKSubControl.Renderer>
+                                                <control:Coordinate2DRendererView
+                                                    Range="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ZoomBoundary,Mode=OneWay}"
+                                                    BackgroundColor="{TemplateBinding BackgroundColor}" />
+                                            </opentkControl:OpenTKSubControl.Renderer>
+                                        </opentkControl:OpenTKSubControl>
+                                    </control:ContentRangeSlider.Content>
+                                </control:ContentRangeSlider>
+                            </Border>
+                            <ItemsControl Grid.Row="0"
+                                          VerticalAlignment="Top"
+                                          HorizontalAlignment="Right"
+                                          MaxWidth="200"
+                                          Visibility="{TemplateBinding LegendVisibility}"
+                                          ItemTemplate="{TemplateBinding LegendTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background"
+                Value="White" />
+        <Setter Property="ToolTipTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type openGl:MouseHoverNodeData}">
+                    <TextBlock FontSize="20"
+                               Margin="0"
+                               Background="White">
+                        <Run Text="{Binding Title,Mode=OneWay}" />
+                        <LineBreak />
+                        <Run Text="X:" />
+                        <Run Text="{Binding Point.X,Mode=OneWay}" />
+                        <Run Text="Y:" />
+                        <Run Text="{Binding Point.Y,Mode=OneWay}" />
+                    </TextBlock>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

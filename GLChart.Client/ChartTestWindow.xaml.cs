@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
-using GLChart.Core.Renderer;
-using GLChart.Interface;
-using GLChart.Interface.Abstraction;
+using System.Windows.Media;
+using GLChart.WPF.Base;
+using GLChart.WPF.Render;
 
 namespace GLChart.Samples
 {
@@ -15,6 +15,17 @@ namespace GLChart.Samples
         public ChartTestWindow()
         {
             InitializeComponent();
+            _line = HistoricalGlChart.NewLine(2000);
+            _line.Title = "Test";
+            _line.Color = Colors.Red;
+            // _line = LineChart.NewSeries<RingLine2DRenderer>();
+            var random = new Random();
+            var array = Enumerable.Range(index, 1200)
+                .Select((i => new Point2D(i, 200 + i + random.Next(-100, 100))))
+                .Cast<IPoint2D>()
+                .ToList();
+            _line.AddRange(array);
+            index += 1200;
         }
 
         private ILine2D _line;
@@ -23,18 +34,7 @@ namespace GLChart.Samples
 
         private void ChartTestWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            _line = LineChart.NewSeries();
-            LineChart.IsAutoYAxisEnable = false;
-            LineChart.SettingRegion = new Region2D(new ScrollRange(0, 200), new ScrollRange(0, 510));
-            LineChart.AxisXOption.ZoomBoundary = new ScrollRange(-1000, 1000);
-            LineChart.AxisYOption.ZoomBoundary = new ScrollRange(-1000, 1000);
-            var random = new Random();
-            var array = Enumerable.Range(index, 1200)
-                .Select((i => new Point2D(i, 200 + i + random.Next(-100, 100))))
-                .Cast<IPoint2D>()
-                .ToList();
-            _line.AddRange(array);
-            index += 100;
+
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

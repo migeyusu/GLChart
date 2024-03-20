@@ -5,10 +5,14 @@
 		<UseWPF>true</UseWPF>
 		<OutputType>WinExe</OutputType>
 		<StartupObject>GLChart.Samples.Program</StartupObject>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="OpenTkWPFHost" Version="4.1.0" />
+	  <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+	  <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+	  <PackageReference Include="OpenTkWPFHost" Version="5.0.0.1" />
 	  <PackageReference Include="xunit" Version="2.4.1" />
 	</ItemGroup>
 
@@ -23,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\GLChart.OpenGL\GLChart.Core.csproj" />
+	  <ProjectReference Include="..\GLChart.WPF\GLChart.WPF.csproj" />
 	</ItemGroup>
 
 </Project>
