@@ -3,26 +3,29 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using GLChart.WPF.Base;
-using GLChart.WPF.UIComponent.Axis;
+using GLChart.WPF.Render;
+using GLChart.WPF.Render.CollisionDetection;
+using GLChart.WPF.Render.Renderer;
 using GLChart.WPF.UIComponent.Control;
+using GLChart.WPF.UIComponent.Interaction;
 using OpenTkWPFHost.Control;
 
 namespace GLChart.Samples.Charts;
 
 [TemplatePart(Name = SliderName, Type = typeof(ContentRangeSlider))]
 [TemplatePart(Name = ThumbnailElementName, Type = typeof(OpenTKSubControl))]
-public class HistoricalGlChart : System.Windows.Controls.Control
+public class HistoricalChart : Chart2DCore
 {
     public const string SliderName = "RangeSlider";
     public const string ThumbnailElementName = "ThumbnailElement";
 
-    static HistoricalGlChart()
+    static HistoricalChart()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(HistoricalGlChart),
-            new FrameworkPropertyMetadata(typeof(HistoricalGlChart)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(HistoricalChart),
+            new FrameworkPropertyMetadata(typeof(HistoricalChart)));
     }
 
-    public HistoricalGlChart()
+    public HistoricalChart()
     {
         this.Loaded += HistoricalLiveChart_Loaded;
         this.Unloaded += HistoricalLiveChart_Unloaded;
@@ -59,7 +62,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     /// 交互模式
     /// </summary>
     public static readonly DependencyProperty InteractModeProperty = DependencyProperty.Register(
-        nameof(InteractMode), typeof(ChartInteractMode), typeof(HistoricalGlChart),
+        nameof(InteractMode), typeof(ChartInteractMode), typeof(HistoricalChart),
         new PropertyMetadata(ChartInteractMode.AutoAll));
 
     /// <summary>
@@ -168,18 +171,9 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     #endregion
 
     #region series
-    
-    public static readonly DependencyProperty ContentChartProperty = DependencyProperty.Register(
-        nameof(ContentChart), typeof(Chart2DCore), typeof(HistoricalGlChart), new PropertyMetadata(default(Chart2DCore)));
-
-    public Chart2DCore ContentChart
-    {
-        get { return (Chart2DCore)GetValue(ContentChartProperty); }
-        set { SetValue(ContentChartProperty, value); }
-    }
 
     public static readonly DependencyProperty LinesProperty = DependencyProperty.Register(
-        nameof(Lines), typeof(IList<ILine2D>), typeof(HistoricalGlChart),
+        nameof(Lines), typeof(IList<ILine2D>), typeof(HistoricalChart),
         new PropertyMetadata(default(IList<ILine2D>)));
 
     public IList<ILine2D> Lines
@@ -189,7 +183,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty MaxPointsCountLimitProperty = DependencyProperty.Register(
-        "MaxPointsCountLimit", typeof(int), typeof(HistoricalGlChart), new PropertyMetadata(10000));
+        "MaxPointsCountLimit", typeof(int), typeof(HistoricalChart), new PropertyMetadata(10000));
 
     public int MaxPointsCountLimit
     {
@@ -206,13 +200,13 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty IsHistoryVisibleProperty =
-        DependencyProperty.Register("IsHistoryVisible", typeof(bool), typeof(HistoricalGlChart),
+        DependencyProperty.Register("IsHistoryVisible", typeof(bool), typeof(HistoricalChart),
             new PropertyMetadata(true));
 
     #region Axis
-    
+
     public static readonly DependencyProperty ScrollWindowProperty = DependencyProperty.Register(
-        "ScrollWindow", typeof(double), typeof(HistoricalGlChart), new PropertyMetadata(default(double)));
+        "ScrollWindow", typeof(double), typeof(HistoricalChart), new PropertyMetadata(default(double)));
 
     public double ScrollWindow
     {
@@ -222,7 +216,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
 
 
     public static readonly DependencyProperty AutoScrollMarginProperty = DependencyProperty.Register(
-        "AutoScrollMargin", typeof(double), typeof(HistoricalGlChart), new PropertyMetadata(default));
+        "AutoScrollMargin", typeof(double), typeof(HistoricalChart), new PropertyMetadata(default));
 
     /// <summary>
     /// 固定值，因为自动滚动模式的<see cref="ScrollWindow"/>是固定值
@@ -234,7 +228,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty AutoAllPercentageMarginProperty = DependencyProperty.Register(
-        "AutoAllPercentageMargin", typeof(double), typeof(HistoricalGlChart),
+        "AutoAllPercentageMargin", typeof(double), typeof(HistoricalChart),
         new PropertyMetadata(0d));
 
     /// <summary>
@@ -247,7 +241,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty AutoAllMinMarginProperty = DependencyProperty.Register(
-        "AutoAllMinMargin", typeof(double), typeof(HistoricalGlChart), new PropertyMetadata(0d));
+        "AutoAllMinMargin", typeof(double), typeof(HistoricalChart), new PropertyMetadata(0d));
 
     /// <summary>
     /// 最小的空白间隔，对<see cref="AutoAllPercentageMargin"/>负责，当计算出的margin小于该值时采纳该值
@@ -259,7 +253,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty TickFrequencyProperty = DependencyProperty.Register(
-        "TickFrequency", typeof(double), typeof(HistoricalGlChart), new PropertyMetadata(1d));
+        "TickFrequency", typeof(double), typeof(HistoricalChart), new PropertyMetadata(1d));
 
     public double TickFrequency
     {
@@ -268,30 +262,12 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty IsSnapToTickEnabledProperty = DependencyProperty.Register(
-        "IsSnapToTickEnabled", typeof(bool), typeof(HistoricalGlChart), new PropertyMetadata(true));
+        "IsSnapToTickEnabled", typeof(bool), typeof(HistoricalChart), new PropertyMetadata(false));
 
     public bool IsSnapToTickEnabled
     {
         get { return (bool)GetValue(IsSnapToTickEnabledProperty); }
         set { SetValue(IsSnapToTickEnabledProperty, value); }
-    }
-
-    public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-        nameof(AxisXOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(default));
-
-    public AxisOption AxisXOption
-    {
-        get { return (AxisOption)GetValue(AxisXOptionProperty); }
-        set { SetValue(AxisXOptionProperty, value); }
-    }
-
-    public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-        nameof(AxisYOption), typeof(AxisOption), typeof(HistoricalGlChart), new PropertyMetadata(default));
-
-    public AxisOption AxisYOption
-    {
-        get { return (AxisOption)GetValue(AxisYOptionProperty); }
-        set { SetValue(AxisYOptionProperty, value); }
     }
 
     #endregion
@@ -308,7 +284,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }*/
 
     public static readonly DependencyProperty LegendVisibilityProperty = DependencyProperty.Register(
-        "LegendVisibility", typeof(Visibility), typeof(HistoricalGlChart),
+        "LegendVisibility", typeof(Visibility), typeof(HistoricalChart),
         new PropertyMetadata(Visibility.Visible));
 
     public Visibility LegendVisibility
@@ -324,11 +300,11 @@ public class HistoricalGlChart : System.Windows.Controls.Control
     }
 
     public static readonly DependencyProperty LegendTemplateProperty =
-        DependencyProperty.Register("LegendTemplate", typeof(DataTemplate), typeof(HistoricalGlChart),
+        DependencyProperty.Register("LegendTemplate", typeof(DataTemplate), typeof(HistoricalChart),
             new PropertyMetadata(null));
 
     public static readonly DependencyProperty ToolTipTemplateProperty = DependencyProperty.Register(
-        "ToolTipTemplate", typeof(DataTemplate), typeof(HistoricalGlChart),
+        "ToolTipTemplate", typeof(DataTemplate), typeof(HistoricalChart),
         new PropertyMetadata(default(DataTemplate)));
 
     public DataTemplate ToolTipTemplate
@@ -339,7 +315,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
 
     public static readonly DependencyProperty RangeSliderAutoToolTipValueTemplateProperty =
         DependencyProperty.Register(
-            "RangeSliderAutoToolTipValueTemplate", typeof(DataTemplate), typeof(HistoricalGlChart),
+            "RangeSliderAutoToolTipValueTemplate", typeof(DataTemplate), typeof(HistoricalChart),
             new PropertyMetadata(default(DataTemplate)));
 
     public DataTemplate RangeSliderAutoToolTipValueTemplate
@@ -350,7 +326,7 @@ public class HistoricalGlChart : System.Windows.Controls.Control
 
     public static readonly DependencyProperty RangeSliderAutoToolTipRangeValuesTemplateProperty =
         DependencyProperty.Register(
-            "RangeSliderAutoToolTipRangeValuesTemplate", typeof(DataTemplate), typeof(HistoricalGlChart),
+            "RangeSliderAutoToolTipRangeValuesTemplate", typeof(DataTemplate), typeof(HistoricalChart),
             new PropertyMetadata(default(DataTemplate)));
 
     public DataTemplate RangeSliderAutoToolTipRangeValuesTemplate
@@ -363,8 +339,6 @@ public class HistoricalGlChart : System.Windows.Controls.Control
 
     private ContentRangeSlider? _rangeSlider;
 
-    private Chart2DCore _contentChart;
-
     private OpenTKSubControl? _historicalChart;
 
     private Coordinate2DRendererView? _overViewRenderer;
@@ -375,23 +349,62 @@ public class HistoricalGlChart : System.Windows.Controls.Control
         // _contentChart.ChangeRegionRequest += _contentChart_ScaleRequest;
         _historicalChart = GetTemplateChild(ThumbnailElementName) as OpenTKSubControl;
         _overViewRenderer = (Coordinate2DRendererView)_historicalChart!.Renderer;
-        _overViewRenderer.Bind(_contentChart!.Renderer);
+        _overViewRenderer.Bind(CoordinateRenderer!);
+        this.CoordinateRenderer!.SeriesRenderers.Add(_ringLine2DSeriesRenderer);
         _rangeSlider = GetTemplateChild(SliderName) as ContentRangeSlider;
-        DependencyPropertyDescriptor.FromProperty(ContentRangeSlider.WholeRangeProperty, typeof(ScrollRange))
-            .AddValueChanged(_rangeSlider!, WholeRangeChangedHandler);
-        _overViewRenderer!.Range = _rangeSlider!.WholeRange;
     }
+    
+    #region Line
 
-    private void WholeRangeChangedHandler(object? sender, EventArgs e)
+    private readonly RingLine2DSeriesRenderer _ringLine2DSeriesRenderer
+        = new RingLine2DSeriesRenderer(new Shader("Render/Shaders/LineShader/shader.vert",
+            "Render/Shaders/LineShader/shader.frag"));
+
+    /// <summary>
+    /// “碰撞种子” ,影响碰撞检测的性能
+    /// </summary>
+    public Boundary2D CollisionSeed { get; set; } = new Boundary2D(0, 100, 0, 100);
+
+    /// <summary>
+    /// 初始化碰撞检测的边界，减少碰撞网格的分配开销
+    /// </summary>
+    public Boundary2D InitialCollisionGridBoundary { get; set; } = new Boundary2D(0, 100, 0, 100);
+
+    /// <summary>
+    /// 创建历史线
+    /// </summary>
+    /// <returns></returns>
+    public ILine2D NewLine(int maxPointCount)
     {
-        _overViewRenderer!.Range = _rangeSlider!.WholeRange;
+        var point2DLayer = new SpacialHashCollisionPoint2DLayer(CollisionSeed.XSpan,
+            SpacialHashCollisionPoint2DLayer.Algorithm.XMapping,
+            (int)InitialCollisionGridBoundary.XSpan);
+        var lineRenderer = new RingLine2DRenderer(point2DLayer, maxPointCount);
+        this.CollisionGrid.AddLayer(lineRenderer.CollisionLayer);
+        _ringLine2DSeriesRenderer.Add(lineRenderer);
+        this.Series2Ds.Add(lineRenderer);
+        return lineRenderer;
     }
 
-
-    public void NewLine()
+    public void Remove(ILine2D series)
     {
-        _contentChart.NewSeries<>()
+        if (series is RingLine2DRenderer lineRenderer)
+        {
+            this.Series2Ds.Remove(lineRenderer);
+            _ringLine2DSeriesRenderer.Remove(lineRenderer);
+            this.CollisionGrid.Remove(lineRenderer.CollisionLayer);
+        }
     }
+
+    public void Clear()
+    {
+        this.Series2Ds.Clear();
+        this._ringLine2DSeriesRenderer.Clear();
+        this.CollisionGrid.Clear();
+    }
+
+    #endregion
+
 
     //todo:
     /*private void _contentChart_ScaleRequest(CoordinateRegion obj)
@@ -414,15 +427,5 @@ public class HistoricalGlChart : System.Windows.Controls.Control
         _contentChart.DisplayRegion =
             displayRegion.ChangeXRange(_scrollBarView);
         InteractMode = ChartInteractMode.Manual;
-    }*/
-
-    /*public void AttachWindow(Window window)
-    {
-        this._contentChart.AttachWindow(window);
-    }
-
-    public void DetachWindow()
-    {
-        this._contentChart.DetachWindow();
     }*/
 }

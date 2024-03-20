@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,13 +22,17 @@ namespace GLChart.WPF.Render.Renderer
     /// 基于2d 坐标轴的渲染器；
     /// 能够自适应内容高度
     /// </summary>
-    public class Coordinate2DRenderer : DependencyObject, IRenderer
+    public class Coordinate2DRenderer : FrameworkElement, IRenderer
     {
         /// <summary>
         /// 点采样函数，渲染大量点位时允许只渲染部分点，todo:未实现
         /// </summary>
         public Func<int, ScrollRange>? SamplingFunction { get; set; }
 
+        /// <summary>
+        /// 当可渲染内容变化时，发出渲染请求
+        /// </summary>
+        public event Action NewRenderRequest;
 
         public static readonly DependencyProperty AutoYAxisEnableProperty = DependencyProperty.Register(
             nameof(AutoYAxisEnable), typeof(bool), typeof(Coordinate2DRenderer),
@@ -122,7 +127,7 @@ namespace GLChart.WPF.Render.Renderer
 
         private Region2D _targetRegion2D;
 
-        private Matrix4 _tempTransform = Matrix4.Identity;
+        private Matrix4 _renderingTransform = Matrix4.Identity;
 
         private Region2D _renderingRegion = default;
 
@@ -134,9 +139,14 @@ namespace GLChart.WPF.Render.Renderer
             get => _renderingRegion;
             set
             {
+                if (Equals(_renderingRegion, value))
+                {
+                    return;
+                }
+
                 this._renderingRegion = value;
                 Dispatcher.InvokeAsync(() => { this.ActualYRange = value.YRange; });
-                this._tempTransform = GetTransform(value);
+                this._renderingTransform = value.ToTransformMatrix();
             }
         }
 
@@ -175,7 +185,7 @@ namespace GLChart.WPF.Render.Renderer
 
         public static readonly DependencyProperty BackgroundColorProperty = DependencyProperty.Register(
             nameof(BackgroundColor), typeof(Color), typeof(Coordinate2DRenderer),
-            new PropertyMetadata(Colors.White, (ColorChangedCallback)));
+            new PropertyMetadata(Colors.White, ColorChangedCallback));
 
         private static void ColorChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -194,10 +204,9 @@ namespace GLChart.WPF.Render.Renderer
 
         private Color4 _backgroundColor4;
 
-        public IReadOnlyCollection<ISeriesRenderer> Series =>
-            new ReadOnlyCollection<ISeriesRenderer>(RenderSeriesCollection);
+        public IList<ISeriesRenderer> SeriesRenderers => _seriesRenderers;
 
-        protected readonly IList<ISeriesRenderer> RenderSeriesCollection = new List<ISeriesRenderer>();
+        private readonly IList<ISeriesRenderer> _seriesRenderers = new List<ISeriesRenderer>();
 
         public Coordinate2DRenderer()
         {
@@ -205,19 +214,6 @@ namespace GLChart.WPF.Render.Renderer
             this._defaultAxisYRangeValue = (ScrollRange)DefaultAxisYRangeProperty.DefaultMetadata.DefaultValue;
             var value = (Color)BackgroundColorProperty.DefaultMetadata.DefaultValue;
             this._backgroundColor4 = new Color4(value.R, value.G, value.B, value.A);
-        }
-
-        private static Matrix4 GetTransform(Region2D value)
-        {
-            var transform = Matrix4.Identity;
-            var xScale = 2f / (value.Right - value.Left);
-            var yScale = 2f / (value.Top - value.Bottom);
-            transform *= Matrix4.CreateScale((float)xScale,
-                (float)yScale, 0);
-            var xStart = xScale * value.Left;
-            var yStart = yScale * value.Bottom;
-            transform *= Matrix4.CreateTranslation((float)(-1 - xStart), (float)(-1 - yStart), 0);
-            return transform;
         }
 
         protected IGraphicsContext? Context;
@@ -231,9 +227,9 @@ namespace GLChart.WPF.Render.Renderer
 
             this.Context = context;
             GL.Enable(EnableCap.DepthTest);
-            foreach (var coordinateRendererSeries in RenderSeriesCollection)
+            foreach (var seriesRenderer in _seriesRenderers)
             {
-                coordinateRendererSeries.Initialize(context);
+                seriesRenderer.Initialize(context);
             }
 
             //不管是否自动Y轴都要自动创建ssbo
@@ -267,8 +263,9 @@ namespace GLChart.WPF.Render.Renderer
             }
 
             renderEnable = _isHeightAdapting || renderEnable;
+            var renderContentChanged = false;
             //检查未初始化，当预渲染ok且渲染可用时表示渲染可用
-            foreach (var renderSeries in RenderSeriesCollection)
+            foreach (var renderSeries in _seriesRenderers)
             {
                 if (!renderSeries.IsInitialized)
                 {
@@ -277,17 +274,24 @@ namespace GLChart.WPF.Render.Renderer
 
                 if (renderSeries.PreviewRender() && renderSeries.RenderEnable)
                 {
+                    renderContentChanged = true;
                     renderEnable = true;
                 }
             }
 
             //对比渲染快照
-            var rendererSeries = RenderSeriesCollection
+            var rendererSeries = _seriesRenderers
                 .Where(series => series.RenderEnable)
                 .ToArray();
             if (!_rendererSeriesSnapList.SequenceEqual(rendererSeries))
             {
+                renderContentChanged = true;
                 renderEnable = true;
+            }
+
+            if (renderContentChanged)
+            {
+                OnNewRenderRequest();
             }
 
             _rendererSeriesSnapList = rendererSeries;
@@ -301,14 +305,24 @@ namespace GLChart.WPF.Render.Renderer
         {
             GL.ClearColor(_backgroundColor4);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            var isHeightAdapting = _isHeightAdapting;
+            this.RenderingRegion = RenderInstance(args, ref isHeightAdapting, _autoYAxisEnableValue,
+                _renderingTransform, RenderingRegion,
+                _defaultAxisYRangeValue);
+            _isHeightAdapting = isHeightAdapting;
+        }
+
+        public Region2D RenderInstance(GlRenderEventArgs args, ref bool isHeightUpdating,
+            bool autoYAxis, Matrix4 renderingMatrix, Region2D renderingRegion, ScrollRange defaultAxisYRange)
+        {
             if (_rendererSeriesSnapList.All(series => !series.AnyReadyRenders()))
             {
-                return;
+                return renderingRegion;
             }
 
             #region transform
 
-            if (_isHeightAdapting)
+            if (isHeightUpdating)
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
@@ -318,14 +332,14 @@ namespace GLChart.WPF.Render.Renderer
 
             foreach (var seriesItem in _rendererSeriesSnapList)
             {
-                seriesItem.ApplyDirective(new RenderDirective2D() { Transform = _tempTransform });
+                seriesItem.ApplyDirective(new RenderDirective2D() { Transform = renderingMatrix });
                 seriesItem.Render(args);
             }
 
             //自适应高度检查，每次都执行
-            if (_autoYAxisEnableValue)
+            if (autoYAxis)
             {
-                _isHeightAdapting = true;
+                isHeightUpdating = true;
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
                 var ptr = GL.MapBuffer(BufferTarget.ShaderStorageBuffer, BufferAccess.ReadOnly);
                 Marshal.Copy(ptr, _yAxisRaster, 0, _yAxisRaster.Length);
@@ -340,18 +354,17 @@ namespace GLChart.WPF.Render.Renderer
                     }
                 }
 
-                var renderingRegion = RenderingRegion;
                 Region2D newRegion;
                 var regionYRange = renderingRegion.YRange;
                 if (i == 0) //表示界面内已没有任何元素，不需要适配
                 {
-                    if (regionYRange.Equals(this._defaultAxisYRangeValue))
+                    if (regionYRange.Equals(defaultAxisYRange))
                     {
-                        _isHeightAdapting = false;
-                        return;
+                        isHeightUpdating = false;
+                        return renderingRegion;
                     }
 
-                    newRegion = renderingRegion.ChangeYRange(this._defaultAxisYRangeValue);
+                    newRegion = renderingRegion.ChangeYRange(defaultAxisYRange);
                 }
                 else
                 {
@@ -365,18 +378,20 @@ namespace GLChart.WPF.Render.Renderer
                     // Debug.WriteLine($"{abs:F2},{precisionValue:F2},{currentHeight:F2},{theoreticalHeight:F2}");
                     if (abs < precisionValue)
                     {
-                        _isHeightAdapting = false;
-                        return;
+                        isHeightUpdating = false;
+                        return renderingRegion;
                     }
 
                     newRegion = renderingRegion.ChangeYRange(new ScrollRange(regionYRange.Start,
                         regionYRange.Start + theoreticalHeight));
                 }
 
-                RenderingRegion = newRegion;
+                return newRegion;
             }
 
             #endregion
+
+            return renderingRegion;
         }
 
         public virtual void Resize(PixelSize size)
@@ -386,12 +401,17 @@ namespace GLChart.WPF.Render.Renderer
 
         public virtual void Uninitialize()
         {
-            foreach (var coordinateRendererSeries in RenderSeriesCollection)
+            foreach (var coordinateRendererSeries in _seriesRenderers)
             {
                 coordinateRendererSeries.Uninitialize();
             }
         }
 
         public bool IsInitialized { get; protected set; }
+
+        protected virtual void OnNewRenderRequest()
+        {
+            NewRenderRequest?.Invoke();
+        }
     }
 }

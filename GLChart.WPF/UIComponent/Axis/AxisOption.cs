@@ -10,6 +10,12 @@ namespace GLChart.WPF.UIComponent.Axis
 {
     public abstract class AxisOption : FrameworkElement
     {
+        static AxisOption()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(AxisOption),
+                new FrameworkPropertyMetadata(typeof(AxisOption)));
+        }
+
         #region user custom
 
         public static readonly DependencyProperty IsSeparatorVisibleProperty = DependencyProperty.Register(
@@ -25,12 +31,25 @@ namespace GLChart.WPF.UIComponent.Axis
         public static readonly DependencyProperty SeparatorPenProperty = DependencyProperty.Register(
             nameof(SeparatorPen), typeof(Pen), typeof(AxisOption), new FrameworkPropertyMetadata(
                 new Pen(Brushes.Gray, 0.5d)
-                    { DashStyle = DashStyles.DashDotDot }));
+                    { DashStyle = new DashStyle(new double[] { 10, 10, 0, 10 },10) }));
 
         public Pen SeparatorPen
         {
             get { return (Pen)GetValue(SeparatorPenProperty); }
             set { SetValue(SeparatorPenProperty, value); }
+        }
+
+        public static readonly DependencyProperty SeparatorZeroPenProperty = DependencyProperty.Register(
+            nameof(SeparatorZeroPen), typeof(Pen), typeof(AxisOption), new PropertyMetadata(
+                new Pen(Brushes.Black, 2)
+                {
+                    DashStyle = DashStyles.Solid,
+                }));
+
+        public Pen SeparatorZeroPen
+        {
+            get { return (Pen)GetValue(SeparatorZeroPenProperty); }
+            set { SetValue(SeparatorZeroPenProperty, value); }
         }
 
         /// <summary>
@@ -207,7 +226,7 @@ namespace GLChart.WPF.UIComponent.Axis
 
             this.ViewRange = newRange;
         }
-        
+
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);

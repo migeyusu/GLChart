@@ -4,10 +4,13 @@ using System.ComponentModel;
 namespace GLChart.WPF.Base
 {
     /// <summary>
-    /// 滚动范围
+    /// 范围
     /// </summary>
+    [TypeConverter(typeof(ScrollRangeConverter))]
     public readonly struct ScrollRange
     {
+        public static ScrollRange Empty = new ScrollRange(0, 0);
+
         [DefaultValue(0)] public double Start { get; }
 
         [DefaultValue(100)] public double End { get; }

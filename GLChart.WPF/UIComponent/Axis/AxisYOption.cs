@@ -8,6 +8,39 @@ namespace GLChart.WPF.UIComponent.Axis;
 
 public class AxisYOption : AxisOption
 {
+    static AxisYOption()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(AxisYOption),
+            new FrameworkPropertyMetadata(typeof(AxisYOption)));
+        ViewRangeProperty.OverrideMetadata(typeof(AxisYOption),
+            new PropertyMetadata(new ScrollRange(0, 100), ViewRangeChangedCallback));
+    }
+
+    private static void ViewRangeChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is AxisYOption option)
+        {
+            option.ActualViewRange = (ScrollRange)e.NewValue;
+        }
+    }
+
+    /*public AxisYOption()
+    {
+        DependencyPropertyDescriptor.FromProperty(ViewRangeProperty, typeof(AxisOption))
+            .AddValueChanged(this, AxisOptionHandler);
+    }
+
+    ~AxisYOption()
+    {
+        DependencyPropertyDescriptor.FromProperty(ViewRangeProperty, typeof(AxisOption))
+            .RemoveValueChanged(this, AxisOptionHandler);
+    }
+
+    private void AxisOptionHandler(object? sender, EventArgs e)
+    {
+        this.ActualViewRange = ViewRange;
+    }*/
+
     /// <summary>
     /// 是否自适应高度
     /// </summary>

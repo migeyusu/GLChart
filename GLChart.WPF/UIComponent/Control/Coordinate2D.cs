@@ -12,7 +12,7 @@ namespace GLChart.WPF.UIComponent.Control
     /// </summary>
     [TemplatePart(Name = XAxisName, Type = typeof(AxisXOption))]
     [TemplatePart(Name = YAxisName, Type = typeof(AxisYOption))]
-    [TemplatePart(Name = SeparatorLayerName, Type = typeof(SeparatorLayer))]
+    [TemplatePart(Name = SeparatorLayerName, Type = typeof(MeshLayer))]
     public class Coordinate2D : ContentControl
     {
         private const string XAxisName = "XAxis";
@@ -22,22 +22,22 @@ namespace GLChart.WPF.UIComponent.Control
         public const string SeparatorLayerName = "SeparatorLayer";
 
         public static readonly DependencyProperty AxisXOptionProperty = DependencyProperty.Register(
-            "AxisXOption", typeof(AxisOption), typeof(Coordinate2D),
+            "AxisXOption", typeof(AxisXOption), typeof(Coordinate2D),
             new FrameworkPropertyMetadata(default, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisOption AxisXOption
+        public AxisXOption AxisXOption
         {
-            get { return (AxisOption)GetValue(AxisXOptionProperty); }
+            get { return (AxisXOption)GetValue(AxisXOptionProperty); }
             set { SetValue(AxisXOptionProperty, value); }
         }
 
         public static readonly DependencyProperty AxisYOptionProperty = DependencyProperty.Register(
-            "AxisYOption", typeof(AxisOption), typeof(Coordinate2D),
+            "AxisYOption", typeof(AxisYOption), typeof(Coordinate2D),
             new FrameworkPropertyMetadata(default, FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public AxisOption AxisYOption
+        public AxisYOption AxisYOption
         {
-            get { return (AxisOption)GetValue(AxisYOptionProperty); }
+            get { return (AxisYOption)GetValue(AxisYOptionProperty); }
             set { SetValue(AxisYOptionProperty, value); }
         }
 

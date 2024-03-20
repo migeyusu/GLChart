@@ -1,5 +1,6 @@
 ﻿using System;
 using GLChart.WPF.Base;
+using OpenTK.Mathematics;
 
 namespace GLChart.WPF.Render
 {
@@ -131,7 +132,7 @@ namespace GLChart.WPF.Render
                    Right.Equals(other.Right);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Region2D other && Equals(other);
         }
@@ -139,6 +140,18 @@ namespace GLChart.WPF.Render
         public override int GetHashCode()
         {
             return HashCode.Combine(Top, Bottom, Left, Right);
+        }
+        public Matrix4 ToTransformMatrix()
+        {
+            var transform = Matrix4.Identity;
+            var xScale = 2f / (this.Right - this.Left);
+            var yScale = 2f / (this.Top - this.Bottom);
+            transform *= Matrix4.CreateScale((float)xScale,
+                (float)yScale, 0);
+            var xStart = xScale * this.Left;
+            var yStart = yScale * this.Bottom;
+            transform *= Matrix4.CreateTranslation((float)(-1 - xStart), (float)(-1 - yStart), 0);
+            return transform;
         }
     }
 }

@@ -4,10 +4,12 @@
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     xmlns:control="clr-namespace:GLChart.Samples.Charts"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-    xmlns:control1="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF"
+    xmlns:corecontrol="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF"
     xmlns:openGl="clr-namespace:GLChart.WPF.UIComponent.Interaction;assembly=GLChart.WPF"
     xmlns:local="clr-namespace:GLChart.Samples"
-    xmlns:control2="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost">
+    xmlns:opentkControl="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
+    xmlns:renderer="clr-namespace:GLChart.WPF.Render.Renderer;assembly=GLChart.WPF">
     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <mah:ColorToSolidColorBrushConverter x:Key="ColorToSolidColorBrushConverter" />
     <DrawingBrush x:Key="DottedBrush"
@@ -252,10 +254,10 @@
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
     </Style>
 
-    <Style TargetType="{x:Type control:HistoricalGlChart}">
+    <Style TargetType="{x:Type control:HistoricalChart}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type control:HistoricalGlChart}">
+                <ControlTemplate TargetType="{x:Type control:HistoricalChart}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
@@ -264,11 +266,44 @@
                                 <RowDefinition />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <control1:Chart2DCore x:Name="ContentChart"
-                                                    IsShowFps="False"
-                                                    AxisXOption="{TemplateBinding AxisXOption}"
-                                                    AxisYOption="{TemplateBinding AxisYOption}"
-                                                    ToolTipTemplate="{TemplateBinding ToolTipTemplate}" />
+                            <Grid>
+                                <corecontrol:Coordinate2D AxisXOption="{TemplateBinding AxisXOption}"
+                                                          AxisYOption="{TemplateBinding AxisYOption}"
+                                                          VerticalContentAlignment="Stretch"
+                                                          HorizontalContentAlignment="Stretch"
+                                                          x:Name="Coordinate">
+                                    <opentkControl:BitmapOpenTkControl x:Name="OpenTkControl"
+                                                                       IsAutoAttach="True"
+                                                                       IsShowFps="True"
+                                                                       LifeCycle="BoundToWindow">
+                                        <opentkControl:BitmapOpenTkControl.RenderSetting>
+                                            <configuration:RenderSetting RenderTactic="LatencyPriority" />
+                                        </opentkControl:BitmapOpenTkControl.RenderSetting>
+                                        <opentkControl:BitmapOpenTkControl.Renderer>
+                                            <renderer:Coordinate2DRenderer x:Name="Coordinate2DRenderer"
+                                                                           BackgroundColor="{TemplateBinding BackgroundColor}"
+                                                                           DefaultAxisYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.DefaultViewRange,Mode=OneWay}"
+                                                                           AutoYAxisEnable="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsAutoSize,Mode=OneWay}"
+                                                                           TargetXRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay}"
+                                                                           TargetYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ViewRange,Mode=OneWay}"
+                                                                           ActualYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ActualViewRange,Mode=OneWayToSource}" />
+                                        </opentkControl:BitmapOpenTkControl.Renderer>
+                                        <opentkControl:BitmapOpenTkControl.ToolTip>
+                                            <ToolTip IsOpen="False"
+                                                     Padding="0"
+                                                     PlacementTarget="{Binding ElementName=OpenTkControl}"
+                                                     Placement="Relative"
+                                                     Background="Transparent"
+                                                     ContentTemplate="{TemplateBinding ToolTipTemplate}" />
+                                        </opentkControl:BitmapOpenTkControl.ToolTip>
+                                    </opentkControl:BitmapOpenTkControl>
+                                </corecontrol:Coordinate2D>
+                                <openGl:MouseInteractionElement VerticalAlignment="Stretch"
+                                                                HorizontalAlignment="Stretch"
+                                                                AxisYOption="{TemplateBinding AxisYOption}"
+                                                                AxisXOption="{TemplateBinding AxisXOption}"
+                                                                x:Name="SelectScaleElement" />
+                            </Grid>
                             <Border Grid.Row="1"
                                     Height="50"
                                     VerticalAlignment="Stretch"
@@ -292,12 +327,14 @@
                                                             AutoToolTipRangeValuesTemplate="{TemplateBinding RangeSliderAutoToolTipRangeValuesTemplate}">
                                     <!--todo:tooltip-->
                                     <control:ContentRangeSlider.Content>
-                                        <control2:OpenTKSubControl x:Name="ThumbnailElement"
-                                                                   control2:BitmapOpenTkControl.BindView="{Binding ElementName=ContentChart,Path=OpenTKControl}">
-                                            <control2:OpenTKSubControl.Renderer>
-                                                <control:Coordinate2DRendererView/>
-                                            </control2:OpenTKSubControl.Renderer>
-                                        </control2:OpenTKSubControl>
+                                        <opentkControl:OpenTKSubControl x:Name="ThumbnailElement"
+                                                                        opentkControl:BitmapOpenTkControl.BindView="{Binding ElementName=OpenTkControl}">
+                                            <opentkControl:OpenTKSubControl.Renderer>
+                                                <control:Coordinate2DRendererView
+                                                    Range="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ZoomBoundary,Mode=OneWay}"
+                                                    BackgroundColor="{TemplateBinding BackgroundColor}" />
+                                            </opentkControl:OpenTKSubControl.Renderer>
+                                        </opentkControl:OpenTKSubControl>
                                     </control:ContentRangeSlider.Content>
                                 </control:ContentRangeSlider>
                             </Border>
@@ -318,10 +355,14 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="Background"
+                Value="White" />
         <Setter Property="ToolTipTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type openGl:MouseHoverNodeData}">
-                    <TextBlock FontSize="20">
+                    <TextBlock FontSize="20"
+                               Margin="0"
+                               Background="White">
                         <Run Text="{Binding Title,Mode=OneWay}" />
                         <LineBreak />
                         <Run Text="X:" />

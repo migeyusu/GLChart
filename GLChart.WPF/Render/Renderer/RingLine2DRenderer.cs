@@ -45,7 +45,7 @@ namespace GLChart.WPF.Render.Renderer
         /// <summary>
         /// 
         /// </summary>
-        internal RingLine2DRenderer(ICollisionPoint2D collisionPoint2D, int pointsCountLimit = 1024) : base(
+        public RingLine2DRenderer(ICollisionPoint2D collisionPoint2D, int pointsCountLimit = 1024) : base(
             collisionPoint2D)
         {
             _pointsCountLimit = pointsCountLimit;
@@ -106,7 +106,7 @@ namespace GLChart.WPF.Render.Renderer
             {
                 return;
             }
-            
+
             Debug.Assert(Shader != null, nameof(Shader) + " != null");
             Shader.SetFloat("u_thickness", Thickness);
             Shader.SetColor("linecolor", Color4);

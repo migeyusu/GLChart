@@ -8,6 +8,12 @@ namespace GLChart.WPF.UIComponent.Axis;
 
 public class AxisXOption : AxisOption
 {
+    static AxisXOption()
+    {
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(AxisXOption),
+            new FrameworkPropertyMetadata(typeof(AxisXOption)));
+    }
+
     protected override FlowDirection NumberDirection { get; } = FlowDirection.LeftToRight;
 
     private const FlowDirection Direction = FlowDirection.LeftToRight;

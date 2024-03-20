@@ -5,7 +5,75 @@
     xmlns:interaction="clr-namespace:GLChart.WPF.UIComponent.Interaction"
     xmlns:control="clr-namespace:OpenTkWPFHost.Control;assembly=OpenTkWPFHost"
     xmlns:renderer="clr-namespace:GLChart.WPF.Render.Renderer"
-    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost">
+    xmlns:configuration="clr-namespace:OpenTkWPFHost.Configuration;assembly=OpenTkWPFHost"
+    xmlns:uiComponent="clr-namespace:GLChart.WPF.UIComponent">
+    <uiComponent:CoordinatePaddingConverter x:Key="CoordinatePaddingConverter" />
+    <Style TargetType="{x:Type local:Coordinate2D}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:Coordinate2D}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <ContentPresenter Grid.Row="0"
+                                              Grid.Column="1"
+                                              Margin="{TemplateBinding Padding}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                              ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                            <ContentPresenter Grid.Row="1" Grid.Column="1"
+                                              x:Name="XAxis"
+                                              Content="{TemplateBinding AxisXOption}"
+                                              VerticalAlignment="Stretch">
+                                <ContentPresenter.Margin>
+                                    <TemplateBinding Property="Padding"
+                                                     Converter="{StaticResource CoordinatePaddingConverter}"
+                                                     ConverterParameter="{x:Static Orientation.Horizontal}" />
+                                </ContentPresenter.Margin>
+                            </ContentPresenter>
+                            <ContentPresenter Grid.Row="0"
+                                              Grid.Column="0"
+                                              x:Name="YAxis"
+                                              Content="{TemplateBinding AxisYOption}">
+                                <ContentPresenter.Margin>
+                                    <TemplateBinding Property="Padding"
+                                                     Converter="{StaticResource CoordinatePaddingConverter}"
+                                                     ConverterParameter="{x:Static Orientation.Vertical}" />
+                                </ContentPresenter.Margin>
+                            </ContentPresenter>
+                            <local:MeshLayer Grid.Row="0"
+                                             Grid.Column="1"
+                                             Margin="{TemplateBinding Padding}"
+                                             AxisXLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.AxisLabels,Mode=OneWay}"
+                                             AxisYLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.AxisLabels,Mode=OneWay}"
+                                             IsXSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.IsSeparatorVisible,Mode=OneWay}"
+                                             IsYSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsSeparatorVisible,Mode=OneWay}"
+                                             XSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.SeparatorPen,Mode=OneWay}"
+                                             YSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.SeparatorPen,Mode=OneWay}"
+                                             XZeroPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.SeparatorZeroPen,Mode=OneWay}"
+                                             YZeroPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.SeparatorZeroPen,Mode=OneWay}"
+                                             x:Name="SeparatorLayer" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Padding"
+                Value="0,16,16,0" />
+    </Style>
+
     <Style TargetType="{x:Type local:Chart2DCore}">
         <Setter Property="Template">
             <Setter.Value>
@@ -31,22 +99,24 @@
                                                                        BackgroundColor="{TemplateBinding BackgroundColor}"
                                                                        DefaultAxisYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.DefaultViewRange,Mode=OneWay}"
                                                                        AutoYAxisEnable="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsAutoSize,Mode=OneWay}"
-                                                                       TargetXRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay}" 
-                                                                       TargetYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ViewRange,Mode=OneWay}"/>
+                                                                       TargetXRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.ViewRange,Mode=OneWay}"
+                                                                       TargetYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ViewRange,Mode=OneWay}"
+                                                                       ActualYRange="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.ActualViewRange,Mode=OneWayToSource}" />
                                     </control:BitmapOpenTkControl.Renderer>
-                                    <ContentPresenter.ToolTip>
+                                    <control:BitmapOpenTkControl.ToolTip>
                                         <ToolTip IsOpen="False"
                                                  Padding="0"
-                                                 x:Name="ToolTip"
                                                  Placement="Relative"
                                                  Background="Transparent"
                                                  ContentTemplate="{TemplateBinding ToolTipTemplate}" />
-                                    </ContentPresenter.ToolTip>
+                                    </control:BitmapOpenTkControl.ToolTip>
                                 </control:BitmapOpenTkControl>
                             </local:Coordinate2D>
-                            <interaction:MouseSelect VerticalAlignment="Stretch"
-                                                     HorizontalAlignment="Stretch"
-                                                     x:Name="SelectScaleElement" />
+                            <interaction:MouseInteractionElement VerticalAlignment="Stretch"
+                                                                 HorizontalAlignment="Stretch"
+                                                                 AxisYOption="{TemplateBinding AxisYOption}"
+                                                                 AxisXOption="{TemplateBinding AxisXOption}"
+                                                                 x:Name="SelectScaleElement" />
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -72,53 +142,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type local:Coordinate2D}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:Coordinate2D}">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <ContentPresenter Grid.Row="0"
-                                              Grid.Column="1"
-                                              Margin="{TemplateBinding Padding}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              Content="{TemplateBinding Content}"
-                                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                                              ContentStringFormat="{TemplateBinding ContentStringFormat}"
-                                              ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" />
-                            <ContentPresenter Grid.Row="1" Grid.Column="1"
-                                              x:Name="XAxis"
-                                              Content="{TemplateBinding AxisXOption}"
-                                              VerticalAlignment="Stretch" />
-                            <ContentPresenter Grid.Row="0"
-                                              Grid.Column="0"
-                                              x:Name="YAxis"
-                                              Margin="0,0,10,0"
-                                              Content="{TemplateBinding AxisYOption}" />
-                            <local:SeparatorLayer Grid.Row="0"
-                                                  Grid.Column="1"
-                                                  AxisXLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.AxisLabels,Mode=OneWay}"
-                                                  AxisYLabels="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.AxisLabels,Mode=OneWay}"
-                                                  IsXSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.IsSeparatorVisible,Mode=OneWay}"
-                                                  IsYSeparatorVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.IsSeparatorVisible,Mode=OneWay}"
-                                                  XSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisXOption.SeparatorPen,Mode=OneWay}"
-                                                  YSeparatorPen="{Binding RelativeSource={RelativeSource TemplatedParent},Path=AxisYOption.SeparatorPen,Mode=OneWay}"
-                                                  x:Name="SeparatorLayer" />
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+
+    <Style TargetType="{x:Type local:Series2DChart}"
+           BasedOn="{StaticResource {x:Type local:Chart2DCore}}" />
 </ResourceDictionary>

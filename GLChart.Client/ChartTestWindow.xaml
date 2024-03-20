@@ -7,24 +7,43 @@
         xmlns:control="clr-namespace:GLChart.WPF.UIComponent.Control;assembly=GLChart.WPF"
         xmlns:charts="clr-namespace:GLChart.Samples.Charts"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:axis="clr-namespace:GLChart.WPF.UIComponent.Axis;assembly=GLChart.WPF"
+        xmlns:base="clr-namespace:GLChart.WPF.Base;assembly=GLChart.WPF"
         mc:Ignorable="d"
         Loaded="ChartTestWindow_OnLoaded"
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
-        <!--<control:Series2DChart
-            IsShowFps="True"
-            x:Name="LineChart" />-->
-        <charts:HistoricalGlChart x:Name="HistoricalGlChart"
-                                  Background="Wheat"
-                                  Height="400"
-                                  Width="800">
-            <charts:HistoricalGlChart.RangeSliderAutoToolTipValueTemplate>
+        <!--<control:Series2DChart BackgroundColor="Bisque"
+                               IsShowFps="True"
+                               x:Name="LineChart">
+            <control:Series2DChart.AxisXOption>
+                <axis:AxisXOption ViewRange="0,1000"
+                                  ZoomBoundary="-1000,1000" />
+            </control:Series2DChart.AxisXOption>
+            <control:Series2DChart.AxisYOption>
+                <axis:AxisYOption IsAutoSize="True"
+                                  ViewRange="0, 500"
+                                  ZoomBoundary="-1000, 5000" />
+            </control:Series2DChart.AxisYOption>
+        </control:Series2DChart>-->
+        <charts:HistoricalChart x:Name="HistoricalGlChart"
+                                Margin="10">
+            <charts:HistoricalChart.AxisXOption>
+                <axis:AxisXOption ViewRange="0,1000"
+                                  ZoomBoundary="-1000,1500" />
+            </charts:HistoricalChart.AxisXOption>
+            <charts:HistoricalChart.AxisYOption>
+                <axis:AxisYOption IsAutoSize="False"
+                                  ViewRange="0, 500"
+                                  ZoomBoundary="-1000, 5000" />
+            </charts:HistoricalChart.AxisYOption>
+            <charts:HistoricalChart.RangeSliderAutoToolTipValueTemplate>
                 <DataTemplate>
                     <TextBlock
                         Text="{Binding}" />
                 </DataTemplate>
-            </charts:HistoricalGlChart.RangeSliderAutoToolTipValueTemplate>
-            <charts:HistoricalGlChart.RangeSliderAutoToolTipRangeValuesTemplate>
+            </charts:HistoricalChart.RangeSliderAutoToolTipValueTemplate>
+            <charts:HistoricalChart.RangeSliderAutoToolTipRangeValuesTemplate>
                 <DataTemplate DataType="{x:Type mah:RangeSliderAutoTooltipValues}">
                     <TextBlock>
                         <Run Text="From: " />
@@ -37,11 +56,11 @@
                         <Run Text="Times" />
                     </TextBlock>
                 </DataTemplate>
-            </charts:HistoricalGlChart.RangeSliderAutoToolTipRangeValuesTemplate>
-        </charts:HistoricalGlChart>
+            </charts:HistoricalChart.RangeSliderAutoToolTipRangeValuesTemplate>
+        </charts:HistoricalChart>
         <Button Click="ButtonBase_OnClick"
                 Height="40"
-                Width="100" 
-                VerticalAlignment="Top"/>
+                Width="100"
+                VerticalAlignment="Top" />
     </Grid>
 </Window>
