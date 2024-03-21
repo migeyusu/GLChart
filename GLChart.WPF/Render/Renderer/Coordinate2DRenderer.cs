@@ -32,7 +32,7 @@ namespace GLChart.WPF.Render.Renderer
         /// <summary>
         /// 当可渲染内容变化时，发出渲染请求
         /// </summary>
-        public event Action NewRenderRequest;
+        public event Action? NewRenderRequest;
 
         public static readonly DependencyProperty AutoYAxisEnableProperty = DependencyProperty.Register(
             nameof(AutoYAxisEnable), typeof(bool), typeof(Coordinate2DRenderer),

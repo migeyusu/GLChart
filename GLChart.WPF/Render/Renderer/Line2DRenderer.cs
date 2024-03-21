@@ -39,10 +39,21 @@ public class Line2DRenderer : IShaderRendererItem, ILine2D
 
     protected Color4 Color4 = Color4.Blue;
 
+    private Color _color;
+
     public Color Color
     {
-        get => Color.FromArgb((byte)Color4.A, (byte)Color4.R, (byte)Color4.G, (byte)Color4.B);
-        set => Color4 = new Color4(value.R, value.G, value.B, value.A);
+        get { return _color; }
+        set
+        {
+            if (Equals(_color, value))
+            {
+                return;
+            }
+
+            _color = value;
+            Color4 = new Color4(value.R, value.G, value.B, value.A);
+        }
     }
 
     public ICollision2DLayer CollisionLayer => CollisionPoint2D;

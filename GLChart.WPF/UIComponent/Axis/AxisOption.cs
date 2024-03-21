@@ -41,7 +41,7 @@ namespace GLChart.WPF.UIComponent.Axis
 
         public static readonly DependencyProperty SeparatorZeroPenProperty = DependencyProperty.Register(
             nameof(SeparatorZeroPen), typeof(Pen), typeof(AxisOption), new PropertyMetadata(
-                new Pen(Brushes.Black, 2)
+                new Pen(Brushes.DimGray, 2)
                 {
                     DashStyle = DashStyles.Solid,
                 }));

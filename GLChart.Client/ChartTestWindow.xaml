@@ -30,12 +30,12 @@
                                 Margin="10">
             <charts:HistoricalChart.AxisXOption>
                 <axis:AxisXOption ViewRange="0,1000"
-                                  ZoomBoundary="-1000,1500" />
+                                  ZoomBoundary="-1000,20000" />
             </charts:HistoricalChart.AxisXOption>
             <charts:HistoricalChart.AxisYOption>
                 <axis:AxisYOption IsAutoSize="False"
                                   ViewRange="0, 500"
-                                  ZoomBoundary="-1000, 5000" />
+                                  ZoomBoundary="-5000, 50000" />
             </charts:HistoricalChart.AxisYOption>
             <charts:HistoricalChart.RangeSliderAutoToolTipValueTemplate>
                 <DataTemplate>

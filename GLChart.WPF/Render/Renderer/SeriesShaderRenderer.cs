@@ -52,7 +52,7 @@ namespace GLChart.WPF.Render.Renderer
             return RenderWorkingList.Any();
         }
 
-        public void Initialize(IGraphicsContext context)
+        public virtual void Initialize(IGraphicsContext context)
         {
             if (IsInitialized)
             {
@@ -113,7 +113,7 @@ namespace GLChart.WPF.Render.Renderer
             return renderEnable;
         }
 
-        public void Render(GlRenderEventArgs args)
+        public virtual void Render(GlRenderEventArgs args)
         {
             if (RenderWorkingList.Count == 0)
             {
@@ -152,7 +152,7 @@ namespace GLChart.WPF.Render.Renderer
             this._directive = directive;
         }
 
-        public void Uninitialize()
+        public virtual void Uninitialize()
         {
             if (!IsInitialized)
             {

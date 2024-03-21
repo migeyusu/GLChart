@@ -38,7 +38,7 @@ namespace GLChart.WPF.Render.Renderer
 
         private int _shaderStorageBufferObject;
 
-        private int _vertexArrayObject;
+
 
         private readonly ModelRingBuffer<IPoint2D, float> _pointsBuffer = new ModelRingBuffer<IPoint2D, float>();
 
@@ -71,8 +71,6 @@ namespace GLChart.WPF.Render.Renderer
                 IntPtr.Zero,
                 BufferUsageHint.StaticDraw);
             GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, _shaderStorageBufferObject);
-            _vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(_vertexArrayObject);
             this.IsInitialized = true;
         }
 
@@ -110,8 +108,8 @@ namespace GLChart.WPF.Render.Renderer
             Debug.Assert(Shader != null, nameof(Shader) + " != null");
             Shader.SetFloat("u_thickness", Thickness);
             Shader.SetColor("linecolor", Color4);
-            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _shaderStorageBufferObject);
-            GL.BindVertexArray(_vertexArrayObject);
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 1, _shaderStorageBufferObject);
+            // GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _shaderStorageBufferObject);
             var drawRegions = _pointsBuffer.EffectRegions;
             var firstDrawRegion = drawRegions[0];
             var count1 = firstDrawRegion.Length / 2;
@@ -198,11 +196,6 @@ namespace GLChart.WPF.Render.Renderer
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
                 GL.DeleteBuffer(_shaderStorageBufferObject);
-            }
-
-            if (_vertexArrayObject != 0)
-            {
-                GL.DeleteVertexArray(_vertexArrayObject);
             }
 
             IsInitialized = false;

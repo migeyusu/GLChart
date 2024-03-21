@@ -353,7 +353,7 @@ public class HistoricalChart : Chart2DCore
         this.CoordinateRenderer!.SeriesRenderers.Add(_ringLine2DSeriesRenderer);
         _rangeSlider = GetTemplateChild(SliderName) as ContentRangeSlider;
     }
-    
+
     #region Line
 
     private readonly RingLine2DSeriesRenderer _ringLine2DSeriesRenderer
@@ -381,7 +381,7 @@ public class HistoricalChart : Chart2DCore
             (int)InitialCollisionGridBoundary.XSpan);
         var lineRenderer = new RingLine2DRenderer(point2DLayer, maxPointCount);
         this.CollisionGrid.AddLayer(lineRenderer.CollisionLayer);
-        _ringLine2DSeriesRenderer.Add(lineRenderer);
+        this._ringLine2DSeriesRenderer.Add(lineRenderer);
         this.Series2Ds.Add(lineRenderer);
         return lineRenderer;
     }
@@ -391,7 +391,7 @@ public class HistoricalChart : Chart2DCore
         if (series is RingLine2DRenderer lineRenderer)
         {
             this.Series2Ds.Remove(lineRenderer);
-            _ringLine2DSeriesRenderer.Remove(lineRenderer);
+            this._ringLine2DSeriesRenderer.Remove(lineRenderer);
             this.CollisionGrid.Remove(lineRenderer.CollisionLayer);
         }
     }
