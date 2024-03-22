@@ -33,7 +33,7 @@
                                   ZoomBoundary="-1000,20000" />
             </charts:HistoricalChart.AxisXOption>
             <charts:HistoricalChart.AxisYOption>
-                <axis:AxisYOption IsAutoSize="False"
+                <axis:AxisYOption IsAutoSize="True"
                                   ViewRange="0, 500"
                                   ZoomBoundary="-5000, 50000" />
             </charts:HistoricalChart.AxisYOption>

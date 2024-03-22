@@ -24,23 +24,6 @@ public class AxisYOption : AxisOption
         }
     }
 
-    /*public AxisYOption()
-    {
-        DependencyPropertyDescriptor.FromProperty(ViewRangeProperty, typeof(AxisOption))
-            .AddValueChanged(this, AxisOptionHandler);
-    }
-
-    ~AxisYOption()
-    {
-        DependencyPropertyDescriptor.FromProperty(ViewRangeProperty, typeof(AxisOption))
-            .RemoveValueChanged(this, AxisOptionHandler);
-    }
-
-    private void AxisOptionHandler(object? sender, EventArgs e)
-    {
-        this.ActualViewRange = ViewRange;
-    }*/
-
     /// <summary>
     /// 是否自适应高度
     /// </summary>

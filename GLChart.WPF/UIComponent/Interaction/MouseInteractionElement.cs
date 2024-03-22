@@ -98,7 +98,10 @@ namespace GLChart.WPF.UIComponent.Interaction
                 var yOffset = winToGlMapping.GetYOffset(-yPixel);
                 var @new = _startMoveView.OffsetNew(xOffset, yOffset);
                 AxisXOption.TryMoveView(@new.XRange);
-                AxisYOption.TryMoveView(@new.YRange);
+                if (!AxisYOption.IsAutoSize)
+                {
+                    AxisYOption.TryMoveView(@new.YRange);
+                }
             }
 
             base.OnMouseMove(e);
@@ -109,26 +112,11 @@ namespace GLChart.WPF.UIComponent.Interaction
 
         private Region2D _startMoveView;
 
-        private bool _isAutoSizeEnableCache;
-
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-            _isAutoSizeEnableCache = AxisYOption.IsAutoSize;
-            AxisYOption.IsAutoSize = false;
             _startMovePoint = e.GetPosition(this);
             _startMoveView = this.ActualRegion;
-        }
-
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonUp(e);
-            if (_startMovePoint.Equals(e.GetPosition(this)))
-            {
-                AxisYOption!.IsAutoSize = _isAutoSizeEnableCache;
-            }
-
-            // AxisYOption.IsAutoSize = CoordinateRenderer!.AutoYAxisEnable;
         }
 
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
@@ -168,12 +156,14 @@ namespace GLChart.WPF.UIComponent.Interaction
                 {
                     position.Y = drawingElementRenderSize.Height;
                 }
-                
+
                 var scale = new WindowsGlCoordinateMapping(this.ActualRegion, new Rect(drawingElementRenderSize));
-                scale.ScaleByRect( new Rect(_startMovePoint, position), out var xRange, out var yRange);
+                scale.ScaleByRect(new Rect(_startMovePoint, position), out var xRange, out var yRange);
                 AxisXOption.TryScaleView(xRange);
-                AxisYOption.TryScaleView(yRange);
-                AxisYOption.IsAutoSize = false;
+                if (!AxisYOption.IsAutoSize)
+                {
+                    AxisYOption.TryScaleView(yRange);
+                }
             }
 
             base.OnMouseRightButtonUp(e);
@@ -192,7 +182,6 @@ namespace GLChart.WPF.UIComponent.Interaction
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            AxisYOption.IsAutoSize = false;
             base.OnMouseWheel(e);
             var axisXOption = AxisXOption;
             var region = this.ActualRegion;
@@ -205,7 +194,7 @@ namespace GLChart.WPF.UIComponent.Interaction
             }
 
             var axisYOption = AxisYOption;
-            if (axisYOption.ZoomEnable)
+            if (axisYOption.ZoomEnable && !axisYOption.IsAutoSize)
             {
                 newYRange = e.Scale(newYRange);
                 axisYOption.TryScaleView(newYRange);

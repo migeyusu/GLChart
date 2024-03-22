@@ -158,12 +158,14 @@ namespace GLChart.WPF.Render.Renderer
         /// <summary>
         /// 基于ndc的Y轴（-1-1）进行划分的块数量
         /// </summary>
-        private const int NdcYAxisSpacialSplitCount = 200;
+        private const double NdcYAxisSpacialSplitCount = 100d;
 
         /// <summary>
         /// ndc ssbo 长度
         /// </summary>
-        private const int YAxisCastSSBOLength = 300;
+        private const int YAxisCastSSBOLength = 600;
+
+        private const int HalfNdcYAxisSpacialSplitCount = YAxisCastSSBOLength / 2;
 
         /// <summary>
         /// 指示是否正在自适应地调整高度
@@ -179,7 +181,7 @@ namespace GLChart.WPF.Render.Renderer
 
         private readonly int[] _emptySsboBuffer = new int[YAxisCastSSBOLength];
 
-        public const float AutoAxisYContentRatio = 0.8f;
+        public const float AutoAxisYContentMarginRatio = 0.18f;
 
         public const float AutoAxisYContentRatioAccuracy = 0.05f;
 
@@ -259,7 +261,10 @@ namespace GLChart.WPF.Render.Renderer
             {
                 renderEnable = true;
                 _lastTargetRegion = _targetRegion2D;
-                RenderingRegion = _targetRegion2D;
+                if (_autoYAxisEnableValue)
+                {
+                    RenderingRegion = RenderingRegion.ChangeXRange(_targetRegion2D.XRange);
+                }
             }
 
             renderEnable = _isHeightAdapting || renderEnable;
@@ -303,12 +308,16 @@ namespace GLChart.WPF.Render.Renderer
         /// <param name="args"></param>
         public virtual void Render(GlRenderEventArgs args)
         {
-            GL.ClearColor(_backgroundColor4);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             var isHeightAdapting = _isHeightAdapting;
-            this.RenderingRegion = RenderInstance(args, ref isHeightAdapting, _autoYAxisEnableValue,
-                _renderingTransform, RenderingRegion,
-                _defaultAxisYRangeValue);
+            do
+            {
+                GL.ClearColor(_backgroundColor4);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                this.RenderingRegion = RenderInstance(args, ref isHeightAdapting, _autoYAxisEnableValue,
+                    _renderingTransform, RenderingRegion,
+                    _defaultAxisYRangeValue);
+            } while (isHeightAdapting);
+
             _isHeightAdapting = isHeightAdapting;
         }
 
@@ -322,7 +331,7 @@ namespace GLChart.WPF.Render.Renderer
 
             #region transform
 
-            if (isHeightUpdating)
+            if (autoYAxis)
             {
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, _yAxisCastSSBO);
                 GL.BufferSubData(BufferTarget.ShaderStorageBuffer, IntPtr.Zero,
@@ -345,18 +354,28 @@ namespace GLChart.WPF.Render.Renderer
                 Marshal.Copy(ptr, _yAxisRaster, 0, _yAxisRaster.Length);
                 GL.UnmapBuffer(BufferTarget.ShaderStorageBuffer);
                 GL.BindBuffer(BufferTarget.ShaderStorageBuffer, 0);
-                int i;
-                for (i = YAxisCastSSBOLength - 1; i > 0; i--)
+                int end;
+                for (end = YAxisCastSSBOLength - 1; end > 0; end--)
                 {
-                    if (_yAxisRaster[i] == 1)
+                    if (_yAxisRaster[end] == 1)
                     {
                         break;
                     }
                 }
 
+                int start;
+                for (start = 0; start < YAxisCastSSBOLength - 1; start++)
+                {
+                    if (_yAxisRaster[start] == 1)
+                    {
+                        break;
+                    }
+                }
+
+
                 Region2D newRegion;
                 var regionYRange = renderingRegion.YRange;
-                if (i == 0) //表示界面内已没有任何元素，不需要适配
+                if (end == 0) //表示界面内已没有任何元素，不需要适配
                 {
                     if (regionYRange.Equals(defaultAxisYRange))
                     {
@@ -370,20 +389,57 @@ namespace GLChart.WPF.Render.Renderer
                 {
                     /* 1. 当最高点依然在SSBO的299位置时，应用变换然后在下次渲染再次检查，直到最高点不在299
                        2. 每次都检查，当差额小于特定百分比时停止变换。*/
-                    var currentHeight = regionYRange.Range;
-                    var ratio = i / (double)NdcYAxisSpacialSplitCount;
-                    var theoreticalHeight = ratio * currentHeight / AutoAxisYContentRatio;
-                    var precisionValue = currentHeight * AutoAxisYContentRatioAccuracy;
-                    var abs = Math.Abs(currentHeight - theoreticalHeight);
+
+                    bool isDiff = false;
+                    var center = regionYRange.Center;
+                    var height = regionYRange.Range;
+                    var precisionValue = height * AutoAxisYContentRatioAccuracy;
+                    var halfHeight = height / 2;
+                    //计算理论顶点
+                    var currentTop = regionYRange.End;
+                    var topRatio = (end - HalfNdcYAxisSpacialSplitCount) / NdcYAxisSpacialSplitCount;
+                    var theoreticalTop = center + topRatio * halfHeight / (1 - AutoAxisYContentMarginRatio);
+                    var abs = Math.Abs(currentTop - theoreticalTop);
                     // Debug.WriteLine($"{abs:F2},{precisionValue:F2},{currentHeight:F2},{theoreticalHeight:F2}");
-                    if (abs < precisionValue)
+                    if (abs > precisionValue)
+                    {
+                        isDiff = true;
+                    }
+                    else
+                    {
+                        theoreticalTop = currentTop;
+                    }
+
+                    //计算理论底点
+                    var currentBottom = regionYRange.Start;
+                    start -= HalfNdcYAxisSpacialSplitCount;
+                    if (start > 0)
+                    {
+                        start = 0;
+                    }
+
+                    var bottomRatio = start / NdcYAxisSpacialSplitCount;
+                    var theoreticalBottom = center + bottomRatio * halfHeight / (1 - AutoAxisYContentMarginRatio);
+                    abs = Math.Abs(theoreticalBottom - currentBottom);
+                    // Debug.WriteLine($"{abs:F2},{precisionValue:F2},{currentHeight:F2},{theoreticalHeight:F2}");
+                    if (abs > precisionValue)
+                    {
+                        isDiff = true;
+                    }
+                    else
+                    {
+                        theoreticalBottom = currentBottom;
+                    }
+
+                    if (isDiff)
+                    {
+                        newRegion = renderingRegion.ChangeYRange(new ScrollRange(theoreticalBottom, theoreticalTop));
+                    }
+                    else
                     {
                         isHeightUpdating = false;
                         return renderingRegion;
                     }
-
-                    newRegion = renderingRegion.ChangeYRange(new ScrollRange(regionYRange.Start,
-                        regionYRange.Start + theoreticalHeight));
                 }
 
                 return newRegion;

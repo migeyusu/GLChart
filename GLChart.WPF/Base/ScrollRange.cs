@@ -15,7 +15,9 @@ namespace GLChart.WPF.Base
 
         [DefaultValue(100)] public double End { get; }
 
-        public double Range { get; }
+        public double Range => End - Start;
+
+        public double Center => (Start + End) / 2;
 
         public ScrollRange(double start, double end)
         {
@@ -26,7 +28,6 @@ namespace GLChart.WPF.Base
 
             Start = start;
             End = end;
-            Range = end - start;
         }
 
         public ScrollRange WithEnd(double end)

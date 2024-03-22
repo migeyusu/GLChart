@@ -71,9 +71,12 @@ void main(void)
 
     if ((gl_Position.x > -1) && (gl_Position.x < 1))
     {
-        int index = int((gl_Position.y + 1) * 100);
-        if (index > 299) {
-            index = 299;
+        int index = int((gl_Position.y + 3) * 100);
+        if (index > 599) {
+            index = 599;
+        }
+        if (index < 0) {
+            index = 0;
         }
         Array[index] = 1;
     }
