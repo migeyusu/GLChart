@@ -58,9 +58,5 @@
                 </DataTemplate>
             </charts:HistoricalChart.RangeSliderAutoToolTipRangeValuesTemplate>
         </charts:HistoricalChart>
-        <Button Click="ButtonBase_OnClick"
-                Height="40"
-                Width="100"
-                VerticalAlignment="Top" />
     </Grid>
 </Window>

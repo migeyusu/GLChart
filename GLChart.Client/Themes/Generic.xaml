@@ -274,7 +274,6 @@
                                                           x:Name="Coordinate">
                                     <opentkControl:BitmapOpenTkControl x:Name="OpenTkControl"
                                                                        IsAutoAttach="True"
-                                                                       IsShowFps="True"
                                                                        LifeCycle="BoundToWindow">
                                         <opentkControl:BitmapOpenTkControl.RenderSetting>
                                             <configuration:RenderSetting RenderTactic="LatencyPriority" />

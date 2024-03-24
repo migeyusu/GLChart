@@ -309,6 +309,8 @@ namespace GLChart.WPF.Render.Renderer
         public virtual void Render(GlRenderEventArgs args)
         {
             var isHeightAdapting = _isHeightAdapting;
+            //最大两次缩放 todo:改为compute shader
+            int i = 0;
             do
             {
                 GL.ClearColor(_backgroundColor4);
@@ -316,7 +318,8 @@ namespace GLChart.WPF.Render.Renderer
                 this.RenderingRegion = RenderInstance(args, ref isHeightAdapting, _autoYAxisEnableValue,
                     _renderingTransform, RenderingRegion,
                     _defaultAxisYRangeValue);
-            } while (isHeightAdapting);
+                i++;
+            } while (isHeightAdapting&& i <2);
 
             _isHeightAdapting = isHeightAdapting;
         }
