@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 using GLChart.WPF.Base;
 using GLChart.WPF.Render;
+using GLChart.WPF.Render.Renderer;
 using OpenTK.Mathematics;
 
 namespace GLChart.Samples
@@ -20,13 +21,13 @@ namespace GLChart.Samples
         {
             InitializeComponent();
             var random = new Random();
-            foreach (var index in Enumerable.Range(0, 10))
+            foreach (var index in Enumerable.Range(0, 3))
             {
-                var line = HistoricalGlChart.NewLine(20000);
+                var line = LineChart.NewSeries<RingLine2DRenderer>();
                 line.Title = $"Series {index}";
                 line.Color = RandomColor();
                 // _line = LineChart.NewSeries<RingLine2DRenderer>();
-                var array = Enumerable.Range(_index, 20000)
+                var array = Enumerable.Range(_index, 200)
                     .Select((i => new Point2D(i, 200 + i + random.Next(-100, 100))))
                     .Cast<IPoint2D>()
                     .ToList();

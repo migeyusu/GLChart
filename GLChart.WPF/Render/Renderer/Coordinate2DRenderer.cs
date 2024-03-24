@@ -265,6 +265,10 @@ namespace GLChart.WPF.Render.Renderer
                 {
                     RenderingRegion = RenderingRegion.ChangeXRange(_targetRegion2D.XRange);
                 }
+                else
+                {
+                    RenderingRegion = _lastTargetRegion;
+                }
             }
 
             renderEnable = _isHeightAdapting || renderEnable;

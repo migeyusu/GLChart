@@ -13,20 +13,19 @@
         Loaded="ChartTestWindow_OnLoaded"
         Title="ChartTestWindow" Height="450" Width="800">
     <Grid>
-        <!--<control:Series2DChart BackgroundColor="Bisque"
-                               IsShowFps="True"
+        <control:Series2DChart BackgroundColor="White"
                                x:Name="LineChart">
             <control:Series2DChart.AxisXOption>
-                <axis:AxisXOption ViewRange="0,1000"
+                <axis:AxisXOption ViewRange="0,300"
                                   ZoomBoundary="-1000,1000" />
             </control:Series2DChart.AxisXOption>
             <control:Series2DChart.AxisYOption>
-                <axis:AxisYOption IsAutoSize="True"
-                                  ViewRange="0, 500"
+                <axis:AxisYOption IsAutoSize="False"
+                                  ViewRange="-500, 500"
                                   ZoomBoundary="-1000, 5000" />
             </control:Series2DChart.AxisYOption>
-        </control:Series2DChart>-->
-        <charts:HistoricalChart x:Name="HistoricalGlChart"
+        </control:Series2DChart>
+        <!--<charts:HistoricalChart x:Name="HistoricalGlChart"
                                 Margin="10">
             <charts:HistoricalChart.AxisXOption>
                 <axis:AxisXOption ViewRange="0,1000"
@@ -57,6 +56,6 @@
                     </TextBlock>
                 </DataTemplate>
             </charts:HistoricalChart.RangeSliderAutoToolTipRangeValuesTemplate>
-        </charts:HistoricalChart>
+        </charts:HistoricalChart>-->
     </Grid>
 </Window>
