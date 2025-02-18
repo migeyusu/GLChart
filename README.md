@@ -100,8 +100,6 @@ OpenTK WPF Chart is well-suited for a wide range of applications, including:
 
 Instructions coming soon...
 
-*(Insert an image of the project being used in a sample WPF application)*
-
 ---
 
 ## Current Status
